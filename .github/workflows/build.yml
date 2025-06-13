@@ -47,6 +47,8 @@ jobs:
             libpango1.0-dev \
             libatk1.0-dev \
             libcairo-gobject2 \
+            libwebkit2gtk-4.1-dev \
+            libjavascriptcoregtk-4.1-dev \
             libasound2-dev \
             libpulse-dev \
             libjack-dev
@@ -71,7 +73,7 @@ jobs:
         run: pnpm build
 
       - name: Build CLI tools
-        run: cargo build --release --target ${{ matrix.target }} --bin 等一下 --bin 寸止
+        run: cargo build --release --target ${{ matrix.target }} --bin 等一下 --bin 寸止 --no-default-features
 
       - name: Create CLI package
         shell: bash
