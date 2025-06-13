@@ -1,6 +1,6 @@
 [package]
 name = "cunzhi"
-version = "0.1.0"
+version = "[0;34mℹ️"
 edition = "2021"
 default-run = "等一下"
 
