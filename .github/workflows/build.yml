@@ -2,10 +2,7 @@ name: Build Cross-Platform CLI Tools
 
 on:
   push:
-    branches: [ main ]
     tags: [ 'v*' ]
-  pull_request:
-    branches: [ main ]
   workflow_dispatch:
 
 env:
@@ -35,16 +32,26 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v4
 
-    - name: Setup Node.js
-      uses: actions/setup-node@v4
-      with:
-        node-version: '20'
-        cache: 'pnpm'
+    - name: Get version from tag
+      id: version
+      run: |
+        if [[ $GITHUB_REF == refs/tags/* ]]; then
+          VERSION=${GITHUB_REF#refs/tags/}
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+        else
+          echo "version=dev" >> $GITHUB_OUTPUT
+        fi
 
     - name: Install pnpm
       uses: pnpm/action-setup@v4
       with:
         version: latest
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+        cache: 'pnpm'
 
     - name: Install frontend dependencies
       run: pnpm install
@@ -86,21 +93,21 @@ jobs:
       if: matrix.platform.os != 'windows-latest'
       run: |
         cd package
-        tar -czf ../cunzhi-${{ matrix.platform.name }}.tar.gz *
+        tar -czf ../cunzhi-${{ steps.version.outputs.version }}-${{ matrix.platform.name }}.tar.gz *
 
     - name: Create archive (Windows)
       if: matrix.platform.os == 'windows-latest'
       run: |
         cd package
-        7z a ../cunzhi-${{ matrix.platform.name }}.zip *
+        7z a ../cunzhi-${{ steps.version.outputs.version }}-${{ matrix.platform.name }}.zip *
 
     - name: Upload artifacts
       uses: actions/upload-artifact@v4
       with:
-        name: cunzhi-${{ matrix.platform.name }}
+        name: cunzhi-${{ steps.version.outputs.version }}-${{ matrix.platform.name }}
         path: |
-          cunzhi-${{ matrix.platform.name }}.tar.gz
-          cunzhi-${{ matrix.platform.name }}.zip
+          cunzhi-${{ steps.version.outputs.version }}-${{ matrix.platform.name }}.tar.gz
+          cunzhi-${{ steps.version.outputs.version }}-${{ matrix.platform.name }}.zip
         if-no-files-found: ignore
 
   release:
@@ -124,5 +131,6 @@ jobs:
         draft: false
         prerelease: false
         generate_release_notes: true
+        name: Release ${{ github.ref_name }}
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
