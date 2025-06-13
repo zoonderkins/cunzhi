@@ -155,6 +155,14 @@ get_new_version() {
     echo $new_version
 }
 
+# 处理Cargo.lock文件
+handle_cargo_lock() {
+    if [ -f "Cargo.lock" ]; then
+        echo "重新生成Cargo.lock文件..."
+        cargo check --quiet 2>/dev/null || true
+    fi
+}
+
 # 更新版本号文件
 update_version_files() {
     local new_version=$1
@@ -230,10 +238,20 @@ perform_release() {
     # 更新版本号
     update_version_files $new_version
 
+    # 处理Cargo.lock文件
+    handle_cargo_lock
+
     # 提交更改到当前分支
     echo "提交版本更新到 $current_branch 分支..."
     git add .
     git commit -m "chore: bump version to $new_version"
+
+    # 检查并提交任何剩余的更改（如Cargo.lock）
+    if ! git diff-index --quiet HEAD --; then
+        echo "提交剩余的更改（如Cargo.lock）..."
+        git add .
+        git commit -m "chore: update Cargo.lock after version bump"
+    fi
 
     # 推送当前分支
     echo "推送 $current_branch 分支到远程..."
@@ -242,10 +260,21 @@ perform_release() {
     # 切换到main分支并合并
     echo "切换到main分支..."
     git checkout main
-    git pull origin main
+    echo "拉取main分支最新代码..."
+    git pull origin main --no-rebase
 
     echo "合并 $current_branch 分支到main..."
-    git merge "$current_branch" --no-ff -m "release: merge $current_branch for version $new_version"
+    if ! git merge "$current_branch" --no-ff -m "release: merge $current_branch for version $new_version"; then
+        echo "合并失败，可能存在冲突。请手动解决冲突后继续。" >&2
+        echo "解决冲突后，请运行以下命令完成发布：" >&2
+        echo "  git add ." >&2
+        echo "  git commit" >&2
+        echo "  git tag -a v$new_version -m \"Release version $new_version\"" >&2
+        echo "  git push origin main" >&2
+        echo "  git push origin v$new_version" >&2
+        echo "  git checkout $current_branch" >&2
+        exit 1
+    fi
 
     # 创建tag
     echo "创建tag v$new_version..."
