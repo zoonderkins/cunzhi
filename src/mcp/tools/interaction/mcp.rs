@@ -1,23 +1,24 @@
 use anyhow::Result;
 use rmcp::{Error as McpError, model::*, tool};
-use uuid::Uuid;
 
-use crate::mcp::{ZhiRequest, PopupRequest, create_tauri_popup, parse_mcp_response};
+use crate::mcp::{ZhiRequest, PopupRequest};
+use crate::mcp::handlers::{create_tauri_popup, parse_mcp_response};
+use crate::mcp::utils::{generate_request_id, popup_error};
 
 /// 智能代码审查交互工具
 ///
 /// 支持预定义选项、自由文本输入和图片上传
 #[derive(Clone)]
-pub struct ZhiTool;
+pub struct InteractionTool;
 
 #[tool(tool_box)]
-impl ZhiTool {
+impl InteractionTool {
     #[tool(description = "zhi 智能代码审查交互工具，支持预定义选项、自由文本输入和图片上传")]
     pub async fn zhi(
         #[tool(aggr)] request: ZhiRequest,
     ) -> Result<CallToolResult, McpError> {
         let popup_request = PopupRequest {
-            id: Uuid::new_v4().to_string(),
+            id: generate_request_id(),
             message: request.message,
             predefined_options: if request.predefined_options.is_empty() {
                 None
@@ -34,7 +35,7 @@ impl ZhiTool {
                 Ok(CallToolResult::success(content))
             }
             Err(e) => {
-                Err(McpError::internal_error(format!("弹窗创建失败: {}", e), None))
+                Err(popup_error(e.to_string()).into())
             }
         }
     }

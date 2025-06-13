@@ -8,10 +8,10 @@
     "build": "vite build",
     "preview": "vite preview",
     "lint": "eslint . --fix",
-    "tauri": "tauri",
-    "tauri:dev": "tauri dev",
-    "tauri:build": "tauri build",
-    "tauri:icon": "tauri icon"
+    "tauri": "cargo tauri",
+    "tauri:dev": "cargo tauri dev",
+    "tauri:build": "cargo tauri build",
+    "tauri:icon": "cargo tauri icon"
   },
   "dependencies": {
     "@tauri-apps/api": "^2.5.0",

@@ -1,40 +1,11 @@
 use anyhow::Result;
-use rmcp::{Error as McpError, model::*};
-use std::process::Command;
-use std::fs;
+use rmcp::{Error as McpError, model::Content};
 
-use super::types::{PopupRequest, McpResponseContent};
+use crate::mcp::types::McpResponseContent;
 
-pub fn create_tauri_popup(request: &PopupRequest) -> Result<String> {
-    // 创建临时请求文件 - 跨平台适配
-    let temp_dir = std::env::temp_dir();
-    let temp_file = temp_dir.join(format!("mcp_request_{}.json", request.id));
-    let request_json = serde_json::to_string_pretty(request)?;
-    fs::write(&temp_file, request_json)?;
-
-    // 调用全局安装的等一下命令（弹窗UI）
-    let output = Command::new("等一下")
-        .arg("--mcp-request")
-        .arg(&temp_file.to_string_lossy().to_string())
-        .output()?;
-
-    // 清理临时文件
-    let _ = fs::remove_file(&temp_file);
-
-    if output.status.success() {
-        let response = String::from_utf8_lossy(&output.stdout);
-        let response = response.trim();
-        if response.is_empty() {
-            Ok("用户取消了操作".to_string())
-        } else {
-            Ok(response.to_string())
-        }
-    } else {
-        let error = String::from_utf8_lossy(&output.stderr);
-        anyhow::bail!("UI进程失败: {}", error);
-    }
-}
-
+/// 解析 MCP 响应内容
+/// 
+/// 支持文本和图片内容的解析，并生成适当的 Content 对象
 pub fn parse_mcp_response(response: &str) -> Result<Vec<Content>, McpError> {
     if response.trim() == "CANCELLED" || response.trim() == "用户取消了操作" {
         return Ok(vec![Content::text("用户取消了操作".to_string())]);

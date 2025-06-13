@@ -4,8 +4,8 @@ import { listen } from '@tauri-apps/api/event'
 import { onMounted, ref } from 'vue'
 import McpPopup from './components/McpPopup.vue'
 import ReplySettings from './components/settings/ReplySettings.vue'
-import ThemeSettings from './components/ThemeSettings.vue'
-import WindowSettings from './components/WindowSettings.vue'
+import ThemeSettings from './components/settings/ThemeSettings.vue'
+import WindowSettings from './components/settings/WindowSettings.vue'
 import { REFERENCE_PROMPT } from './constants/prompts'
 import { message } from './utils/message'
 
@@ -271,34 +271,20 @@ onMounted(async () => {
 </script>
 
 <template>
-  <div
-    id="app"
-    class="min-h-screen bg-light-primary"
-  >
+  <div id="app" class="min-h-screen bg-light-primary">
     <!-- MCP弹窗 -->
     <McpPopup
-      v-if="showMcpPopup && mcpRequest"
-      :request="mcpRequest"
-      :current-theme="currentTheme"
-      @response="handleMcpResponse"
-      @cancel="handleMcpCancel"
-      @theme-change="setTheme"
+      v-if="showMcpPopup && mcpRequest" :request="mcpRequest" :current-theme="currentTheme"
+      @response="handleMcpResponse" @cancel="handleMcpCancel" @theme-change="setTheme"
     />
 
     <!-- 主界面 -->
-    <div
-      v-else
-      class="flex items-center justify-center min-h-screen p-6"
-    >
+    <div v-else class="flex items-center justify-center min-h-screen p-6">
       <div class="max-w-6xl w-full">
         <!-- 主标题 -->
         <div class="text-center mb-8">
           <div class="w-20 h-20 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg overflow-hidden">
-            <img
-              src="/icons/icon-128.png"
-              alt="Zhi Logo"
-              class="w-full h-full object-contain"
-            >
+            <img src="/icons/icon-128.png" alt="Zhi Logo" class="w-full h-full object-contain">
           </div>
           <h1 class="text-3xl font-bold card-text mb-2">
             寸止
@@ -312,35 +298,29 @@ onMounted(async () => {
         <div class="flex justify-center mb-8">
           <div class="tab-container">
             <button
-              class="tab-button"
-              :class="[
+              class="tab-button" :class="[
                 activeTab === 'intro'
                   ? 'tab-active'
                   : 'tab-inactive',
-              ]"
-              @click="activeTab = 'intro'"
+              ]" @click="activeTab = 'intro'"
             >
               介绍
             </button>
             <button
-              class="tab-button"
-              :class="[
+              class="tab-button" :class="[
                 activeTab === 'settings'
                   ? 'tab-active'
                   : 'tab-inactive',
-              ]"
-              @click="activeTab = 'settings'"
+              ]" @click="activeTab = 'settings'"
             >
               设置
             </button>
             <button
-              class="tab-button"
-              :class="[
+              class="tab-button" :class="[
                 activeTab === 'prompts'
                   ? 'tab-active'
                   : 'tab-inactive',
-              ]"
-              @click="activeTab = 'prompts'"
+              ]" @click="activeTab = 'prompts'"
             >
               参考提示词
             </button>
@@ -349,10 +329,7 @@ onMounted(async () => {
 
         <!-- Tab内容区域 -->
         <!-- 介绍Tab -->
-        <div
-          v-if="activeTab === 'intro'"
-          class="tab-content"
-        >
+        <div v-if="activeTab === 'intro'" class="tab-content">
           <!-- 功能卡片 -->
           <div class="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
             <!-- MCP服务器功能 -->
@@ -473,15 +450,9 @@ onMounted(async () => {
         </div>
 
         <!-- 设置Tab -->
-        <div
-          v-else-if="activeTab === 'settings'"
-          class="max-w-3xl mx-auto space-y-6 tab-content"
-        >
+        <div v-else-if="activeTab === 'settings'" class="max-w-3xl mx-auto space-y-6 tab-content">
           <!-- 主题设置组件 -->
-          <ThemeSettings
-            :current-theme="currentTheme"
-            @theme-change="setTheme"
-          />
+          <ThemeSettings :current-theme="currentTheme" @theme-change="setTheme" />
 
           <!-- 继续回复设置组件 -->
           <div class="card">
@@ -490,21 +461,15 @@ onMounted(async () => {
 
           <!-- 窗口设置组件 -->
           <WindowSettings
-            :always-on-top="alwaysOnTop"
-            :audio-notification-enabled="audioNotificationEnabled"
-            :audio-url="audioUrl"
-            @toggle-always-on-top="toggleAlwaysOnTop"
-            @toggle-audio-notification="toggleAudioNotification"
-            @update-audio-url="updateAudioUrl"
+            :always-on-top="alwaysOnTop" :audio-notification-enabled="audioNotificationEnabled"
+            :audio-url="audioUrl" @toggle-always-on-top="toggleAlwaysOnTop"
+            @toggle-audio-notification="toggleAudioNotification" @update-audio-url="updateAudioUrl"
             @test-audio="testAudioSound"
           />
         </div>
 
         <!-- 参考提示词Tab -->
-        <div
-          v-else-if="activeTab === 'prompts'"
-          class="max-w-4xl mx-auto tab-content"
-        >
+        <div v-else-if="activeTab === 'prompts'" class="max-w-4xl mx-auto tab-content">
           <div class="card">
             <div class="card-header">
               <div class="card-icon bg-orange-100">
@@ -518,10 +483,7 @@ onMounted(async () => {
                   AI助手交互规范和智能记忆管理指南
                 </p>
               </div>
-              <button
-                class="btn btn-primary ml-4"
-                @click="copyPromptContent"
-              >
+              <button class="btn btn-primary ml-4" @click="copyPromptContent">
                 <span class="text-sm mr-2">📋</span>
                 {{ copyButtonText }}
               </button>

@@ -1,27 +1,24 @@
 use anyhow::Result;
 use rmcp::{Error as McpError, model::*, tool};
 
-use crate::memory::{MemoryManager, MemoryCategory};
-use crate::mcp::JiyiRequest;
+use super::{MemoryManager, MemoryCategory};
+use crate::mcp::{JiyiRequest, utils::{validate_project_path, project_path_error}};
 
 /// 全局记忆管理工具
 ///
 /// 用于存储和管理重要的开发规范、用户偏好和最佳实践
 #[derive(Clone)]
-pub struct JiTool;
+pub struct MemoryTool;
 
 #[tool(tool_box)]
-impl JiTool {
-    #[tool(description = "ji 全局记忆管理工具，用于存储和管理重要的开发规范、用户偏好和最佳实践")]
-    pub async fn ji(
+impl MemoryTool {
+    #[tool(description = "jiyi 全局记忆管理工具，用于存储和管理重要的开发规范、用户偏好和最佳实践")]
+    pub async fn jiyi(
         #[tool(aggr)] request: JiyiRequest,
     ) -> Result<CallToolResult, McpError> {
         // 检查项目路径是否存在
-        if !std::path::Path::new(&request.project_path).exists() {
-            return Err(McpError::invalid_params(
-                format!("项目路径不存在: {}", request.project_path),
-                None
-            ));
+        if let Err(e) = validate_project_path(&request.project_path) {
+            return Err(project_path_error(e.to_string()).into());
         }
 
         let manager = MemoryManager::new(&request.project_path)

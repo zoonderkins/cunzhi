@@ -1,36 +1,9 @@
 use anyhow::Result;
-use chrono::{DateTime, Utc};
-use serde::{Deserialize, Serialize};
+use chrono::Utc;
 use std::fs;
 use std::path::{Path, PathBuf};
 
-/// 记忆条目结构
-#[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct MemoryEntry {
-    pub id: String,
-    pub content: String,
-    pub category: MemoryCategory,
-    pub created_at: DateTime<Utc>,
-    pub updated_at: DateTime<Utc>,
-}
-
-/// 记忆分类
-#[derive(Debug, Clone, Copy, Serialize, Deserialize, PartialEq)]
-pub enum MemoryCategory {
-    Rule,        // 开发规范和规则
-    Preference,  // 用户偏好设置
-    Pattern,     // 常用模式和最佳实践
-    Context,     // 项目上下文信息
-}
-
-/// 记忆元数据
-#[derive(Debug, Serialize, Deserialize)]
-pub struct MemoryMetadata {
-    pub project_path: String,
-    pub last_organized: DateTime<Utc>,
-    pub total_entries: usize,
-    pub version: String,
-}
+use super::types::{MemoryEntry, MemoryCategory, MemoryMetadata};
 
 /// 记忆管理器
 pub struct MemoryManager {
@@ -88,9 +61,6 @@ impl MemoryManager {
 
         // 初始化记忆文件结构
         manager.initialize_memory_structure()?;
-
-        // 首次初始化时只创建基础结构，不自动生成规则
-        // 规则生成由MCP调用方根据实际项目分析后调用
 
         Ok(manager)
     }
@@ -298,8 +268,6 @@ impl MemoryManager {
         Ok(memories)
     }
 
-
-
     /// 获取分类标题
     fn get_category_title(&self, category: &MemoryCategory) -> &str {
         match category {
@@ -329,13 +297,6 @@ impl MemoryManager {
         fs::write(metadata_path, metadata_json)?;
 
         Ok(())
-    }
-
-    /// 检查是否是首次初始化
-    #[allow(dead_code)]
-    fn is_first_time_init(&self) -> Result<bool> {
-        let metadata_path = self.memory_dir.join("metadata.json");
-        Ok(!metadata_path.exists())
     }
 
     /// 获取项目信息供MCP调用方分析 - 压缩简化版本
@@ -381,31 +342,6 @@ impl MemoryManager {
             Ok("📭 暂无有效项目记忆".to_string())
         } else {
             Ok(format!("📚 项目记忆总览: {}", compressed_info.join(" | ")))
-        }
-    }
-
-
-
-
-
-
-
-
-}
-
-#[derive(Debug, Default)]
-#[allow(dead_code)]
-struct ProjectInfo {
-    project_type: String,
-}
-
-impl ProjectInfo {
-    #[allow(dead_code)]
-    fn get_description(&self) -> String {
-        if self.project_type.is_empty() {
-            "通用项目".to_string()
-        } else {
-            self.project_type.clone()
         }
     }
 }

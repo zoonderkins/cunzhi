@@ -7,7 +7,8 @@ use rmcp::{
     tool,
 };
 
-use super::tools::{ZhiTool, JiTool};
+use super::tools::{InteractionTool, MemoryTool};
+use super::types::{ZhiRequest, JiyiRequest};
 
 #[derive(Clone)]
 pub struct ZhiServer {
@@ -49,17 +50,17 @@ impl ZhiServer {
     #[tool(description = "zhi 智能代码审查交互工具，支持预定义选项、自由文本输入和图片上传")]
     async fn zhi(
         &self,
-        #[tool(aggr)] request: super::ZhiRequest,
+        #[tool(aggr)] request: ZhiRequest,
     ) -> Result<CallToolResult, McpError> {
-        ZhiTool::zhi(request).await
+        InteractionTool::zhi(request).await
     }
 
     #[tool(description = "ji 全局记忆管理工具，用于存储和管理重要的开发规范、用户偏好和最佳实践")]
     async fn ji(
         &self,
-        #[tool(aggr)] request: super::JiyiRequest,
+        #[tool(aggr)] request: JiyiRequest,
     ) -> Result<CallToolResult, McpError> {
-        JiTool::ji(request).await
+        MemoryTool::jiyi(request).await
     }
 }
 

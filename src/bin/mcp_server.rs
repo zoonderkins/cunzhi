@@ -1,2 +1,7 @@
-// 直接包含原始的 mcp_server.rs 内容
-include!("../mcp_server.rs");
+// MCP 服务器入口点
+use cunzhi::mcp::run_server;
+
+#[tokio::main]
+async fn main() -> Result<(), Box<dyn std::error::Error>> {
+    run_server().await
+}
