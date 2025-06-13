@@ -143,7 +143,8 @@ get_new_version() {
                 ;;
             5)
                 echo "取消发布" >&2
-                exit 0
+                echo "CANCEL"
+                return 0
                 ;;
             *)
                 echo "无效选择，请重新选择" >&2
@@ -257,7 +258,12 @@ main() {
     
     # 获取新版本
     new_version=$(get_new_version $current_version)
-    
+
+    # 检查是否取消
+    if [[ "$new_version" == "CANCEL" ]]; then
+        exit 0
+    fi
+
     # 确认发布
     confirm_release $new_version
     
