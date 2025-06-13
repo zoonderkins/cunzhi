@@ -92,9 +92,9 @@ increment_version() {
 # 显示版本选择菜单
 show_version_menu() {
     local current_version=$1
-    
+
     echo
-    echo "ℹ️  当前版本: $current_version"
+    echo "当前版本: $current_version"
     echo
     echo "请选择新版本类型:"
     echo "1) Patch (修复): $(increment_version $current_version patch)"
@@ -138,15 +138,15 @@ get_new_version() {
                     new_version=$custom_version
                     break
                 else
-                    echo "❌ 版本号格式无效，请使用 x.y.z 格式"
+                    echo "版本号格式无效，请使用 x.y.z 格式"
                 fi
                 ;;
             5)
-                echo "ℹ️  取消发布"
+                echo "取消发布"
                 exit 0
                 ;;
             *)
-                echo "⚠️  无效选择，请重新选择"
+                echo "无效选择，请重新选择"
                 ;;
         esac
     done
@@ -157,58 +157,60 @@ get_new_version() {
 # 更新版本号文件
 update_version_files() {
     local new_version=$1
+    local current_date=$(date +"%Y-%m-%d")
 
-    echo "ℹ️  更新版本号到 $new_version..."
+    echo "更新版本号到 $new_version..."
 
     # 更新 version.json
     if [ -f "version.json" ]; then
         sed -i.bak "s/\"version\"[[:space:]]*:[[:space:]]*\"[^\"]*\"/\"version\": \"$new_version\"/" version.json
+        sed -i.bak "s/\"build_date\"[[:space:]]*:[[:space:]]*\"[^\"]*\"/\"build_date\": \"$current_date\"/" version.json
         rm -f version.json.bak
-        echo "✅ 已更新 version.json"
+        echo "已更新 version.json"
     fi
 
     # 更新 Cargo.toml
     if [ -f "Cargo.toml" ]; then
         sed -i.bak "s/^version = \"[^\"]*\"/version = \"$new_version\"/" Cargo.toml
         rm -f Cargo.toml.bak
-        echo "✅ 已更新 Cargo.toml"
+        echo "已更新 Cargo.toml"
     fi
 
     # 更新 package.json
     if [ -f "package.json" ]; then
         sed -i.bak "s/\"version\"[[:space:]]*:[[:space:]]*\"[^\"]*\"/\"version\": \"$new_version\"/" package.json
         rm -f package.json.bak
-        echo "✅ 已更新 package.json"
+        echo "已更新 package.json"
     fi
 
     # 更新 tauri.conf.json
     if [ -f "tauri.conf.json" ]; then
         sed -i.bak "s/\"version\"[[:space:]]*:[[:space:]]*\"[^\"]*\"/\"version\": \"$new_version\"/" tauri.conf.json
         rm -f tauri.conf.json.bak
-        echo "✅ 已更新 tauri.conf.json"
+        echo "已更新 tauri.conf.json"
     fi
 }
 
 # 确认发布
 confirm_release() {
     local new_version=$1
-    
+
     echo
-    echo "⚠️  即将发布版本 $new_version"
+    echo "即将发布版本 $new_version"
     echo "这将会："
     echo "  1. 更新所有版本号文件"
     echo "  2. 提交更改"
     echo "  3. 创建并推送 tag v$new_version"
     echo "  4. 触发 GitHub Actions 构建"
     echo
-    
+
     read -p "确认继续? (Y/n) [默认: Y]: " confirm
     # 如果用户直接按回车，默认为 Y
     if [[ -z "$confirm" ]]; then
         confirm="Y"
     fi
     if [[ ! $confirm =~ ^[Yy]$ ]]; then
-        echo "ℹ️  取消发布"
+        echo "取消发布"
         exit 0
     fi
 }
@@ -217,33 +219,33 @@ confirm_release() {
 perform_release() {
     local new_version=$1
 
-    echo "ℹ️  开始发布流程..."
+    echo "开始发布流程..."
 
     # 更新版本号
     update_version_files $new_version
 
     # 提交更改
-    echo "ℹ️  提交版本更新..."
+    echo "提交版本更新..."
     git add .
     git commit -m "chore: bump version to $new_version"
 
     # 创建tag
-    echo "ℹ️  创建tag v$new_version..."
+    echo "创建tag v$new_version..."
     git tag -a "v$new_version" -m "Release version $new_version"
 
     # 推送到远程
-    echo "ℹ️  推送到远程仓库..."
+    echo "推送到远程仓库..."
     git push origin main
     git push origin "v$new_version"
 
-    echo "✅ 发布完成！"
-    echo "ℹ️  GitHub Actions 将自动构建并发布到 Releases"
-    echo "ℹ️  查看构建状态: https://github.com/$(git config --get remote.origin.url | sed 's/.*github.com[:/]\([^/]*\/[^/]*\).*/\1/' | sed 's/\.git$//')/actions"
+    echo "发布完成！"
+    echo "GitHub Actions 将自动构建并发布到 Releases"
+    echo "查看构建状态: https://github.com/$(git config --get remote.origin.url | sed 's/.*github.com[:/]\([^/]*\/[^/]*\).*/\1/' | sed 's/\.git$//')/actions"
 }
 
 # 主函数
 main() {
-    echo "🚀 寸止 MCP 工具发布脚本"
+    echo "寸止 MCP 工具发布脚本"
     echo "=========================="
     
     # 检查环境

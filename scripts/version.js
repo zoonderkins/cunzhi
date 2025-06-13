@@ -15,6 +15,7 @@ const VERSION_FILES = [
     file: 'version.json',
     pattern: /"version"\s*:\s*"[^"]*"/,
     replacement: version => `"version": "${version}"`,
+    updateDate: true,
   },
   {
     file: 'package.json',
@@ -76,25 +77,31 @@ function updateFileVersion(fileConfig, newVersion) {
   const filePath = path.join(process.cwd(), fileConfig.file)
 
   if (!fs.existsSync(filePath)) {
-    console.log(`⚠️  文件不存在，跳过: ${fileConfig.file}`)
+    console.log(`文件不存在，跳过: ${fileConfig.file}`)
     return false
   }
 
   try {
     let content = fs.readFileSync(filePath, 'utf8')
-    const newContent = content.replace(fileConfig.pattern, fileConfig.replacement(newVersion))
+    let newContent = content.replace(fileConfig.pattern, fileConfig.replacement(newVersion))
+
+    // 如果需要更新日期
+    if (fileConfig.updateDate) {
+      const currentDate = new Date().toISOString().split('T')[0] // YYYY-MM-DD格式
+      newContent = newContent.replace(/"build_date"\s*:\s*"[^"]*"/, `"build_date": "${currentDate}"`)
+    }
 
     if (content === newContent) {
-      console.log(`⚠️  未找到版本号模式，跳过: ${fileConfig.file}`)
+      console.log(`未找到版本号模式，跳过: ${fileConfig.file}`)
       return false
     }
 
     fs.writeFileSync(filePath, newContent, 'utf8')
-    console.log(`✅ 已更新: ${fileConfig.file}`)
+    console.log(`已更新: ${fileConfig.file}`)
     return true
   }
   catch (error) {
-    console.error(`❌ 更新失败 ${fileConfig.file}:`, error.message)
+    console.error(`更新失败 ${fileConfig.file}:`, error.message)
     return false
   }
 }
@@ -103,7 +110,7 @@ function updateFileVersion(fileConfig, newVersion) {
  * 更新所有文件的版本号
  */
 function updateAllVersions(newVersion) {
-  console.log(`🔄 更新版本号到: ${newVersion}`)
+  console.log(`更新版本号到: ${newVersion}`)
   console.log('='.repeat(40))
 
   let successCount = 0
@@ -115,7 +122,7 @@ function updateAllVersions(newVersion) {
   }
 
   console.log('='.repeat(40))
-  console.log(`✅ 成功更新 ${successCount}/${VERSION_FILES.length} 个文件`)
+  console.log(`成功更新 ${successCount}/${VERSION_FILES.length} 个文件`)
 
   return successCount > 0
 }
@@ -127,7 +134,7 @@ function main() {
   const args = process.argv.slice(2)
 
   if (args.length === 0) {
-    console.log('📋 版本管理工具')
+    console.log('版本管理工具')
     console.log('')
     console.log('用法:')
     console.log('  node scripts/version.js <新版本号>')
@@ -148,7 +155,7 @@ function main() {
   const newVersion = args[0]
 
   if (!validateVersion(newVersion)) {
-    console.error('❌ 版本号格式无效，请使用 x.y.z 格式')
+    console.error('版本号格式无效，请使用 x.y.z 格式')
     process.exit(1)
   }
 
@@ -159,10 +166,10 @@ function main() {
 
   if (updateAllVersions(newVersion)) {
     console.log('')
-    console.log('🎉 版本号更新完成！')
+    console.log('版本号更新完成！')
   }
   else {
-    console.error('❌ 版本号更新失败')
+    console.error('版本号更新失败')
     process.exit(1)
   }
 }
