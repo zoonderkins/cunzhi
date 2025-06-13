@@ -1,7 +1,7 @@
 {
   "name": "cunzhi",
   "type": "module",
-  "version": "当前版本:",
+  "version": "0.0.2",
   "packageManager": "pnpm@10.12.1",
   "scripts": {
     "dev": "vite",
