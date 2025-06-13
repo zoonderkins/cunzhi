@@ -1,4 +1,4 @@
-name: Build and Release
+name: Build CLI Tools
 
 on:
   push:
@@ -6,7 +6,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  publish-tauri:
+  build-cli:
     permissions:
       contents: write
     strategy:
@@ -14,48 +14,93 @@ jobs:
       matrix:
         include:
           - platform: 'macos-latest'
-            args: '--target aarch64-apple-darwin'
+            target: 'aarch64-apple-darwin'
+            name: 'macos-aarch64'
           - platform: 'macos-latest'
-            args: '--target x86_64-apple-darwin'
+            target: 'x86_64-apple-darwin'
+            name: 'macos-x86_64'
           - platform: 'ubuntu-22.04'
-            args: ''
+            target: 'x86_64-unknown-linux-gnu'
+            name: 'linux-x86_64'
           - platform: 'windows-latest'
-            args: ''
+            target: 'x86_64-pc-windows-msvc'
+            name: 'windows-x86_64'
 
     runs-on: ${{ matrix.platform }}
     steps:
       - uses: actions/checkout@v4
 
-      - name: Install pnpm
-        uses: pnpm/action-setup@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: lts/*
-          cache: 'pnpm'
-
       - name: Install Rust stable
         uses: dtolnay/rust-toolchain@stable
         with:
-          targets: ${{ matrix.platform == 'macos-latest' && 'aarch64-apple-darwin,x86_64-apple-darwin' || '' }}
+          targets: ${{ matrix.target }}
 
-      - name: Install dependencies (ubuntu only)
+      - name: Install system dependencies (Linux)
         if: matrix.platform == 'ubuntu-22.04'
         run: |
           sudo apt-get update
-          sudo apt-get install -y libwebkit2gtk-4.0-dev libwebkit2gtk-4.1-dev libappindicator3-dev librsvg2-dev patchelf
+          sudo apt-get install -y \
+            pkg-config \
+            libglib2.0-dev \
+            libasound2-dev \
+            libpulse-dev \
+            libjack-dev
 
-      - name: Install frontend dependencies
-        run: pnpm install
-
-      - uses: tauri-apps/tauri-action@v0
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Cache Rust dependencies
+        uses: Swatinem/rust-cache@v2
         with:
-          tagName: ${{ github.ref_name }}
-          releaseName: 'Release ${{ github.ref_name }}'
-          releaseBody: 'See the assets to download this version and install.'
-          releaseDraft: false
-          prerelease: false
-          args: ${{ matrix.args }}
+          key: ${{ matrix.target }}
+
+      - name: Build CLI tools
+        run: cargo build --release --target ${{ matrix.target }} --bin 等一下 --bin 寸止
+
+      - name: Create CLI package
+        shell: bash
+        run: |
+          mkdir -p cli-package
+
+          if [[ "${{ matrix.platform }}" == "windows-latest" ]]; then
+            cp target/${{ matrix.target }}/release/等一下.exe cli-package/
+            cp target/${{ matrix.target }}/release/寸止.exe cli-package/
+            cd cli-package
+            7z a ../cunzhi-cli-${{ github.ref_name }}-${{ matrix.name }}.zip *
+          else
+            cp target/${{ matrix.target }}/release/等一下 cli-package/
+            cp target/${{ matrix.target }}/release/寸止 cli-package/
+            cd cli-package
+            tar -czf ../cunzhi-cli-${{ github.ref_name }}-${{ matrix.name }}.tar.gz *
+          fi
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: cunzhi-cli-${{ matrix.name }}
+          path: |
+            cunzhi-cli-*.tar.gz
+            cunzhi-cli-*.zip
+          if-no-files-found: ignore
+
+  release:
+    name: Create Release
+    needs: build-cli
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/v')
+
+    steps:
+    - name: Download all artifacts
+      uses: actions/download-artifact@v4
+      with:
+        path: artifacts
+
+    - name: Create Release
+      uses: softprops/action-gh-release@v1
+      with:
+        files: |
+          cunzhi-cli-*.tar.gz
+          cunzhi-cli-*.zip
+        draft: false
+        prerelease: false
+        generate_release_notes: true
+        name: Release ${{ github.ref_name }}
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
