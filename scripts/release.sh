@@ -265,5 +265,7 @@ main() {
     perform_release $new_version
 }
 
-# 运行主函数
-main "$@"
+# 运行主函数（仅在直接执行脚本时运行）
+if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
+    main "$@"
+fi
