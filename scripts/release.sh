@@ -93,16 +93,16 @@ increment_version() {
 show_version_menu() {
     local current_version=$1
 
-    echo
-    echo "当前版本: $current_version"
-    echo
-    echo "请选择新版本类型:"
-    echo "1) Patch (修复): $(increment_version $current_version patch)"
-    echo "2) Minor (功能): $(increment_version $current_version minor)"
-    echo "3) Major (重大): $(increment_version $current_version major)"
-    echo "4) 自定义版本"
-    echo "5) 取消"
-    echo
+    echo >&2
+    echo "当前版本: $current_version" >&2
+    echo >&2
+    echo "请选择新版本类型:" >&2
+    echo "1) Patch (修复): $(increment_version $current_version patch)" >&2
+    echo "2) Minor (功能): $(increment_version $current_version minor)" >&2
+    echo "3) Major (重大): $(increment_version $current_version major)" >&2
+    echo "4) 自定义版本" >&2
+    echo "5) 取消" >&2
+    echo >&2
 }
 
 # 获取用户选择的版本
@@ -138,15 +138,15 @@ get_new_version() {
                     new_version=$custom_version
                     break
                 else
-                    echo "版本号格式无效，请使用 x.y.z 格式"
+                    echo "版本号格式无效，请使用 x.y.z 格式" >&2
                 fi
                 ;;
             5)
-                echo "取消发布"
+                echo "取消发布" >&2
                 exit 0
                 ;;
             *)
-                echo "无效选择，请重新选择"
+                echo "无效选择，请重新选择" >&2
                 ;;
         esac
     done
