@@ -49,6 +49,38 @@ jobs:
       - name: Install frontend dependencies
         run: pnpm install
 
+      - name: Build CLI tools
+        run: |
+          cargo build --release --bin 等一下 --bin 寸止 ${{ matrix.args }}
+
+      - name: Create CLI package
+        shell: bash
+        run: |
+          mkdir -p cli-package
+          if [[ "${{ matrix.platform }}" == "windows-latest" ]]; then
+            cp target/release/等一下.exe cli-package/
+            cp target/release/寸止.exe cli-package/
+            cd cli-package
+            7z a ../cunzhi-cli-${{ github.ref_name }}-windows.zip *
+          elif [[ "${{ matrix.platform }}" == "macos-latest" ]]; then
+            if [[ "${{ matrix.args }}" == *"aarch64"* ]]; then
+              cp target/aarch64-apple-darwin/release/等一下 cli-package/
+              cp target/aarch64-apple-darwin/release/寸止 cli-package/
+              cd cli-package
+              tar -czf ../cunzhi-cli-${{ github.ref_name }}-macos-aarch64.tar.gz *
+            else
+              cp target/x86_64-apple-darwin/release/等一下 cli-package/
+              cp target/x86_64-apple-darwin/release/寸止 cli-package/
+              cd cli-package
+              tar -czf ../cunzhi-cli-${{ github.ref_name }}-macos-x86_64.tar.gz *
+            fi
+          else
+            cp target/release/等一下 cli-package/
+            cp target/release/寸止 cli-package/
+            cd cli-package
+            tar -czf ../cunzhi-cli-${{ github.ref_name }}-linux.tar.gz *
+          fi
+
       - uses: tauri-apps/tauri-action@v0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -61,3 +93,6 @@ jobs:
           args: ${{ matrix.args }}
           includeDebug: false
           includeRelease: true
+          releaseFiles: |
+            cunzhi-cli-*.tar.gz
+            cunzhi-cli-*.zip
