@@ -34,6 +34,7 @@ jobs:
 
     - name: Get version from tag
       id: version
+      shell: bash
       run: |
         if [[ $GITHUB_REF == refs/tags/* ]]; then
           VERSION=${GITHUB_REF#refs/tags/}
@@ -56,6 +57,17 @@ jobs:
 
     - name: Build frontend
       run: pnpm build
+
+    - name: Install system dependencies (Linux)
+      if: matrix.platform.os == 'ubuntu-latest'
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y \
+          pkg-config \
+          libglib2.0-dev \
+          libasound2-dev \
+          libpulse-dev \
+          libjack-dev
 
     - name: Setup Rust
       uses: dtolnay/rust-toolchain@stable
