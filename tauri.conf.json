@@ -56,16 +56,6 @@
   "bundle": {
     "active": true,
     "targets": "all",
-    "icon": [],
-    "externalBin": [
-      {
-        "name": "等一下",
-        "src": "../target/release/等一下"
-      },
-      {
-        "name": "寸止",
-        "src": "../target/release/寸止"
-      }
-    ]
+    "icon": []
   }
 }
