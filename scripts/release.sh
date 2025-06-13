@@ -195,14 +195,18 @@ update_version_files() {
 # 确认发布
 confirm_release() {
     local new_version=$1
+    local current_branch=$(git branch --show-current)
 
     echo
     echo "即将发布版本 $new_version"
     echo "这将会："
     echo "  1. 更新所有版本号文件"
-    echo "  2. 提交更改"
-    echo "  3. 创建并推送 tag v$new_version"
-    echo "  4. 触发 GitHub Actions 构建"
+    echo "  2. 提交更改到 $current_branch 分支"
+    echo "  3. 推送 $current_branch 分支到远程"
+    echo "  4. 切换到main分支并合并 $current_branch"
+    echo "  5. 创建并推送 tag v$new_version"
+    echo "  6. 触发 GitHub Actions 构建"
+    echo "  7. 切换回 $current_branch 分支"
     echo
 
     read -p "确认继续? (Y/n) [默认: Y]: " confirm
@@ -219,25 +223,42 @@ confirm_release() {
 # 执行发布
 perform_release() {
     local new_version=$1
+    local current_branch=$(git branch --show-current)
 
     echo "开始发布流程..."
 
     # 更新版本号
     update_version_files $new_version
 
-    # 提交更改
-    echo "提交版本更新..."
+    # 提交更改到当前分支
+    echo "提交版本更新到 $current_branch 分支..."
     git add .
     git commit -m "chore: bump version to $new_version"
+
+    # 推送当前分支
+    echo "推送 $current_branch 分支到远程..."
+    git push origin "$current_branch"
+
+    # 切换到main分支并合并
+    echo "切换到main分支..."
+    git checkout main
+    git pull origin main
+
+    echo "合并 $current_branch 分支到main..."
+    git merge "$current_branch" --no-ff -m "release: merge $current_branch for version $new_version"
 
     # 创建tag
     echo "创建tag v$new_version..."
     git tag -a "v$new_version" -m "Release version $new_version"
 
-    # 推送到远程
-    echo "推送到远程仓库..."
+    # 推送main分支和tag
+    echo "推送main分支和tag到远程仓库..."
     git push origin main
     git push origin "v$new_version"
+
+    # 切换回原分支
+    echo "切换回 $current_branch 分支..."
+    git checkout "$current_branch"
 
     echo "发布完成！"
     echo "GitHub Actions 将自动构建并发布到 Releases"
