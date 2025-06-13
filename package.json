@@ -1,7 +1,7 @@
 {
   "name": "cunzhi",
   "type": "module",
-  "version": "[0;34mℹ️",
+  "version": "0.1.1",
   "packageManager": "pnpm@10.12.1",
   "scripts": {
     "dev": "vite",
@@ -10,8 +10,7 @@
     "lint": "eslint . --fix",
     "tauri": "cargo tauri",
     "tauri:dev": "cargo tauri dev",
-    "tauri:build": "cargo tauri build",
-    "tauri:icon": "cargo tauri icon"
+    "tauri:build": "cargo tauri build"
   },
   "dependencies": {
     "@tauri-apps/api": "^2.5.0",

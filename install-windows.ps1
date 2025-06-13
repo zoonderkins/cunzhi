@@ -82,14 +82,7 @@ Copy-Item $BinaryPath $McpExe -Force
 
 Write-Host "✅ 二进制文件已安装到: $BinDir" -ForegroundColor Green
 
-# 复制图标（如果存在）
-$IconSource = "icons\icon-128.png"
-if (Test-Path $IconSource) {
-    $IconDir = "$InstallDir\icons"
-    New-Item -ItemType Directory -Path $IconDir -Force | Out-Null
-    Copy-Item $IconSource "$IconDir\cunzhi.png" -Force
-    Write-Host "✅ 图标已复制" -ForegroundColor Green
-}
+# 图标已移除，不再需要复制
 
 # 检查PATH环境变量
 $CurrentPath = [Environment]::GetEnvironmentVariable("PATH", "User")
@@ -119,9 +112,7 @@ try {
     $Shortcut.TargetPath = $MainExe
     $Shortcut.WorkingDirectory = $InstallDir
     $Shortcut.Description = "寸止 - 告别AI提前终止烦恼，助力AI更加持久"
-    if (Test-Path "$InstallDir\icons\cunzhi.png") {
-        $Shortcut.IconLocation = "$InstallDir\icons\cunzhi.png"
-    }
+    # 图标已移除，使用默认图标
     $Shortcut.Save()
     Write-Host "✅ 开始菜单快捷方式已创建" -ForegroundColor Green
 }

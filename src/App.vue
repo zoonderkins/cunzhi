@@ -283,9 +283,6 @@ onMounted(async () => {
       <div class="max-w-6xl w-full">
         <!-- 主标题 -->
         <div class="text-center mb-8">
-          <div class="w-20 h-20 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg overflow-hidden">
-            <img src="/icons/icon-128.png" alt="Zhi Logo" class="w-full h-full object-contain">
-          </div>
           <h1 class="text-3xl font-bold card-text mb-2">
             寸止
           </h1>

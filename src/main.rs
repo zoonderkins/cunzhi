@@ -85,5 +85,5 @@ fn print_help() {
 
 /// 显示版本信息
 fn print_version() {
-    println!("寸止 v0.1.0");
+    println!("寸止 v{}", env!("CARGO_PKG_VERSION"));
 }

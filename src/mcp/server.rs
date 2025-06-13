@@ -29,7 +29,7 @@ impl ServerHandler for ZhiServer {
             capabilities: ServerCapabilities::builder().enable_tools().build(),
             server_info: Implementation {
                 name: "Zhi-mcp".to_string(),
-                version: "0.1.0".to_string(),
+                version: env!("CARGO_PKG_VERSION").to_string(),
             },
             instructions: Some("Zhi 智能代码审查工具，支持交互式对话和记忆管理".to_string()),
         }

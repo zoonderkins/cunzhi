@@ -33,6 +33,9 @@ const VERSION_FILES = [
   },
 ]
 
+// 注意：Rust 源文件中的版本号使用 env!("CARGO_PKG_VERSION") 宏
+// 会自动从 Cargo.toml 读取，无需单独更新
+
 /**
  * 读取当前版本号
  */

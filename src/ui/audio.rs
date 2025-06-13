@@ -226,7 +226,7 @@ pub async fn ensure_audio_file_exists(app: &AppHandle) -> Result<()> {
     let resource_dir = app.path().resource_dir()
         .map_err(|e| anyhow::anyhow!("无法获取Tauri资源目录: {}", e))?;
 
-    let source_audio_path = resource_dir.join("sounds/notification.mp3");
+    let source_audio_path = resource_dir.join("src/assets/sounds/notification.mp3");
 
     if source_audio_path.exists() {
         fs::copy(&source_audio_path, &target_audio_path)
