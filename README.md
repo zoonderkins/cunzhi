@@ -41,9 +41,10 @@ chmod +x install.sh
 
 从 [Releases](https://github.com/imhuso/cunzhi/releases) 页面下载对应平台的预编译版本：
 
-- **Linux**: `cunzhi-linux-x86_64.tar.gz`
-- **macOS**: `cunzhi-macos-universal.tar.gz`
-- **Windows**: `cunzhi-windows-x86_64.zip`
+- **Linux**: `cunzhi-cli-v*-linux-x86_64.tar.gz`
+- **macOS (Intel)**: `cunzhi-cli-v*-macos-x86_64.tar.gz`
+- **macOS (Apple Silicon)**: `cunzhi-cli-v*-macos-aarch64.tar.gz`
+- **Windows**: `cunzhi-cli-v*-windows-x86_64.zip`
 
 **安装步骤**：
 1. 下载对应平台的压缩包并解压
@@ -53,11 +54,11 @@ chmod +x install.sh
 **部署示例**：
 ```bash
 # Linux/macOS - 全局安装
-tar -xzf cunzhi-linux-x86_64.tar.gz
+tar -xzf cunzhi-cli-v*-linux-x86_64.tar.gz
 sudo cp 寸止 等一下 /usr/local/bin/
 
 # Linux/macOS - 用户目录
-tar -xzf cunzhi-linux-x86_64.tar.gz
+tar -xzf cunzhi-cli-v*-linux-x86_64.tar.gz
 mkdir -p ~/.local/bin
 cp 寸止 等一下 ~/.local/bin/
 echo 'export PATH="$PATH:~/.local/bin"' >> ~/.bashrc
@@ -67,7 +68,7 @@ echo 'export PATH="$PATH:~/.local/bin"' >> ~/.bashrc
 # 可选：将 C:\cunzhi 添加到系统 PATH
 ```
 
-## � 部署配置
+## 📋 部署配置
 
 ### MCP 客户端配置
 
@@ -213,6 +214,37 @@ cargo build --release
 # 运行安装脚本
 ./install.sh
 ```
+
+## 🔧 故障排除
+
+### 构建问题
+
+如果遇到构建错误，请检查以下几点：
+
+1. **Linux 系统依赖**：
+   ```bash
+   # Ubuntu/Debian
+   sudo apt-get install pkg-config libgtk-3-dev libasound2-dev
+
+   # CentOS/RHEL
+   sudo yum install pkgconfig gtk3-devel alsa-lib-devel
+   ```
+
+2. **Windows 构建**：
+   - 确保安装了 Visual Studio Build Tools
+   - 使用 PowerShell 或 CMD 运行构建命令
+
+3. **macOS 构建**：
+   - 确保安装了 Xcode Command Line Tools
+   ```bash
+   xcode-select --install
+   ```
+
+### 运行时问题
+
+- **权限问题**：确保 CLI 工具有执行权限
+- **路径问题**：确保两个工具在同一目录或都在 PATH 中
+- **依赖问题**：检查系统是否安装了必要的运行时库
 
 ## 🤝 贡献
 
