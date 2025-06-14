@@ -140,6 +140,12 @@ jobs:
       with:
         path: artifacts
 
+    - name: Get latest commit message
+      id: commit
+      run: |
+        COMMIT_MSG=$(git log -1 --pretty=format:'%s')
+        echo "message=$COMMIT_MSG" >> $GITHUB_OUTPUT
+
     - name: Create Release
       uses: softprops/action-gh-release@v1
       with:
@@ -149,16 +155,31 @@ jobs:
         draft: false
         prerelease: false
         generate_release_notes: true
-        name: Release ${{ github.ref_name }}
+        name: CLI Tools ${{ github.ref_name }}
         body: |
-          CLI工具构建，包含完整前端资源，支持直接运行UI界面
+          ## 🚀 CLI工具发布 ${{ github.ref_name }}
 
-          **修复内容：**
-          - ✅ 使用cargo tauri build确保前端资源正确嵌入
-          - ✅ 修复Windows白屏问题
-          - ✅ 支持跨平台构建
+          **📦 包含内容：**
+          - 寸止 MCP工具：智能代码审查交互工具
+          - 等一下 MCP工具：全局记忆管理工具
+          - 完整前端资源嵌入，支持直接运行UI界面
 
-          **使用方法：**
-          下载对应平台的压缩包，解压后直接运行CLI工具即可打开UI界面。
+          **🔧 本次更新：**
+          ${{ steps.commit.outputs.message }}
+
+          **💻 支持平台：**
+          - Windows (x86_64)
+          - macOS (Intel & Apple Silicon)
+          - Linux (x86_64)
+
+          **📖 使用方法：**
+          1. 下载对应平台的压缩包
+          2. 解压到任意目录
+          3. 直接运行 `寸止` 或 `等一下` 命令
+          4. CLI工具会自动打开UI界面
+
+          **🔗 相关链接：**
+          - [项目文档](https://github.com/imhuso/cunzhi)
+          - [问题反馈](https://github.com/imhuso/cunzhi/issues)
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
