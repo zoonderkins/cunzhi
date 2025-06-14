@@ -14,32 +14,31 @@ jobs:
       matrix:
         include:
           - platform: 'macos-latest'
-            target: 'aarch64-apple-darwin'
+            args: '--target aarch64-apple-darwin'
             name: 'macos-aarch64'
           - platform: 'macos-latest'
-            target: 'x86_64-apple-darwin'
+            args: '--target x86_64-apple-darwin'
             name: 'macos-x86_64'
           - platform: 'ubuntu-22.04'
-            target: 'x86_64-unknown-linux-gnu'
+            args: ''
             name: 'linux-x86_64'
           - platform: 'windows-latest'
-            target: 'x86_64-pc-windows-msvc'
+            args: ''
             name: 'windows-x86_64'
 
     runs-on: ${{ matrix.platform }}
     steps:
       - uses: actions/checkout@v4
 
-      - name: Install Rust stable
-        uses: dtolnay/rust-toolchain@stable
-        with:
-          targets: ${{ matrix.target }}
-
       - name: Install system dependencies (Linux)
         if: matrix.platform == 'ubuntu-22.04'
         run: |
           sudo apt-get update
           sudo apt-get install -y \
+            libwebkit2gtk-4.1-dev \
+            libappindicator3-dev \
+            librsvg2-dev \
+            patchelf \
             pkg-config \
             libglib2.0-dev \
             libgtk-3-dev \
@@ -47,81 +46,41 @@ jobs:
             libpango1.0-dev \
             libatk1.0-dev \
             libcairo-gobject2 \
-            libwebkit2gtk-4.1-dev \
             libjavascriptcoregtk-4.1-dev \
             libasound2-dev \
             libpulse-dev \
             libjack-dev
 
-      - name: Install system dependencies (Windows)
-        if: matrix.platform == 'windows-latest'
-        run: |
-          # Windows 不需要额外的系统依赖，Tauri 会处理
-          echo "Windows 构建环境准备完成"
-
-      - name: Cache Rust dependencies
-        uses: Swatinem/rust-cache@v2
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
         with:
-          key: ${{ matrix.target }}
+          node-version: lts/*
+          cache: 'pnpm'
 
-      - name: Install Node.js dependencies
+      - name: Install Rust stable
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: ${{ matrix.platform == 'macos-latest' && 'aarch64-apple-darwin,x86_64-apple-darwin' || '' }}
+
+      - name: Rust cache
+        uses: swatinem/rust-cache@v2
+        with:
+          workspaces: './src-tauri -> target'
+
+      - name: Install frontend dependencies
         run: |
           npm install -g pnpm
           pnpm install
 
-      - name: Build frontend
-        run: pnpm build
-
-      - name: Build CLI tools
-        run: cargo build --release --target ${{ matrix.target }} --bin 等一下 --bin 寸止
-
-      - name: Create CLI package
-        shell: bash
-        run: |
-          mkdir -p cli-package
-
-          if [[ "${{ matrix.platform }}" == "windows-latest" ]]; then
-            cp target/${{ matrix.target }}/release/等一下.exe cli-package/
-            cp target/${{ matrix.target }}/release/寸止.exe cli-package/
-            cd cli-package
-            7z a ../cunzhi-cli-${{ github.ref_name }}-${{ matrix.name }}.zip *
-          else
-            cp target/${{ matrix.target }}/release/等一下 cli-package/
-            cp target/${{ matrix.target }}/release/寸止 cli-package/
-            cd cli-package
-            tar -czf ../cunzhi-cli-${{ github.ref_name }}-${{ matrix.name }}.tar.gz *
-          fi
-
-      - name: Upload artifacts
-        uses: actions/upload-artifact@v4
+      - name: Build with Tauri Action
+        uses: tauri-apps/tauri-action@v0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          name: cunzhi-cli-${{ matrix.name }}
-          path: |
-            cunzhi-cli-*.tar.gz
-            cunzhi-cli-*.zip
-          if-no-files-found: ignore
-
-  release:
-    name: Create Release
-    needs: build-cli
-    runs-on: ubuntu-latest
-    if: startsWith(github.ref, 'refs/tags/v')
-
-    steps:
-    - name: Download all artifacts
-      uses: actions/download-artifact@v4
-      with:
-        path: artifacts
-
-    - name: Create Release
-      uses: softprops/action-gh-release@v1
-      with:
-        files: |
-          artifacts/*/cunzhi-cli-*.tar.gz
-          artifacts/*/cunzhi-cli-*.zip
-        draft: false
-        prerelease: false
-        generate_release_notes: true
-        name: Release ${{ github.ref_name }}
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          tagName: ${{ github.ref_name }}
+          releaseName: 'CLI Tools ${{ github.ref_name }}'
+          releaseBody: 'CLI工具构建，包含完整前端资源，支持直接运行UI界面'
+          releaseDraft: false
+          prerelease: false
+          args: ${{ matrix.args }}
+          includeUpdaterJson: false
