@@ -73,7 +73,7 @@ jobs:
         run: pnpm build
 
       - name: Build CLI tools
-        run: cargo build --release --target ${{ matrix.target }} --bin 等一下 --bin 寸止 --no-default-features
+        run: cargo build --release --target ${{ matrix.target }} --bin 等一下 --bin 寸止
 
       - name: Create CLI package
         shell: bash
