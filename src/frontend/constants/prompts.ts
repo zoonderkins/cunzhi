@@ -12,15 +12,7 @@ export const REFERENCE_PROMPT = `- 只能通过MCP \`寸止\` 对我进行询问
 - 在没有明确通过使用 \`寸止\` 询问并得到可以完成任务/结束时，禁止主动结束对话/请求
 
 智能记忆管理：
-- 对话开始时查询 \`记忆管理\` 的 回忆 参数 \`project_path\` 为 git 的根目录
-- 当发现用户输入"请记住："时，要对用户的消息进行总结后调用 \`记忆管理\` 的 记忆 功能添加记忆
-- 使用 记忆 添加新记忆（content + category: rule/preference/pattern/context）
+- 对话开始时查询 \`回忆\` 参数 \`project_path\` 为 git 的根目录
+- 当发现用户输入"请记住："时，要对用户的消息进行总结后调用 \`记忆\` 的 add 功能添加记忆
+- 使用 \`记忆\` 的 add 功能添加新记忆（content + category: rule/preference/pattern/context）
 - 仅在重要变更时更新记忆，保持简洁`
-
-// 其他提示词常量可以在这里添加
-export const INTERACTION_RULES = {
-  STOP_INQUIRY: '寸止',
-  MEMORY_MANAGEMENT: '记忆管理',
-  MEMORY_RECALL: '回忆',
-  MEMORY_ADD: '记忆',
-}

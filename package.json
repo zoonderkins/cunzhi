@@ -22,13 +22,17 @@
   },
   "devDependencies": {
     "@antfu/eslint-config": "^4.14.1",
-    "@tailwindcss/vite": "^4.1.10",
+    "@iconify-json/tabler": "^1.2.19",
+    "@unocss/preset-attributify": "^66.2.0",
+    "@unocss/preset-icons": "^66.2.0",
+    "@unocss/preset-web-fonts": "^66.2.0",
+    "@unocss/preset-wind": "^66.2.0",
     "@vitejs/plugin-vue": "^5.2.4",
-    "autoprefixer": "^10.4.21",
     "eslint": "^9.28.0",
     "eslint-plugin-format": "^1.0.1",
-    "postcss": "^8.5.5",
-    "tailwindcss": "^4.1.10",
+    "naive-ui": "^2.41.1",
+    "unocss": "^66.2.0",
+    "vfonts": "^0.0.3",
     "vite": "^6.3.5"
   }
 }
