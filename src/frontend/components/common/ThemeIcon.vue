@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
-import moonIcon from '../../assets/svg/moon-rising-twotone-alt-loop.svg?raw'
-import sunIcon from '../../assets/svg/moon-to-sunny-outline-loop-transition.svg?raw'
+import moonIcon from '../../../assets/svg/moon-rising-twotone-alt-loop.svg?raw'
+import sunIcon from '../../../assets/svg/moon-to-sunny-outline-loop-transition.svg?raw'
 
 interface Props {
   theme: string
