@@ -1,131 +1,224 @@
 <script setup>
-defineProps({
+import { ref, watch } from 'vue'
+
+const props = defineProps({
   alwaysOnTop: {
     type: Boolean,
     required: true,
   },
-  audioNotificationEnabled: {
-    type: Boolean,
-    required: true,
+  windowWidth: {
+    type: Number,
+    default: 600,
   },
-  audioUrl: {
-    type: String,
-    default: '',
+  windowHeight: {
+    type: Number,
+    default: 900,
   },
 })
 
-defineEmits(['toggleAlwaysOnTop', 'toggleAudioNotification', 'updateAudioUrl', 'testAudio'])
+const emit = defineEmits(['toggleAlwaysOnTop', 'updateWindowSize'])
+
+// 窗口尺寸设置
+const localWidth = ref(props.windowWidth)
+const localHeight = ref(props.windowHeight)
+const fixedWindowSize = ref(false)
+
+// 最小尺寸限制
+const minWidth = 500
+const minHeight = 500
+
+// 步长设置
+const step = 50
+
+// 保存窗口尺寸
+function saveWindowSize() {
+  // 确保不小于最小值
+  if (localWidth.value < minWidth)
+    localWidth.value = minWidth
+  if (localHeight.value < minHeight)
+    localHeight.value = minHeight
+
+  emit('updateWindowSize', {
+    width: localWidth.value,
+    height: localHeight.value,
+    fixed: fixedWindowSize.value,
+  })
+}
+
+// 监听固定窗口大小变化
+watch(fixedWindowSize, () => {
+  saveWindowSize()
+})
 </script>
 
 <template>
-  <div class="card">
-    <div class="card-header">
-      <div class="card-icon bg-green-100">
-        <span class="text-2xl">⚙️</span>
-      </div>
-      <div>
-        <h3 class="card-title">
-          窗口设置
-        </h3>
-        <p class="card-subtitle">
-          配置窗口显示行为
-        </p>
-      </div>
-    </div>
+  <n-card size="small">
+    <!-- 卡片头部 -->
+    <template #header>
+      <n-space align="center">
+        <!-- 图标 -->
+        <div class="w-10 h-10 rounded-lg bg-green-100 dark:bg-green-900 flex items-center justify-center">
+          <div class="i-carbon-settings text-lg text-gray-700 dark:text-gray-200" />
+        </div>
 
-    <div class="space-y-6">
+        <!-- 标题和副标题 -->
+        <div>
+          <div class="text-lg font-medium mb-1 tracking-tight">
+            窗口设置
+          </div>
+          <div class="text-sm opacity-60 font-normal">
+            配置窗口显示行为
+          </div>
+        </div>
+      </n-space>
+    </template>
+
+    <!-- 设置内容 -->
+    <n-space vertical size="large">
       <!-- 置顶显示设置 -->
       <div class="flex items-center justify-between">
         <div class="flex items-center">
-          <span class="w-2 h-2 bg-blue-500 rounded-full mr-3" />
+          <div class="w-1.5 h-1.5 bg-green-500 rounded-full mr-3 flex-shrink-0" />
           <div>
-            <div class="text-sm font-medium card-text">
+            <div class="text-sm font-medium leading-relaxed">
               总在最前
             </div>
-            <div class="text-xs card-text-secondary">
+            <div class="text-xs opacity-60">
               启用后窗口将始终保持在其他应用程序之上
             </div>
           </div>
         </div>
-        <button
-          class="relative inline-flex h-6 w-11 items-center rounded-full focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-white"
-          :class="[
-            alwaysOnTop ? 'bg-blue-600' : 'bg-gray-300',
-          ]"
-          @click="$emit('toggleAlwaysOnTop')"
-        >
-          <span
-            class="inline-block h-4 w-4 transform rounded-full bg-white"
-            :class="[
-              alwaysOnTop ? 'translate-x-6' : 'translate-x-1',
-            ]"
-          />
-        </button>
+        <n-switch
+          :value="alwaysOnTop"
+          size="small"
+          @update:value="$emit('toggleAlwaysOnTop')"
+        />
       </div>
 
-      <!-- 音频通知设置 -->
-      <div class="flex items-center justify-between">
-        <div class="flex items-center">
-          <span class="w-2 h-2 bg-green-500 rounded-full mr-3" />
-          <div>
-            <div class="text-sm font-medium card-text">
-              音频通知
-            </div>
-            <div class="text-xs card-text-secondary">
-              启用后在MCP工具被触发时播放音频提示
-            </div>
-          </div>
-        </div>
-        <button
-          class="relative inline-flex h-6 w-11 items-center rounded-full focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 focus:ring-offset-white"
-          :class="[
-            audioNotificationEnabled ? 'bg-green-600' : 'bg-gray-300',
-          ]"
-          @click="$emit('toggleAudioNotification')"
-        >
-          <span
-            class="inline-block h-4 w-4 transform rounded-full bg-white"
-            :class="[
-              audioNotificationEnabled ? 'translate-x-6' : 'translate-x-1',
-            ]"
-          />
-        </button>
-      </div>
-
-      <!-- 音效URL设置 -->
-      <div v-if="audioNotificationEnabled" class="pt-4 border-t card-border">
+      <!-- 窗口尺寸设置 -->
+      <div class="pt-4 border-t border-gray-200 dark:border-gray-700">
         <div class="flex items-start">
-          <span class="w-2 h-2 bg-primary-500 rounded-full mr-3 mt-2" />
+          <div class="w-1.5 h-1.5 bg-green-500 rounded-full mr-3 mt-2 flex-shrink-0" />
           <div class="flex-1">
-            <div class="text-sm font-medium card-text mb-2">
-              自定义音效
+            <div class="text-sm font-medium mb-3 leading-relaxed">
+              窗口尺寸
             </div>
-            <div class="text-xs card-text-secondary mb-3">
-              留空使用默认音效，支持本地文件路径或网络URL（如：https://example.com/sound.mp3）
-            </div>
-            <div class="flex gap-2">
-              <input
-                type="text"
-                :value="audioUrl"
-                placeholder="音效文件路径或URL（可选）"
-                class="input flex-1"
-                @input="$emit('updateAudioUrl', $event.target.value)"
+
+            <!-- 窗口模式选择 -->
+            <div class="space-y-3">
+              <!-- 自由拉伸模式 -->
+              <div
+                class="p-3 rounded-lg border cursor-pointer transition-all"
+                :class="!fixedWindowSize ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20 shadow-sm' : 'border-gray-300 dark:border-gray-600 hover:border-blue-300 dark:hover:border-blue-500 hover:bg-gray-50 dark:hover:bg-gray-800'"
+                @click="fixedWindowSize = false"
               >
-              <button
-                class="btn btn-primary"
-                title="试听音效"
-                @click="$emit('testAudio')"
+                <div class="flex items-center justify-between">
+                  <div class="flex items-center">
+                    <div
+                      class="w-4 h-4 rounded-full border-2 mr-3 flex items-center justify-center"
+                      :class="!fixedWindowSize ? 'border-blue-500' : 'border-gray-400 dark:border-gray-500'"
+                    >
+                      <div
+                        v-if="!fixedWindowSize"
+                        class="w-2 h-2 bg-blue-500 rounded-full"
+                      />
+                    </div>
+                    <div>
+                      <div class="text-sm font-medium mb-1">
+                        自由拉伸
+                      </div>
+                      <div class="text-xs opacity-60">
+                        窗口可以自由拖拽调整大小
+                      </div>
+                    </div>
+                  </div>
+                  <div class="text-xs opacity-60">
+                    默认 {{ localWidth }} × {{ localHeight }} px
+                  </div>
+                </div>
+              </div>
+
+              <!-- 固定大小模式 -->
+              <div
+                class="p-3 rounded-lg border cursor-pointer transition-all"
+                :class="fixedWindowSize ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20 shadow-sm' : 'border-gray-300 dark:border-gray-600 hover:border-blue-300 dark:hover:border-blue-500 hover:bg-gray-50 dark:hover:bg-gray-800'"
+                @click="fixedWindowSize = true"
               >
-                <span class="text-xs">🔊</span>
-                试听
-              </button>
-            </div>
-            <div class="mt-2 text-xs card-text-secondary">
-              示例：/path/to/sound.mp3 或 https://example.com/notification.wav
+                <div class="flex items-center justify-between">
+                  <div class="flex items-center">
+                    <div
+                      class="w-4 h-4 rounded-full border-2 mr-3 flex items-center justify-center"
+                      :class="fixedWindowSize ? 'border-blue-500' : 'border-gray-400 dark:border-gray-500'"
+                    >
+                      <div
+                        v-if="fixedWindowSize"
+                        class="w-2 h-2 bg-blue-500 rounded-full"
+                      />
+                    </div>
+                    <div>
+                      <div class="text-sm font-medium mb-1">
+                        固定大小
+                      </div>
+                      <div class="text-xs opacity-60">
+                        设置固定的窗口尺寸
+                      </div>
+                    </div>
+                  </div>
+                  <div class="text-xs opacity-60">
+                    {{ localWidth }} × {{ localHeight }} px
+                  </div>
+                </div>
+
+                <!-- 固定模式的尺寸设置 -->
+                <div v-if="fixedWindowSize" class="mt-3 pt-3 border-t border-gray-200 dark:border-gray-600">
+                  <div class="grid grid-cols-2 gap-3">
+                    <!-- 宽度设置 -->
+                    <div>
+                      <div class="text-xs opacity-60 mb-2">
+                        宽度 (最小500px)
+                      </div>
+                      <n-input-number
+                        v-model:value="localWidth"
+                        :min="minWidth"
+                        :max="2000"
+                        :step="step"
+                        size="small"
+                        placeholder="宽度"
+                      />
+                    </div>
+
+                    <!-- 高度设置 -->
+                    <div>
+                      <div class="text-xs opacity-60 mb-2">
+                        高度 (最小500px)
+                      </div>
+                      <n-input-number
+                        v-model:value="localHeight"
+                        :min="minHeight"
+                        :max="1500"
+                        :step="step"
+                        size="small"
+                        placeholder="高度"
+                      />
+                    </div>
+                  </div>
+
+                  <!-- 保存按钮 -->
+                  <div class="mt-3 pt-3 border-t border-gray-200 dark:border-gray-600">
+                    <n-button
+                      type="primary"
+                      size="small"
+                      @click="saveWindowSize"
+                    >
+                      保存窗口设置
+                    </n-button>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
       </div>
-    </div>
-  </div>
+    </n-space>
+  </n-card>
 </template>

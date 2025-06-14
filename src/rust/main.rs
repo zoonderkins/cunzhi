@@ -1,15 +1,21 @@
 use cunzhi::config::{AppState, load_config_and_apply_window_settings};
 use anyhow::Result;
 use tauri::Manager;
+use std::sync::Arc;
+use std::sync::atomic::AtomicBool;
 
 // 重新导出所有命令函数
 pub use cunzhi::ui::*;
+pub use cunzhi::config::mcp_commands::*;
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()
         .plugin(tauri_plugin_shell::init())
         .manage(AppState::default())
+        .manage(AudioController {
+            should_stop: Arc::new(AtomicBool::new(false)),
+        })
         .invoke_handler(tauri::generate_handler![
             get_app_info,
             get_always_on_top,
@@ -21,6 +27,9 @@ pub fn run() {
             set_audio_url,
             play_notification_sound,
             test_audio_sound,
+            stop_audio_sound,
+            get_available_audio_assets,
+            refresh_audio_assets,
             get_theme,
             set_theme,
             get_window_config,
@@ -28,6 +37,12 @@ pub fn run() {
             get_reply_config,
             set_reply_config,
             apply_window_constraints,
+            update_window_size,
+            get_mcp_tools_config,
+            set_mcp_tool_enabled,
+            get_mcp_tools_status,
+            reset_mcp_tools_config,
+            restart_application,
             send_mcp_response,
             get_cli_args,
             read_mcp_request,
@@ -41,6 +56,11 @@ pub fn run() {
                 let state = app.state::<AppState>();
                 if let Err(e) = load_config_and_apply_window_settings(&state, &app_handle).await {
                     eprintln!("加载配置失败: {}", e);
+                }
+
+                // 初始化音频资源管理器
+                if let Err(e) = initialize_audio_asset_manager(&app_handle) {
+                    eprintln!("初始化音频资源管理器失败: {}", e);
                 }
             });
 

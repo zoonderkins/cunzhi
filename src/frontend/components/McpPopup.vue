@@ -3,8 +3,8 @@ import { invoke } from '@tauri-apps/api/core'
 import { useMagicKeys } from '@vueuse/core'
 import hljs from 'highlight.js'
 import MarkdownIt from 'markdown-it'
+import { useMessage } from 'naive-ui'
 import { computed, nextTick, onMounted, ref, watch } from 'vue'
-import { message } from '../utils/message'
 import ThemeIcon from './common/ThemeIcon.vue'
 import 'highlight.js/styles/github-dark.css'
 
@@ -36,6 +36,10 @@ const textareaRef = ref<HTMLTextAreaElement | null>(null)
 const loading = ref(false)
 const draggedImages = ref<string[]>([])
 const currentTheme = ref(props.currentTheme || 'dark') // 当前主题，从props同步
+const continueReplyEnabled = ref(true) // 继续回复是否启用
+
+// Naive UI 消息实例
+const message = useMessage()
 
 // 跨平台快捷键支持
 const keys = useMagicKeys()
@@ -180,6 +184,18 @@ async function handleSubmit() {
   }
 }
 
+// 加载继续回复配置
+async function loadContinueReplyConfig() {
+  try {
+    const replyConfig = await invoke('get_reply_config') as any
+    continueReplyEnabled.value = replyConfig.enable_continue_reply || false
+  }
+  catch (error) {
+    console.error('加载继续回复配置失败:', error)
+    continueReplyEnabled.value = false
+  }
+}
+
 // 处理继续
 async function handleContinue() {
   if (submitting.value)
@@ -188,7 +204,7 @@ async function handleContinue() {
   submitting.value = true
   try {
     // 获取继续回复配置
-    const replyConfig = await invoke('get_reply_config')
+    const replyConfig = await invoke('get_reply_config') as any
     const continuePrompt = replyConfig.continue_prompt || '请按照最佳实践继续'
 
     const continueResponse = [{
@@ -344,6 +360,9 @@ function setupCodeCopy() {
 
 // 生命周期 - 优化版本，确保丝滑体验
 onMounted(() => {
+  // 加载继续回复配置
+  loadContinueReplyConfig()
+
   // 使用 requestIdleCallback 在浏览器空闲时设置代码复制功能
   // 如果不支持则回退到 requestAnimationFrame
   if (window.requestIdleCallback) {
@@ -494,28 +513,30 @@ onMounted(() => {
 
         <!-- 预定义选项 -->
         <div v-if="!loading && request.predefined_options && request.predefined_options.length > 0">
-          <h4 class="text-sm font-medium mb-1 card-text">
+          <h4 class="text-sm font-medium mb-3">
             请选择选项
           </h4>
 
-          <div class="w-full">
-            <div class="space-y-1">
-              <label
-                v-for="(option, index) in request.predefined_options"
-                :key="`option-${index}`"
-                class="checkbox flex items-center rounded-md transition-all duration-200 group card hover:bg-primary-50 cursor-pointer smooth-option"
-              >
-                <input
-                  v-model="selectedOptions"
-                  type="checkbox"
-                  :value="option"
-                  class="absolute w-px h-px p-0 -m-px overflow-hidden clip-rect-0 whitespace-nowrap border-0"
-                >
-                <div class="checkbox-box" />
-                <span class="text-sm card-text group-hover:text-primary-700">{{ option }}</span>
-              </label>
-            </div>
-          </div>
+          <n-space vertical size="small">
+            <n-checkbox
+              v-for="(option, index) in request.predefined_options"
+              :key="`option-${index}`"
+              :value="option"
+              :checked="selectedOptions.includes(option)"
+              size="small"
+              @update:checked="(checked) => {
+                if (checked) {
+                  selectedOptions.push(option)
+                }
+                else {
+                  const idx = selectedOptions.indexOf(option)
+                  if (idx > -1) selectedOptions.splice(idx, 1)
+                }
+              }"
+            >
+              {{ option }}
+            </n-checkbox>
+          </n-space>
         </div>
 
         <!-- 图片预览区域 -->
@@ -548,39 +569,30 @@ onMounted(() => {
 
         <!-- 通用回复输入 -->
         <div v-if="!loading">
-          <h4 class="text-sm font-medium mb-2 card-text">
+          <h4 class="text-sm font-medium mb-2">
             {{ request.predefined_options ? '补充说明 (可选)' : '请输入您的回复' }}
           </h4>
 
-          <div class="relative rounded-md border-2 border-dashed p-4 py-6 mb-2 card-border card-bg-accent">
-            <p class="text-xs text-center card-text-secondary">
+          <div class="relative rounded-md border-2 border-dashed p-4 py-6 mb-2 border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-800">
+            <p class="text-xs text-center opacity-60">
               拖拽图片到此处或在输入框中粘贴图片 (⌘+V)
             </p>
           </div>
 
-          <textarea
-            ref="textareaRef"
-            v-model="userInput"
+          <n-input
+            v-model:value="userInput"
+            type="textarea"
+            size="small"
             :placeholder="request.predefined_options ? '您可以在这里添加补充说明...' : '请输入您的回复...'"
-            class="textarea smooth-textarea auto-resize-textarea"
             :disabled="submitting"
-            role="textbox"
-            aria-label="用户输入框"
-            aria-multiline="true"
-            spellcheck="true"
-            autocomplete="off"
-            autocorrect="on"
-            autocapitalize="sentences"
-            data-enable-dictation="true"
-            lang="zh-CN"
+            :autosize="{ minRows: 3, maxRows: 8 }"
             @paste="handleImagePaste"
-            @input="autoResizeTextarea"
           />
         </div>
       </div>
 
       <!-- 底部操作栏 -->
-      <div class="border-t px-2.5 py-2 card-border card-bg-accent">
+      <div class="border-t px-2.5 py-2 border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800">
         <div
           v-if="!loading"
           class="flex justify-between items-center"
@@ -589,50 +601,43 @@ onMounted(() => {
             <!-- 连接状态 -->
             <div class="flex items-center gap-2 text-xs">
               <div class="w-2 h-2 rounded-full bg-green-500" />
-              <span class="card-text">{{ connectionStatus }}</span>
-              <span class="card-text-secondary">|</span>
-              <span class="card-text-secondary">
+              <span>{{ connectionStatus }}</span>
+              <span class="opacity-60">|</span>
+              <span class="opacity-60">
                 {{ request.predefined_options ? '选择选项或输入文本' : shortcutText }}
               </span>
             </div>
           </div>
 
-          <div class="flex items-center gap-2">
-            <!-- 继续按钮 - 弱化样式 -->
-            <button
+          <n-space>
+            <!-- 继续按钮 -->
+            <n-button
+              v-if="continueReplyEnabled"
               :disabled="submitting"
-              class="px-3 py-2 text-sm btn-secondary rounded-md transition-colors duration-200 flex items-center gap-1"
-              :class="submitting ? 'opacity-50' : ''"
+              :loading="submitting"
+              size="small"
               @click="handleContinue"
             >
-              <span class="text-xs">▶</span>
-              <span>继续</span>
-            </button>
+              <template #icon>
+                <span class="text-xs">▶</span>
+              </template>
+              继续
+            </n-button>
 
-            <!-- 发送按钮 - 强化样式 -->
-            <button
+            <!-- 发送按钮 -->
+            <n-button
+              type="primary"
               :disabled="!canSubmit || submitting"
-              class="px-4 py-2 text-sm font-medium rounded-md transition-all duration-200 flex items-center gap-2 shadow-md"
-              :class="[
-                canSubmit && !submitting
-                  ? 'bg-primary-500 text-white hover:bg-primary-600 hover:shadow-lg transform hover:scale-105'
-                  : 'bg-gray-300 text-gray-500',
-              ]"
+              :loading="submitting"
+              size="small"
               @click="handleSubmit"
             >
-              <!-- 加载动画 -->
-              <div
-                v-if="submitting"
-                class="w-3 h-3 border-2 border-white border-t-transparent rounded-full animate-spin"
-              />
-              <!-- 发送图标 -->
-              <span
-                v-else
-                class="text-sm"
-              >↗</span>
-              <span>{{ submitting ? '发送中...' : '发送' }}</span>
-            </button>
-          </div>
+              <template #icon>
+                <span v-if="!submitting" class="text-sm">↗</span>
+              </template>
+              {{ submitting ? '发送中...' : '发送' }}
+            </n-button>
+          </n-space>
         </div>
       </div>
     </div>
@@ -640,19 +645,6 @@ onMounted(() => {
 </template>
 
 <style scoped>
-.checkbox {
-  padding: 0.625rem 1.125rem;
-  margin: 0.25rem 0;
-}
-
-.checkbox span {
-  margin-left: 0.875rem;
-}
-
-.space-y-1 > * + * {
-  margin-top: 0.25rem;
-}
-
 .markdown-rendered {
   padding: 0.5rem 0;
 }

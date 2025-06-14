@@ -1,0 +1,18 @@
+{
+  "version": "1.0",
+  "description": "音频资源元数据配置",
+  "sounds": {
+    "ganma.mp3": {
+      "id": "ganma",
+      "name": "iKun"
+    },
+    "a.mp3": {
+      "id": "elegant",
+      "name": "销魂"
+    },
+    "gaowan.mp3": {
+      "id": "gaowan",
+      "name": "睾丸了"
+    }
+  }
+}

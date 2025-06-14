@@ -10,76 +10,86 @@ defineEmits(['themeChange'])
 </script>
 
 <template>
-  <div class="card">
-    <div class="card-header">
-      <div class="card-icon bg-purple-100">
-        <span class="text-2xl">🎨</span>
-      </div>
-      <div>
-        <h3 class="card-title">
-          主题设置
-        </h3>
-        <p class="card-subtitle">
-          选择您喜欢的界面主题
-        </p>
-      </div>
-    </div>
+  <n-card size="small">
+    <!-- 卡片头部 -->
+    <template #header>
+      <n-space align="center">
+        <!-- 图标 -->
+        <div class="w-10 h-10 rounded-lg bg-purple-100 dark:bg-purple-900 flex items-center justify-center">
+          <div class="i-carbon-color-palette text-lg text-gray-700 dark:text-gray-200" />
+        </div>
 
+        <!-- 标题和副标题 -->
+        <div>
+          <div class="text-lg font-medium mb-1 tracking-tight">
+            主题设置
+          </div>
+          <div class="text-sm opacity-60 font-normal">
+            选择您喜欢的界面主题
+          </div>
+        </div>
+      </n-space>
+    </template>
+
+    <!-- 设置内容 -->
     <div class="flex items-center justify-between">
       <div class="flex items-center">
-        <span class="w-2 h-2 bg-primary-500 rounded-full mr-3" />
+        <div class="w-1.5 h-1.5 bg-green-500 rounded-full mr-3 flex-shrink-0"></div>
         <div>
-          <div class="text-sm font-medium card-text">
+          <div class="text-sm font-medium leading-relaxed">
             界面主题
           </div>
-          <div class="text-xs card-text-secondary">
+          <div class="text-xs opacity-60">
             选择浅色、深色或跟随系统
           </div>
         </div>
       </div>
-      <div class="flex items-center space-x-2">
+      <n-space>
         <!-- 浅色主题 -->
-        <button
-          class="flex items-center px-3 py-2 rounded-lg text-xs font-medium transition-all duration-200"
-          :class="[
-            currentTheme === 'light'
-              ? 'btn-primary'
-              : 'btn-secondary',
-          ]"
+        <n-button
+          :type="currentTheme === 'light' ? 'primary' : 'default'"
+          size="small"
           @click="$emit('themeChange', 'light')"
         >
-          <div class="w-3 h-3 bg-white rounded-full border border-gray-300 mr-2" />
+          <template #icon>
+            <div
+              class="w-3 h-3 bg-white rounded-full border"
+              :class="currentTheme === 'light' ? 'border-white' : 'border-gray-400'"
+            />
+          </template>
           浅色
-        </button>
+        </n-button>
 
         <!-- 深色主题 -->
-        <button
-          class="flex items-center px-3 py-2 rounded-lg text-xs font-medium transition-all duration-200"
-          :class="[
-            currentTheme === 'dark'
-              ? 'btn-primary'
-              : 'btn-secondary',
-          ]"
+        <n-button
+          :type="currentTheme === 'dark' ? 'primary' : 'default'"
+          size="small"
           @click="$emit('themeChange', 'dark')"
         >
-          <div class="w-3 h-3 bg-gray-800 rounded-full border border-gray-600 mr-2" />
+          <template #icon>
+            <div
+              class="w-3 h-3 bg-gray-800 rounded-full border"
+              :class="currentTheme === 'dark' ? 'border-gray-800' : 'border-gray-400'"
+            />
+          </template>
           深色
-        </button>
+        </n-button>
 
         <!-- 系统跟随 -->
-        <button
-          class="flex items-center px-3 py-2 rounded-lg text-xs font-medium transition-all duration-200"
-          :class="[
-            currentTheme === 'system'
-              ? 'btn-primary'
-              : 'btn-secondary',
-          ]"
+        <n-button
+          :type="currentTheme === 'system' ? 'primary' : 'default'"
+          size="small"
           @click="$emit('themeChange', 'system')"
         >
-          <div class="w-3 h-3 bg-gradient-to-r from-white to-gray-800 rounded-full border border-gray-500 mr-2" />
+          <template #icon>
+            <div
+              class="w-3 h-3 bg-gradient-to-r from-white to-gray-800 rounded-full border"
+              :class="currentTheme === 'system' ? 'border-gray-600' : 'border-gray-400'"
+            />
+          </template>
           跟随
-        </button>
-      </div>
+        </n-button>
+      </n-space>
     </div>
-  </div>
+  </n-card>
 </template>

@@ -1,11 +1,18 @@
 use anyhow::Result;
-use std::fs;
 use std::io::BufReader;
 use std::path::PathBuf;
+use std::sync::Arc;
+use std::sync::atomic::{AtomicBool, Ordering};
 use tauri::{AppHandle, State, Manager};
 use rodio::{Decoder, OutputStream, Sink};
 
 use crate::config::{AppState, save_config};
+use super::audio_assets::{get_audio_asset_manager, AudioSource};
+
+// 音频播放控制器 - 只存储控制信号，不存储音频流
+pub struct AudioController {
+    pub should_stop: Arc<AtomicBool>,
+}
 
 #[tauri::command]
 pub async fn get_audio_notification_enabled(state: State<'_, AppState>) -> Result<bool, String> {
@@ -87,42 +94,62 @@ pub async fn test_audio_sound(state: State<'_, AppState>, app: tauri::AppHandle)
     }
 }
 
-pub async fn play_audio_file(app: &AppHandle, audio_url: &str) -> Result<()> {
-    if !audio_url.is_empty() {
-        // 使用自定义URL播放音频
-        if audio_url.starts_with("http://") || audio_url.starts_with("https://") {
-            // 网络音频文件
-            return play_audio_from_url(audio_url).await;
-        } else {
-            // 本地文件路径
-            let audio_path = std::path::PathBuf::from(audio_url);
-            if audio_path.exists() {
-                // 使用 tokio::task::spawn_blocking 来等待音频播放完成
-                return tokio::task::spawn_blocking(move || {
-                    play_audio_sync(&audio_path)
-                }).await
-                .map_err(|e| anyhow::anyhow!("音频播放任务失败: {}", e))?;
-            } else {
-                return Err(anyhow::anyhow!("自定义音频文件不存在: {:?}", audio_path));
-            }
-        }
+#[tauri::command]
+pub async fn stop_audio_sound(app: tauri::AppHandle) -> Result<(), String> {
+    // 设置停止信号
+    if let Some(audio_controller) = app.try_state::<AudioController>() {
+        audio_controller.should_stop.store(true, Ordering::Relaxed);
+        println!("✅ 已发送停止音效信号");
     }
-
-    // 使用默认音频文件
-    let audio_path = get_audio_file_path(app)?;
-
-    if !audio_path.exists() {
-        return Err(anyhow::anyhow!("音频文件不存在: {:?}", audio_path));
-    }
-
-    // 使用 tokio::task::spawn_blocking 来等待音频播放完成
-    tokio::task::spawn_blocking(move || {
-        play_audio_sync(&audio_path)
-    }).await
-    .map_err(|e| anyhow::anyhow!("音频播放任务失败: {}", e))?
+    Ok(())
 }
 
-async fn play_audio_from_url(url: &str) -> Result<()> {
+pub async fn play_audio_file(app: &AppHandle, audio_url: &str) -> Result<()> {
+    // 重置停止信号
+    if let Some(audio_controller) = app.try_state::<AudioController>() {
+        audio_controller.should_stop.store(false, Ordering::Relaxed);
+    }
+
+    let audio_source = {
+        let manager = get_audio_asset_manager();
+        let manager = manager.lock().map_err(|e| anyhow::anyhow!("获取管理器锁失败: {}", e))?;
+        manager.parse_audio_url(app, audio_url)?
+    };
+
+    match audio_source {
+        AudioSource::Url(url) => {
+            // 网络音频文件
+            play_audio_from_url(app, &url).await
+        }
+        AudioSource::File(path) => {
+            // 本地文件路径
+            if path.exists() {
+                let app_handle = app.clone();
+                tokio::task::spawn_blocking(move || {
+                    play_audio_sync_with_controller(&path, &app_handle)
+                }).await
+                .map_err(|e| anyhow::anyhow!("音频播放任务失败: {}", e))?
+            } else {
+                Err(anyhow::anyhow!("音频文件不存在: {:?}", path))
+            }
+        }
+        AudioSource::Asset(asset_id) => {
+            // 内置音频资源
+            let audio_path = {
+                let manager = get_audio_asset_manager();
+                let manager = manager.lock().map_err(|e| anyhow::anyhow!("获取管理器锁失败: {}", e))?;
+                manager.ensure_audio_exists(app, &asset_id)?
+            };
+            let app_handle = app.clone();
+            tokio::task::spawn_blocking(move || {
+                play_audio_sync_with_controller(&audio_path, &app_handle)
+            }).await
+            .map_err(|e| anyhow::anyhow!("音频播放任务失败: {}", e))?
+        }
+    }
+}
+
+async fn play_audio_from_url(app: &AppHandle, url: &str) -> Result<()> {
     // 下载音频文件到临时目录
     let response = reqwest::get(url).await
         .map_err(|e| anyhow::anyhow!("下载音频文件失败: {}", e))?;
@@ -136,15 +163,16 @@ async fn play_audio_from_url(url: &str) -> Result<()> {
 
     // 将bytes转换为Vec<u8>以便移动到线程中
     let bytes_vec = bytes.to_vec();
+    let app_handle = app.clone();
 
     // 使用 tokio::task::spawn_blocking 来等待音频播放完成
     tokio::task::spawn_blocking(move || {
-        play_audio_from_bytes(bytes_vec)
+        play_audio_from_bytes_with_controller(bytes_vec, &app_handle)
     }).await
     .map_err(|e| anyhow::anyhow!("音频播放任务失败: {}", e))?
 }
 
-fn play_audio_from_bytes(bytes: Vec<u8>) -> Result<()> {
+fn play_audio_from_bytes_with_controller(bytes: Vec<u8>, app: &AppHandle) -> Result<()> {
     // 创建音频输出流
     let (_stream, stream_handle) = OutputStream::try_default()
         .map_err(|e| anyhow::anyhow!("创建音频输出流失败: {}", e))?;
@@ -160,12 +188,27 @@ fn play_audio_from_bytes(bytes: Vec<u8>) -> Result<()> {
 
     // 播放音频
     sink.append(source);
-    sink.sleep_until_end();
+
+    // 检查停止信号并播放
+    if let Some(audio_controller) = app.try_state::<AudioController>() {
+        while !sink.empty() {
+            if audio_controller.should_stop.load(Ordering::Relaxed) {
+                sink.stop();
+                println!("✅ 音效播放已停止");
+                break;
+            }
+            std::thread::sleep(std::time::Duration::from_millis(10));
+        }
+    } else {
+        sink.sleep_until_end();
+    }
 
     Ok(())
 }
 
-fn play_audio_sync(audio_path: &PathBuf) -> Result<()> {
+
+
+fn play_audio_sync_with_controller(audio_path: &PathBuf, app: &AppHandle) -> Result<()> {
     // 创建音频输出流
     let (_stream, stream_handle) = OutputStream::try_default()
         .map_err(|e| anyhow::anyhow!("创建音频输出流失败: {}", e))?;
@@ -185,56 +228,42 @@ fn play_audio_sync(audio_path: &PathBuf) -> Result<()> {
 
     // 播放音频
     sink.append(source);
-    sink.sleep_until_end();
+
+    // 检查停止信号并播放
+    if let Some(audio_controller) = app.try_state::<AudioController>() {
+        println!("✅ 音效开始播放");
+        while !sink.empty() {
+            if audio_controller.should_stop.load(Ordering::Relaxed) {
+                sink.stop();
+                println!("✅ 音效播放已停止");
+                break;
+            }
+            std::thread::sleep(std::time::Duration::from_millis(10));
+        }
+    } else {
+        // 如果没有控制器，使用原来的方式
+        sink.sleep_until_end();
+    }
 
     Ok(())
 }
 
-fn get_audio_file_path(app: &AppHandle) -> Result<PathBuf> {
-    // 获取应用配置目录中的音频文件路径
-    let config_dir = app.path().app_config_dir()
-        .map_err(|e| anyhow::anyhow!("无法获取应用配置目录: {}", e))?;
 
-    let sounds_dir = config_dir.join("sounds");
-    let audio_path = sounds_dir.join("notification.mp3");
 
-    if audio_path.exists() {
-        Ok(audio_path)
-    } else {
-        Err(anyhow::anyhow!("音频文件不存在，请先在设置中启用音频通知"))
-    }
-}
-
-/// 确保音频文件存在，如果不存在则从Tauri资源目录复制
+/// 确保默认音频文件存在，如果不存在则从资源目录复制
 pub async fn ensure_audio_file_exists(app: &AppHandle) -> Result<()> {
-    let config_dir = app.path().app_config_dir()
-        .map_err(|e| anyhow::anyhow!("无法获取应用配置目录: {}", e))?;
+    let manager = get_audio_asset_manager();
+    let manager = manager.lock().map_err(|e| anyhow::anyhow!("获取管理器锁失败: {}", e))?;
 
-    let sounds_dir = config_dir.join("sounds");
-    let target_audio_path = sounds_dir.join("notification.mp3");
-
-    // 如果音频文件已存在，直接返回
-    if target_audio_path.exists() {
-        return Ok(());
-    }
-
-    // 创建sounds目录
-    fs::create_dir_all(&sounds_dir)
-        .map_err(|e| anyhow::anyhow!("创建sounds目录失败: {}", e))?;
-
-    // 从Tauri资源目录复制音频文件
-    let resource_dir = app.path().resource_dir()
-        .map_err(|e| anyhow::anyhow!("无法获取Tauri资源目录: {}", e))?;
-
-    let source_audio_path = resource_dir.join("src/assets/sounds/notification.mp3");
-
-    if source_audio_path.exists() {
-        fs::copy(&source_audio_path, &target_audio_path)
-            .map_err(|e| anyhow::anyhow!("复制音频文件失败: {}", e))?;
-
-        println!("✅ 音频文件已复制到: {:?}", target_audio_path);
-        Ok(())
+    // 确保第一个可用的音频资源存在
+    let all_assets = manager.get_all_assets();
+    if let Some(first_asset) = all_assets.first() {
+        manager.ensure_audio_exists(app, &first_asset.id)?;
     } else {
-        Err(anyhow::anyhow!("无法找到音频源文件: {:?}", source_audio_path))
+        return Err(anyhow::anyhow!("没有可用的音频资源"));
     }
+
+    Ok(())
 }
+
+

@@ -1,5 +1,6 @@
 use serde::{Deserialize, Serialize};
 use std::sync::Mutex;
+use std::collections::HashMap;
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct AppConfig {
@@ -14,6 +15,8 @@ pub struct AppConfig {
     pub audio_url: String, // 自定义音效URL
     #[serde(default = "default_reply_config")]
     pub reply_config: ReplyConfig, // 新增：继续回复配置
+    #[serde(default = "default_mcp_tools")]
+    pub mcp_tools: HashMap<String, bool>, // MCP工具启用状态
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
@@ -55,6 +58,7 @@ impl Default for AppConfig {
             window_config: default_window_config(),
             audio_url: default_audio_url(), // 默认音效URL
             reply_config: default_reply_config(), // 默认回复配置
+            mcp_tools: default_mcp_tools(), // 默认MCP工具状态
         }
     }
 }
@@ -129,4 +133,11 @@ pub fn default_auto_continue_threshold() -> u32 {
 
 pub fn default_continue_prompt() -> String {
     "请按照最佳实践继续".to_string()
+}
+
+pub fn default_mcp_tools() -> HashMap<String, bool> {
+    let mut tools = HashMap::new();
+    tools.insert("zhi".to_string(), true);    // 寸止工具默认启用
+    tools.insert("memory".to_string(), true); // 记忆管理工具默认启用
+    tools
 }
