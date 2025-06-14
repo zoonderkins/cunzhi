@@ -76,6 +76,7 @@ jobs:
         run: cargo install tauri-cli --version "^2.0" --locked
 
       - name: Build with Tauri (no bundle)
+        shell: bash
         run: |
           if [[ "${{ matrix.platform }}" == "macos-latest" ]]; then
             if [[ "${{ matrix.args }}" == *"aarch64"* ]]; then
