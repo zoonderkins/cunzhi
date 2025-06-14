@@ -73,6 +73,9 @@ jobs:
         run: pnpm build
 
       - name: Build CLI tools
+        env:
+          TAURI_PLATFORM: ${{ matrix.platform == 'windows-latest' && 'windows' || (matrix.platform == 'macos-latest' && 'macos' || 'linux') }}
+          TAURI_FRONTEND_DIST: ./dist
         run: cargo build --release --target ${{ matrix.target }} --bin 等一下 --bin 寸止
 
       - name: Create CLI package
