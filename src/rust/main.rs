@@ -2,7 +2,6 @@ use cunzhi::config::{AppState, load_config_and_apply_window_settings};
 use cunzhi::utils::auto_init_logger;
 use cunzhi::log_important;
 use anyhow::Result;
-use cunzhi::config::{load_config_and_apply_window_settings, AppState};
 use std::sync::atomic::AtomicBool;
 use std::sync::Arc;
 use tauri::Manager;
@@ -10,6 +9,7 @@ use tauri::Manager;
 // 重新导出所有命令函数
 pub use cunzhi::config::mcp_commands::*;
 pub use cunzhi::config::telegram_commands::*;
+pub use cunzhi::telegram::*;
 pub use cunzhi::ui::*;
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
@@ -58,6 +58,7 @@ pub fn run() {
             set_telegram_config,
             test_telegram_connection,
             open_external_url,
+            start_telegram_sync,
             exit_app
         ])
         .setup(|app| {
