@@ -10,7 +10,7 @@ use std::collections::HashMap;
 
 use super::tools::{InteractionTool, MemoryTool};
 use super::types::{ZhiRequest, JiyiRequest};
-use crate::config::{load_standalone_config, AppConfig};
+use crate::config::load_standalone_config;
 
 #[derive(Clone)]
 pub struct ZhiServer {
@@ -81,7 +81,7 @@ impl ZhiServer {
     ) -> Result<CallToolResult, McpError> {
         // 检查记忆管理工具是否启用
         if !self.is_tool_enabled("ji") {
-            return Err(McpError::method_not_found(
+            return Err(McpError::internal_error(
                 "记忆管理工具已被禁用".to_string(),
                 None
             ));

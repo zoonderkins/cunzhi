@@ -5,7 +5,7 @@ use tauri::{AppHandle, State, Manager, LogicalSize};
 
 use super::settings::{AppConfig, AppState};
 
-pub fn get_config_path(app: &AppHandle) -> Result<PathBuf> {
+pub fn get_config_path(_app: &AppHandle) -> Result<PathBuf> {
     // 使用与独立配置相同的路径，确保一致性
     get_standalone_config_path()
 }
@@ -23,21 +23,6 @@ pub async fn save_config(state: &State<'_, AppState>, app: &AppHandle) -> Result
     
     fs::write(config_path, config_json)?;
     
-    Ok(())
-}
-
-pub async fn load_config(state: &State<'_, AppState>, app: &AppHandle) -> Result<()> {
-    let config_path = get_config_path(app)?;
-
-    if config_path.exists() {
-        let config_json = fs::read_to_string(config_path)?;
-        let config: AppConfig = serde_json::from_str(&config_json)?;
-
-        let mut config_guard = state.config.lock()
-            .map_err(|e| anyhow::anyhow!("获取配置锁失败: {}", e))?;
-        *config_guard = config;
-    }
-
     Ok(())
 }
 
