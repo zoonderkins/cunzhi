@@ -6,14 +6,8 @@ use tauri::{AppHandle, State, Manager, LogicalSize};
 use super::settings::{AppConfig, AppState};
 
 pub fn get_config_path(app: &AppHandle) -> Result<PathBuf> {
-    let app_dir = app.path()
-        .app_config_dir()
-        .map_err(|e| anyhow::anyhow!("无法获取应用配置目录: {}", e))?;
-
-    // 确保目录存在
-    fs::create_dir_all(&app_dir)?;
-
-    Ok(app_dir.join("config.json"))
+    // 使用与独立配置相同的路径，确保一致性
+    get_standalone_config_path()
 }
 
 pub async fn save_config(state: &State<'_, AppState>, app: &AppHandle) -> Result<()> {
@@ -32,6 +26,22 @@ pub async fn save_config(state: &State<'_, AppState>, app: &AppHandle) -> Result
     Ok(())
 }
 
+pub async fn load_config(state: &State<'_, AppState>, app: &AppHandle) -> Result<()> {
+    let config_path = get_config_path(app)?;
+
+    if config_path.exists() {
+        let config_json = fs::read_to_string(config_path)?;
+        let config: AppConfig = serde_json::from_str(&config_json)?;
+
+        let mut config_guard = state.config.lock()
+            .map_err(|e| anyhow::anyhow!("获取配置锁失败: {}", e))?;
+        *config_guard = config;
+    }
+
+    Ok(())
+}
+
+/// Tauri应用专用的配置加载函数
 pub async fn load_config(state: &State<'_, AppState>, app: &AppHandle) -> Result<()> {
     let config_path = get_config_path(app)?;
 
@@ -83,4 +93,31 @@ pub async fn load_config_and_apply_window_settings(state: &State<'_, AppState>, 
     }
 
     Ok(())
+}
+
+/// 独立加载配置文件（用于MCP服务器等独立进程）
+pub fn load_standalone_config() -> Result<AppConfig> {
+    let config_path = get_standalone_config_path()?;
+
+    if config_path.exists() {
+        let config_json = fs::read_to_string(config_path)?;
+        let config: AppConfig = serde_json::from_str(&config_json)?;
+        Ok(config)
+    } else {
+        // 如果配置文件不存在，返回默认配置
+        Ok(AppConfig::default())
+    }
+}
+
+/// 获取独立配置文件路径（不依赖Tauri）
+fn get_standalone_config_path() -> Result<PathBuf> {
+    // 使用标准的配置目录
+    let config_dir = dirs::config_dir()
+        .ok_or_else(|| anyhow::anyhow!("无法获取配置目录"))?
+        .join("cunzhi");
+
+    // 确保目录存在
+    fs::create_dir_all(&config_dir)?;
+
+    Ok(config_dir.join("config.json"))
 }

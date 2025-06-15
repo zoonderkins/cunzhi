@@ -208,7 +208,7 @@ pub fn default_continue_prompt() -> String {
 pub fn default_mcp_tools() -> HashMap<String, bool> {
     let mut tools = HashMap::new();
     tools.insert("zhi".to_string(), true);    // 寸止工具默认启用
-    tools.insert("memory".to_string(), true); // 记忆管理工具默认启用
+    tools.insert("ji".to_string(), true);     // 记忆管理工具默认启用
     tools
 }
 
