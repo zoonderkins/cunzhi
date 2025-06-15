@@ -6,18 +6,36 @@ use rmcp::{
     service::RequestContext,
     tool,
 };
+use std::collections::HashMap;
 
 use super::tools::{InteractionTool, MemoryTool};
 use super::types::{ZhiRequest, JiyiRequest};
+use crate::config::load_standalone_config;
 
 #[derive(Clone)]
 pub struct ZhiServer {
-    // 可以添加状态字段
+    enabled_tools: HashMap<String, bool>,
 }
 
 impl ZhiServer {
     pub fn new() -> Self {
-        Self {}
+        // 尝试加载配置，如果失败则使用默认配置
+        let enabled_tools = match load_standalone_config() {
+            Ok(config) => config.mcp_config.tools,
+            Err(_) => {
+                eprintln!("⚠️ 无法加载配置文件，使用默认工具配置");
+                crate::config::default_mcp_tools()
+            }
+        };
+
+        eprintln!("🔧 MCP工具配置: {:?}", enabled_tools);
+
+        Self { enabled_tools }
+    }
+
+    /// 检查工具是否启用
+    fn is_tool_enabled(&self, tool_name: &str) -> bool {
+        self.enabled_tools.get(tool_name).copied().unwrap_or(true)
     }
 }
 
@@ -52,6 +70,7 @@ impl ZhiServer {
         &self,
         #[tool(aggr)] request: ZhiRequest,
     ) -> Result<CallToolResult, McpError> {
+        // 寸止工具始终启用（必需工具）
         InteractionTool::zhi(request).await
     }
 
@@ -60,6 +79,14 @@ impl ZhiServer {
         &self,
         #[tool(aggr)] request: JiyiRequest,
     ) -> Result<CallToolResult, McpError> {
+        // 检查记忆管理工具是否启用
+        if !self.is_tool_enabled("ji") {
+            return Err(McpError::internal_error(
+                "记忆管理工具已被禁用".to_string(),
+                None
+            ));
+        }
+
         MemoryTool::jiyi(request).await
     }
 }

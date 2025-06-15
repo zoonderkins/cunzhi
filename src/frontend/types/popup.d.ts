@@ -15,6 +15,27 @@ export interface PopupState {
   request: McpRequest | null
 }
 
+// 新的结构化响应格式
+export interface McpResponse {
+  user_input: string | null
+  selected_options: string[]
+  images: ImageAttachment[]
+  metadata: ResponseMetadata
+}
+
+export interface ImageAttachment {
+  data: string
+  media_type: string
+  filename: string | null
+}
+
+export interface ResponseMetadata {
+  timestamp: string | null
+  request_id: string | null
+  source: string | null
+}
+
+// 旧格式兼容性支持
 export interface PopupResponse {
   type: 'text' | 'image' | 'option'
   text?: string

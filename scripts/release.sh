@@ -206,15 +206,24 @@ confirm_release() {
     local current_branch=$(git branch --show-current)
 
     echo
-    echo "即将发布版本 $new_version"
-    echo "这将会："
-    echo "  1. 更新所有版本号文件"
-    echo "  2. 提交更改到 $current_branch 分支"
-    echo "  3. 推送 $current_branch 分支到远程"
-    echo "  4. 切换到main分支并合并 $current_branch"
-    echo "  5. 创建并推送 tag v$new_version"
-    echo "  6. 触发 GitHub Actions 构建"
-    echo "  7. 切换回 $current_branch 分支"
+    print_info "即将发布版本 $new_version"
+    echo "发布流程："
+    if [[ "$current_branch" != "main" ]]; then
+        echo "  1. 推送当前分支 $current_branch 到远程"
+        echo "  2. 切换到main分支并拉取最新代码"
+        echo "  3. 合并 $current_branch 分支到main"
+        echo "  4. 在main分支上更新版本号文件"
+        echo "  5. 提交版本更新并创建tag v$new_version"
+        echo "  6. 推送main分支和tag到远程"
+        echo "  7. 切换回 $current_branch 分支并同步版本更新"
+        echo "  8. 触发 GitHub Actions 构建"
+    else
+        echo "  1. 拉取main分支最新代码"
+        echo "  2. 在main分支上更新版本号文件"
+        echo "  3. 提交版本更新并创建tag v$new_version"
+        echo "  4. 推送main分支和tag到远程"
+        echo "  5. 触发 GitHub Actions 构建"
+    fi
     echo
 
     read -p "确认继续? (Y/n) [默认: Y]: " confirm
@@ -223,7 +232,7 @@ confirm_release() {
         confirm="Y"
     fi
     if [[ ! $confirm =~ ^[Yy]$ ]]; then
-        echo "取消发布"
+        print_warning "取消发布"
         exit 0
     fi
 }
@@ -233,65 +242,73 @@ perform_release() {
     local new_version=$1
     local current_branch=$(git branch --show-current)
 
-    echo "开始发布流程..."
+    print_info "开始发布流程..."
+    print_info "当前分支: $current_branch"
 
-    # 更新版本号
+    # 如果当前不在main分支，先推送当前分支的更改
+    if [[ "$current_branch" != "main" ]]; then
+        print_info "推送当前分支 $current_branch 到远程..."
+        git push origin "$current_branch"
+    fi
+
+    # 切换到main分支
+    print_info "切换到main分支..."
+    git checkout main
+
+    # 拉取main分支最新代码
+    print_info "拉取main分支最新代码..."
+    git pull origin main --no-rebase
+
+    # 如果不是从main分支执行的，合并当前分支到main
+    if [[ "$current_branch" != "main" ]]; then
+        print_info "合并 $current_branch 分支到main..."
+        if ! git merge "$current_branch" --no-ff -m "release: merge $current_branch for version $new_version"; then
+            print_error "合并失败，可能存在冲突。请手动解决冲突后重新运行脚本。"
+        fi
+    fi
+
+    # 在main分支上更新版本号
+    print_info "在main分支上更新版本号到 $new_version..."
     update_version_files $new_version
 
     # 处理Cargo.lock文件
     handle_cargo_lock
 
-    # 提交更改到当前分支
-    echo "提交版本更新到 $current_branch 分支..."
+    # 提交版本更新
+    print_info "提交版本更新..."
     git add .
     git commit -m "chore: bump version to $new_version"
 
     # 检查并提交任何剩余的更改（如Cargo.lock）
     if ! git diff-index --quiet HEAD --; then
-        echo "提交剩余的更改（如Cargo.lock）..."
+        print_info "提交剩余的更改（如Cargo.lock）..."
         git add .
         git commit -m "chore: update Cargo.lock after version bump"
     fi
 
-    # 推送当前分支
-    echo "推送 $current_branch 分支到远程..."
-    git push origin "$current_branch"
-
-    # 切换到main分支并合并
-    echo "切换到main分支..."
-    git checkout main
-    echo "拉取main分支最新代码..."
-    git pull origin main --no-rebase
-
-    echo "合并 $current_branch 分支到main..."
-    if ! git merge "$current_branch" --no-ff -m "release: merge $current_branch for version $new_version"; then
-        echo "合并失败，可能存在冲突。请手动解决冲突后继续。" >&2
-        echo "解决冲突后，请运行以下命令完成发布：" >&2
-        echo "  git add ." >&2
-        echo "  git commit" >&2
-        echo "  git tag -a v$new_version -m \"Release version $new_version\"" >&2
-        echo "  git push origin main" >&2
-        echo "  git push origin v$new_version" >&2
-        echo "  git checkout $current_branch" >&2
-        exit 1
-    fi
-
-    # 创建tag
-    echo "创建tag v$new_version..."
+    # 创建tag（不包含颜色代码）
+    print_info "创建tag v$new_version..."
     git tag -a "v$new_version" -m "Release version $new_version"
 
     # 推送main分支和tag
-    echo "推送main分支和tag到远程仓库..."
+    print_info "推送main分支和tag到远程仓库..."
     git push origin main
     git push origin "v$new_version"
 
-    # 切换回原分支
-    echo "切换回 $current_branch 分支..."
-    git checkout "$current_branch"
+    # 切换回原分支（如果不是main）
+    if [[ "$current_branch" != "main" ]]; then
+        print_info "切换回 $current_branch 分支..."
+        git checkout "$current_branch"
 
-    echo "发布完成！"
-    echo "GitHub Actions 将自动构建并发布到 Releases"
-    echo "查看构建状态: https://github.com/$(git config --get remote.origin.url | sed 's/.*github.com[:/]\([^/]*\/[^/]*\).*/\1/' | sed 's/\.git$//')/actions"
+        # 将main分支的版本更新合并回当前分支
+        print_info "将版本更新合并回 $current_branch 分支..."
+        git merge main --no-ff -m "chore: sync version update from main"
+        git push origin "$current_branch"
+    fi
+
+    print_success "发布完成！"
+    print_info "GitHub Actions 将自动构建并发布到 Releases"
+    print_info "查看构建状态: https://github.com/$(git config --get remote.origin.url | sed 's/.*github.com[:/]\([^/]*\/[^/]*\).*/\1/' | sed 's/\.git$//')/actions"
 }
 
 # 主函数

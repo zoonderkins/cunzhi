@@ -154,11 +154,12 @@ onMounted(async () => {
 </script>
 
 <template>
-  <n-config-provider :theme="naiveTheme">
-    <n-message-provider>
-      <n-notification-provider>
-        <n-dialog-provider>
-          <AppContent
+  <div class="min-h-screen bg-black">
+    <n-config-provider :theme="naiveTheme">
+      <n-message-provider>
+        <n-notification-provider>
+          <n-dialog-provider>
+            <AppContent
             :mcp-request="mcpRequest"
             :show-mcp-popup="showMcpPopup"
             :app-config="appConfig"
@@ -175,9 +176,10 @@ onMounted(async () => {
             @update-window-size="settingsActions.updateWindowSize"
             @update-reply-config="settingsActions.updateReplyConfig"
             @message-ready="handleMessageReady"
-          />
-        </n-dialog-provider>
-      </n-notification-provider>
-    </n-message-provider>
-  </n-config-provider>
+            />
+          </n-dialog-provider>
+        </n-notification-provider>
+      </n-message-provider>
+    </n-config-provider>
+  </div>
 </template>

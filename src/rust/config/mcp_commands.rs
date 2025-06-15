@@ -29,7 +29,7 @@ pub async fn get_mcp_tools_config(state: State<'_, AppState>) -> Result<Vec<MCPT
             description: "智能代码审查交互工具，支持预定义选项、自由文本输入和图片上传".to_string(),
             enabled: config.mcp_config.tools.get("zhi").copied().unwrap_or(true),
             can_disable: false, // 寸止工具是必需的
-            icon: "i-carbon-ai-results".to_string(),
+            icon: "i-carbon-chat".to_string(),
             icon_bg: "bg-blue-100 dark:bg-blue-900".to_string(),
             dark_icon_bg: "dark:bg-blue-800".to_string(),
         },

@@ -42,6 +42,30 @@ pub struct PopupRequest {
     pub is_markdown: bool,
 }
 
+/// 新的结构化响应数据格式
+#[derive(Debug, Deserialize)]
+pub struct McpResponse {
+    pub user_input: Option<String>,
+    pub selected_options: Vec<String>,
+    pub images: Vec<ImageAttachment>,
+    pub metadata: ResponseMetadata,
+}
+
+#[derive(Debug, Deserialize)]
+pub struct ImageAttachment {
+    pub data: String,
+    pub media_type: String,
+    pub filename: Option<String>,
+}
+
+#[derive(Debug, Deserialize)]
+pub struct ResponseMetadata {
+    pub timestamp: Option<String>,
+    pub request_id: Option<String>,
+    pub source: Option<String>,
+}
+
+/// 旧格式兼容性支持
 #[derive(Debug, Deserialize)]
 pub struct McpResponseContent {
     #[serde(rename = "type")]

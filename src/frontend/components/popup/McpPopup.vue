@@ -107,44 +107,25 @@ async function handleSubmit() {
   submitting.value = true
 
   try {
-    const response: any[] = []
-
-    // 添加选项响应
-    if (selectedOptions.value.length > 0) {
-      response.push({
-        type: 'text',
-        text: `选择的选项: ${selectedOptions.value.join(', ')}`,
-      })
+    // 使用新的结构化数据格式
+    const response = {
+      user_input: userInput.value.trim() || null,
+      selected_options: selectedOptions.value,
+      images: draggedImages.value.map(imageData => ({
+        data: imageData.split(',')[1], // 移除 data:image/png;base64, 前缀
+        media_type: 'image/png',
+        filename: null,
+      })),
+      metadata: {
+        timestamp: new Date().toISOString(),
+        request_id: props.request?.id || null,
+        source: 'popup',
+      },
     }
 
-    // 添加文本响应
-    if (userInput.value.trim()) {
-      response.push({
-        type: 'text',
-        text: userInput.value.trim(),
-      })
-    }
-
-    // 添加图片响应
-    if (draggedImages.value.length > 0) {
-      for (const imageData of draggedImages.value) {
-        response.push({
-          type: 'image',
-          source: {
-            type: 'base64',
-            media_type: 'image/png',
-            data: imageData.split(',')[1],
-          },
-        })
-      }
-    }
-
-    // 如果没有任何响应内容，添加默认响应
-    if (response.length === 0) {
-      response.push({
-        type: 'text',
-        text: '用户确认继续',
-      })
+    // 如果没有任何有效内容，设置默认用户输入
+    if (!response.user_input && response.selected_options.length === 0 && response.images.length === 0) {
+      response.user_input = '用户确认继续'
     }
 
     if (props.mockMode) {
@@ -195,10 +176,17 @@ async function handleContinue() {
   submitting.value = true
 
   try {
-    const response = [{
-      type: 'text',
-      text: '请按照最佳实践继续',
-    }]
+    // 使用新的结构化数据格式
+    const response = {
+      user_input: '请按照最佳实践继续',
+      selected_options: [],
+      images: [],
+      metadata: {
+        timestamp: new Date().toISOString(),
+        request_id: props.request?.id || null,
+        source: 'popup_continue',
+      },
+    }
 
     if (props.mockMode) {
       // 模拟模式下的延迟
@@ -228,7 +216,7 @@ async function handleContinue() {
     <!-- 内容区域 - 可滚动 -->
     <div class="flex-1 overflow-y-auto">
       <!-- 消息内容 - 允许选中 -->
-      <div class="mx-2 mt-2 mb-1 px-4 py-3 bg-gray-100 rounded-lg select-text">
+      <div class="mx-2 mt-2 mb-1 px-4 py-3 bg-black-100 rounded-lg select-text">
         <PopupContent :request="request" :loading="loading" :current-theme="props.appConfig.theme" />
       </div>
 
@@ -242,7 +230,7 @@ async function handleContinue() {
     </div>
 
     <!-- 底部操作栏 - 固定在底部 -->
-    <div class="flex-shrink-0 bg-gray-100 border-t-2 border-gray-200">
+    <div class="flex-shrink-0 bg-black-100 border-t-2 border-black-200">
       <PopupActions
         :request="request" :loading="loading" :submitting="submitting" :can-submit="canSubmit"
         :continue-reply-enabled="true" :input-status-text="inputStatusText"

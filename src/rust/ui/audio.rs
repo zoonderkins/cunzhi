@@ -99,7 +99,7 @@ pub async fn stop_audio_sound(app: tauri::AppHandle) -> Result<(), String> {
     // 设置停止信号
     if let Some(audio_controller) = app.try_state::<AudioController>() {
         audio_controller.should_stop.store(true, Ordering::Relaxed);
-        println!("✅ 已发送停止音效信号");
+        eprintln!("✅ 已发送停止音效信号");
     }
     Ok(())
 }
@@ -194,7 +194,7 @@ fn play_audio_from_bytes_with_controller(bytes: Vec<u8>, app: &AppHandle) -> Res
         while !sink.empty() {
             if audio_controller.should_stop.load(Ordering::Relaxed) {
                 sink.stop();
-                println!("✅ 音效播放已停止");
+                eprintln!("✅ 音效播放已停止");
                 break;
             }
             std::thread::sleep(std::time::Duration::from_millis(10));
@@ -231,11 +231,11 @@ fn play_audio_sync_with_controller(audio_path: &PathBuf, app: &AppHandle) -> Res
 
     // 检查停止信号并播放
     if let Some(audio_controller) = app.try_state::<AudioController>() {
-        println!("✅ 音效开始播放");
+        eprintln!("✅ 音效开始播放");
         while !sink.empty() {
             if audio_controller.should_stop.load(Ordering::Relaxed) {
                 sink.stop();
-                println!("✅ 音效播放已停止");
+                eprintln!("✅ 音效播放已停止");
                 break;
             }
             std::thread::sleep(std::time::Duration::from_millis(10));
