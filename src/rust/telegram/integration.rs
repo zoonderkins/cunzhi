@@ -1,37 +1,14 @@
 use anyhow::Result;
-use serde::Serialize;
 use std::sync::Arc;
 use tauri::{AppHandle, Emitter};
-use teloxide::{
-    prelude::*,
-    types::{
-        ChatId, InlineKeyboardButton, InlineKeyboardMarkup, KeyboardButton, KeyboardMarkup,
-        ParseMode,
-    },
-    Bot,
-};
+use teloxide::prelude::*;
 use tokio::sync::Mutex;
 
-use super::markdown::process_telegram_markdown;
-
-/// Telegram事件类型
-#[derive(Debug, Clone, Serialize)]
-#[serde(tag = "type")]
-pub enum TelegramEvent {
-    /// 选项状态变化
-    OptionToggled { option: String, selected: bool },
-    /// 文本输入更新
-    TextUpdated { text: String },
-    /// 继续按钮点击
-    ContinuePressed,
-    /// 发送按钮点击
-    SendPressed,
-}
+use super::core::{handle_callback_query, handle_text_message, TelegramCore, TelegramEvent};
 
 /// Telegram集成管理器
 pub struct TelegramIntegration {
-    bot: Bot,
-    chat_id: ChatId,
+    core: TelegramCore,
     app_handle: AppHandle,
     /// 当前选中的选项
     selected_options: Arc<Mutex<Vec<String>>>,
@@ -46,21 +23,10 @@ pub struct TelegramIntegration {
 impl TelegramIntegration {
     /// 创建新的Telegram集成实例
     pub fn new(bot_token: String, chat_id: String, app_handle: AppHandle) -> Result<Self> {
-        let bot = Bot::new(bot_token);
-
-        // 解析chat_id
-        let chat_id = if chat_id.starts_with('@') {
-            return Err(anyhow::anyhow!("暂不支持@username格式，请使用数字Chat ID"));
-        } else {
-            let id = chat_id
-                .parse::<i64>()
-                .map_err(|_| anyhow::anyhow!("无效的Chat ID格式，请使用数字ID"))?;
-            ChatId(id)
-        };
+        let core = TelegramCore::new(bot_token, chat_id)?;
 
         Ok(Self {
-            bot,
-            chat_id,
+            core,
             app_handle,
             selected_options: Arc::new(Mutex::new(Vec::new())),
             user_input: Arc::new(Mutex::new(String::new())),
@@ -84,11 +50,21 @@ impl TelegramIntegration {
         }
 
         // 发送选项消息
-        self.send_options_message(message, &predefined_options, is_markdown)
+        self.core
+            .send_options_message(message, &predefined_options, is_markdown)
             .await?;
 
         // 发送操作消息
-        self.send_operation_message(continue_reply_enabled).await?;
+        let op_msg_id = self
+            .core
+            .send_operation_message(continue_reply_enabled)
+            .await?;
+
+        // 保存操作消息ID
+        {
+            let mut op_id = self.operation_message_id.lock().await;
+            *op_id = Some(op_msg_id);
+        }
 
         // 启动消息监听
         self.start_message_listener().await?;
@@ -213,29 +189,100 @@ impl TelegramIntegration {
                         // 轮询获取更新
                         match bot.get_updates().offset(offset).await {
                             Ok(updates) => {
+                                if !updates.is_empty() {
+                                    println!("🤖 [Telegram] 收到 {} 个更新", updates.len());
+                                }
+
                                 for update in updates {
                                     offset = update.id + 1;
+                                    println!("🤖 [Telegram] 处理更新 ID: {}", update.id);
 
                                     // 处理不同类型的更新
                                     match update.kind {
                                         teloxide::types::UpdateKind::CallbackQuery(callback_query) => {
-                                            let _ = handle_callback_query(
-                                                bot.clone(),
-                                                callback_query,
+                                            println!("🤖 [Telegram] 收到 CallbackQuery: {:?}", callback_query.data);
+
+                                            // 使用核心模块的处理函数
+                                            match handle_callback_query(
+                                                &bot,
+                                                &callback_query,
                                                 chat_id,
-                                                app_handle.clone(),
-                                                selected_options.clone(),
-                                            ).await;
+                                            ).await {
+                                                Ok(Some(option)) => {
+                                                    println!("🤖 [Telegram] 处理选项: {}", option);
+
+                                                    // 切换选项状态
+                                                    let selected = {
+                                                        let mut selected_opts = selected_options.lock().await;
+                                                        if selected_opts.contains(&option) {
+                                                            selected_opts.retain(|x| x != &option);
+                                                            false
+                                                        } else {
+                                                            selected_opts.push(option.clone());
+                                                            true
+                                                        }
+                                                    };
+
+                                                    // 发送更新后的事件到前端
+                                                    let event = TelegramEvent::OptionToggled {
+                                                        option: option.clone(),
+                                                        selected,
+                                                    };
+                                                    println!("🤖 [Telegram] 发送事件到前端: {:?}", event);
+
+                                                    match app_handle.emit("telegram-event", &event) {
+                                                        Ok(_) => println!("🤖 [Telegram] ✅ 事件发送成功"),
+                                                        Err(e) => println!("🤖 [Telegram] ❌ 事件发送失败: {}", e),
+                                                    }
+                                                }
+                                                Ok(None) => {
+                                                    println!("🤖 [Telegram] CallbackQuery 处理返回 None");
+                                                }
+                                                Err(e) => {
+                                                    println!("🤖 [Telegram] CallbackQuery 处理失败: {}", e);
+                                                }
+                                            }
                                         }
-                                        teloxide::types::UpdateKind::Message(message) => {
-                                            let _ = handle_message(
-                                                bot.clone(),
-                                                message,
+                                                                                teloxide::types::UpdateKind::Message(message) => {
+                                            println!("🤖 [Telegram] 收到消息: {:?} 来自聊天: {}", message.text(), message.chat.id);
+
+                                            // 获取操作消息ID
+                                            let op_msg_id = {
+                                                let op_id = operation_message_id.lock().await;
+                                                *op_id
+                                            };
+
+                                            println!("🤖 [Telegram] 操作消息ID: {:?}, 当前消息ID: {}", op_msg_id, message.id.0);
+
+                                            // 使用核心模块的处理函数
+                                            match handle_text_message(
+                                                &message,
                                                 chat_id,
-                                                app_handle.clone(),
-                                                user_input.clone(),
-                                                operation_message_id.clone(),
-                                            ).await;
+                                                op_msg_id,
+                                            ).await {
+                                                Ok(Some(event)) => {
+                                                    println!("🤖 [Telegram] 文本处理成功: {:?}", event);
+
+                                                    // 如果是文本更新，保存到用户输入
+                                                    if let TelegramEvent::TextUpdated { text } = &event {
+                                                        let mut input = user_input.lock().await;
+                                                        *input = text.clone();
+                                                        println!("🤖 [Telegram] 保存用户输入: {}", text);
+                                                    }
+
+                                                    // 发送事件到前端
+                                                    match app_handle.emit("telegram-event", &event) {
+                                                        Ok(_) => println!("🤖 [Telegram] ✅ 文本事件发送成功"),
+                                                        Err(e) => println!("🤖 [Telegram] ❌ 文本事件发送失败: {}", e),
+                                                    }
+                                                }
+                                                Ok(None) => {
+                                                    println!("🤖 [Telegram] 文本消息被过滤或忽略");
+                                                }
+                                                Err(e) => {
+                                                    println!("🤖 [Telegram] 文本消息处理失败: {}", e);
+                                                }
+                                            }
                                         }
                                         _ => {
                                             // 忽略其他类型的更新
@@ -253,6 +300,18 @@ impl TelegramIntegration {
         });
 
         Ok(())
+    }
+
+    /// 获取当前选中的选项
+    pub async fn get_selected_options(&self) -> Vec<String> {
+        let selected = self.selected_options.lock().await;
+        selected.clone()
+    }
+
+    /// 获取用户输入的文本
+    pub async fn get_user_input(&self) -> String {
+        let input = self.user_input.lock().await;
+        input.clone()
     }
 
     /// 停止Telegram集成
