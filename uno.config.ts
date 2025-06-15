@@ -15,10 +15,7 @@ export default defineConfig({
     presetAttributify(),
     presetIcons({
       collections: {
-        tabler: () => import('@iconify-json/tabler/icons.json').then(i => i.default),
         carbon: () => import('@iconify-json/carbon/icons.json').then(i => i.default),
-        mdi: () => import('@iconify-json/mdi/icons.json').then(i => i.default),
-        heroicons: () => import('@iconify-json/heroicons/icons.json').then(i => i.default),
       },
       extraProperties: {
         'display': 'inline-block',
