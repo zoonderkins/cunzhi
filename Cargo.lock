@@ -619,7 +619,7 @@ dependencies = [
 
 [[package]]
 name = "cunzhi"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "anyhow",
  "base64 0.21.7",
@@ -4344,7 +4344,6 @@ dependencies = [
  "bytes",
  "libc",
  "mio",
- "parking_lot",
  "pin-project-lite",
  "signal-hook-registry",
  "socket2",
