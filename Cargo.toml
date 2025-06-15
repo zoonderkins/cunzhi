@@ -1,16 +1,19 @@
 [package]
 name = "cunzhi"
-version = "0.0.26"
+version = "0.1.0"
 edition = "2021"
 default-run = "等一下"
 
+[lib]
+path = "src/rust/lib.rs"
+
 [[bin]]
 name = "等一下"
-path = "src/main.rs"
+path = "src/rust/main.rs"
 
 [[bin]]
 name = "寸止"
-path = "src/bin/mcp_server.rs"
+path = "src/rust/bin/mcp_server.rs"
 
 [dependencies]
 tauri = { version = "2.0", features = [
@@ -34,6 +37,7 @@ rmcp = { git = "https://github.com/modelcontextprotocol/rust-sdk", branch = "mai
 schemars = "0.8"
 rodio = "0.19"
 reqwest = { version = "0.11", features = [ "stream" ] }
+base64 = "0.21"
 
 [build-dependencies]
 tauri-build = { version = "2.0", features = [] }

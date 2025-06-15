@@ -1,7 +1,6 @@
 #!/usr/bin/env node
 
-import fs from 'fs'
-import path from 'path'
+import fs from 'node:fs'
 
 // 读取版本配置
 const versionConfig = JSON.parse(fs.readFileSync('version.json', 'utf8'))
@@ -12,7 +11,7 @@ console.log(`更新版本到 ${version}...`)
 // 更新 package.json
 const packageJson = JSON.parse(fs.readFileSync('package.json', 'utf8'))
 packageJson.version = version
-fs.writeFileSync('package.json', JSON.stringify(packageJson, null, 2) + '\n')
+fs.writeFileSync('package.json', `${JSON.stringify(packageJson, null, 2)}\n`)
 console.log('✅ 更新 package.json')
 
 // 更新 Cargo.toml
@@ -27,7 +26,7 @@ tauriConf.version = version
 tauriConf.productName = name
 tauriConf.bundle.shortDescription = `${name} - ${description.split('，')[0]}`
 tauriConf.bundle.longDescription = description
-fs.writeFileSync('tauri.conf.json', JSON.stringify(tauriConf, null, 2) + '\n')
+fs.writeFileSync('tauri.conf.json', `${JSON.stringify(tauriConf, null, 2)}\n`)
 console.log('✅ 更新 tauri.conf.json')
 
 // 更新 index.html

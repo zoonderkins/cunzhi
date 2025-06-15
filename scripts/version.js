@@ -82,7 +82,7 @@ function updateFileVersion(fileConfig, newVersion) {
   }
 
   try {
-    let content = fs.readFileSync(filePath, 'utf8')
+    const content = fs.readFileSync(filePath, 'utf8')
     let newContent = content.replace(fileConfig.pattern, fileConfig.replacement(newVersion))
 
     // 如果需要更新日期
