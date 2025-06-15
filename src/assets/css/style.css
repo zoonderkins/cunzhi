@@ -39,12 +39,17 @@
   --font-family-mono: 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New', monospace;
 }
 
+html {
+  background-color: var(--body-color, #ffffff);
+}
+
 body {
   margin: 0;
   padding: 0;
   font-family: var(--font-family-sans);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  background-color: var(--body-color);
-  color: var(--text-color);
+  background-color: var(--body-color, #ffffff);
+  color: var(--text-color, #000000);
+  min-height: 100vh;
 }

@@ -123,6 +123,10 @@ export function applyThemeVariables(themeName: string) {
   root.style.setProperty('--color-surface-950', colors.surface950)
   root.style.setProperty('--color-on-surface', colors.onSurface)
 
+  // 设置body和text颜色变量（兼容旧CSS）
+  root.style.setProperty('--body-color', colors.surface)
+  root.style.setProperty('--text-color', colors.onSurface)
+
   // 设置主题类
   root.classList.remove('light', 'dark')
   root.classList.add(effectiveTheme)

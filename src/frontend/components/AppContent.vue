@@ -70,7 +70,7 @@ onMounted(() => {
     <!-- MCP弹窗模式 -->
     <div v-if="props.showMcpPopup && props.mcpRequest" class="flex flex-col w-full h-screen bg-black text-white select-none">
       <!-- 头部 - 固定在顶部 -->
-      <div class="sticky top-0 z-50 flex-shrink-0 bg-gray-100 border-b-2 border-gray-200">
+      <div class="sticky top-0 z-50 flex-shrink-0 bg-black-100 border-b-2 border-black-200">
         <PopupHeader
           :current-theme="props.appConfig.theme"
           :loading="false"
@@ -115,7 +115,7 @@ onMounted(() => {
     <!-- 弹窗加载骨架屏 或 初始化骨架屏 -->
     <div v-else-if="props.showMcpPopup || props.isInitializing" class="flex flex-col w-full h-screen bg-black text-white">
       <!-- 头部骨架 -->
-      <div class="flex-shrink-0 bg-gray-100 border-b-2 border-gray-200 px-4 py-3">
+      <div class="flex-shrink-0 bg-black-100 border-b-2 border-black-200 px-4 py-3">
         <div class="flex items-center justify-between">
           <div class="flex items-center gap-3">
             <n-skeleton circle :width="12" :height="12" />
@@ -130,7 +130,7 @@ onMounted(() => {
 
       <!-- 内容骨架 -->
       <div class="flex-1 p-4">
-        <div class="bg-gray-100 rounded-lg p-4 mb-4">
+        <div class="bg-black-100 rounded-lg p-4 mb-4">
           <n-skeleton text :repeat="3" />
         </div>
 
@@ -141,7 +141,7 @@ onMounted(() => {
       </div>
 
       <!-- 底部骨架 -->
-      <div class="flex-shrink-0 bg-gray-100 border-t-2 border-gray-200 p-4">
+      <div class="flex-shrink-0 bg-black-100 border-t-2 border-black-200 p-4">
         <div class="flex justify-between items-center">
           <n-skeleton text :width="96" />
           <div class="flex gap-2">

@@ -93,7 +93,7 @@ impl AudioAssetManager {
             self.assets.insert(asset.id.clone(), asset);
         }
 
-        println!("✅ 从元数据文件加载了 {} 个音频资源", self.assets.len());
+        eprintln!("✅ 从元数据文件加载了 {} 个音频资源", self.assets.len());
         Ok(())
     }
 
@@ -139,7 +139,7 @@ impl AudioAssetManager {
             }
         }
 
-        println!("✅ 扫描音频目录，发现 {} 个音频文件", self.assets.len());
+        eprintln!("✅ 扫描音频目录，发现 {} 个音频文件", self.assets.len());
         Ok(())
     }
 
@@ -262,7 +262,7 @@ impl AudioAssetManager {
         std::fs::copy(&source_path, &target_path)
             .map_err(|e| anyhow::anyhow!("复制音频文件失败: {}", e))?;
 
-        println!("✅ 音频文件已复制: {} -> {:?}", asset.name, target_path);
+        eprintln!("✅ 音频文件已复制: {} -> {:?}", asset.name, target_path);
         Ok(target_path)
     }
 
