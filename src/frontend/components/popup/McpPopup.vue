@@ -2,7 +2,7 @@
 import type { McpRequest } from '../../types/popup'
 import { invoke } from '@tauri-apps/api/core'
 import { useMessage } from 'naive-ui'
-import { computed, ref, watch } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 
 import PopupActions from './PopupActions.vue'
 import PopupContent from './PopupContent.vue'
@@ -34,7 +34,7 @@ interface Props {
 }
 
 interface Emits {
-  response: [response: any[]]
+  response: [response: any]
   cancel: []
   themeChange: [theme: string]
   openMainLayout: []
@@ -65,6 +65,10 @@ const userInput = ref('')
 const draggedImages = ref<string[]>([])
 const inputRef = ref()
 
+// 继续回复配置
+const continueReplyEnabled = ref(true)
+const continuePrompt = ref('请按照最佳实践继续')
+
 // 计算属性
 const isVisible = computed(() => !!props.request)
 const hasOptions = computed(() => (props.request?.predefined_options?.length ?? 0) > 0)
@@ -80,16 +84,46 @@ const inputStatusText = computed(() => {
   return inputRef.value?.statusText || '等待输入...'
 })
 
+// 加载继续回复配置
+async function loadReplyConfig() {
+  try {
+    const config = await invoke('get_reply_config')
+    if (config) {
+      const replyConfig = config as any
+      continueReplyEnabled.value = replyConfig.enable_continue_reply ?? true
+      continuePrompt.value = replyConfig.continue_prompt ?? '请按照最佳实践继续'
+    }
+  }
+  catch (error) {
+    console.log('加载继续回复配置失败，使用默认值:', error)
+  }
+}
+
+// 监听配置变化（当从设置页面切换回来时）
+watch(() => props.appConfig.reply, (newReplyConfig) => {
+  if (newReplyConfig) {
+    continueReplyEnabled.value = newReplyConfig.enabled
+    continuePrompt.value = newReplyConfig.prompt
+  }
+}, { deep: true, immediate: true })
+
 // 监听请求变化
 watch(() => props.request, (newRequest) => {
   if (newRequest) {
     resetForm()
     loading.value = true
+    // 每次显示弹窗时重新加载配置
+    loadReplyConfig()
     setTimeout(() => {
       loading.value = false
     }, 300)
   }
 }, { immediate: true })
+
+// 组件挂载时加载配置
+onMounted(() => {
+  loadReplyConfig()
+})
 
 // 重置表单
 function resetForm() {
@@ -178,7 +212,7 @@ async function handleContinue() {
   try {
     // 使用新的结构化数据格式
     const response = {
-      user_input: '请按照最佳实践继续',
+      user_input: continuePrompt.value,
       selected_options: [],
       images: [],
       metadata: {
@@ -233,7 +267,7 @@ async function handleContinue() {
     <div class="flex-shrink-0 bg-black-100 border-t-2 border-black-200">
       <PopupActions
         :request="request" :loading="loading" :submitting="submitting" :can-submit="canSubmit"
-        :continue-reply-enabled="true" :input-status-text="inputStatusText"
+        :continue-reply-enabled="continueReplyEnabled" :input-status-text="inputStatusText"
         @submit="handleSubmit" @continue="handleContinue"
       />
     </div>

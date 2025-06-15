@@ -4,6 +4,12 @@ use std::collections::HashMap;
 use std::path::PathBuf;
 use std::fs;
 use tauri::{AppHandle, Manager};
+use rust_embed::RustEmbed;
+
+/// 内嵌音效资源 - 自动包含整个sounds目录
+#[derive(RustEmbed)]
+#[folder = "src/assets/sounds/"]
+struct EmbeddedAudio;
 
 /// 音频资源信息
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -13,20 +19,7 @@ pub struct AudioAsset {
     pub filename: String,
 }
 
-/// 音频元数据配置
-#[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct AudioMetadata {
-    pub version: String,
-    pub description: String,
-    pub sounds: HashMap<String, AudioAssetInfo>,
-}
 
-/// 音频资源详细信息
-#[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct AudioAssetInfo {
-    pub id: String,
-    pub name: String,
-}
 
 
 
@@ -45,82 +38,50 @@ impl AudioAssetManager {
 
     /// 从应用中加载音频资源
     pub fn load_from_app(&mut self, app: &AppHandle) -> Result<()> {
-        // 先尝试从元数据文件加载
-        if let Ok(()) = self.load_from_metadata(app) {
+        // 优先加载内嵌音频资源
+        if let Ok(()) = self.load_embedded_audio() {
+            eprintln!("✅ 从内嵌资源加载了 {} 个音频资源", self.assets.len());
             return Ok(());
         }
 
-        // 如果元数据文件不存在，回退到扫描目录
+        // 回退到文件系统加载（开发环境）
+        eprintln!("⚠️ 内嵌资源加载失败，尝试从开发环境文件系统加载...");
         self.scan_audio_directory(app)
     }
 
-    /// 从元数据文件加载音频资源
-    fn load_from_metadata(&mut self, app: &AppHandle) -> Result<()> {
-        // 尝试多个可能的元数据文件路径
-        let possible_paths = vec![
-            // 开发环境路径
-            std::env::current_dir().unwrap_or_default().join("src/assets/sounds/metadata.json"),
-            // 生产环境路径
-            app.path().resource_dir().unwrap_or_default().join("src/assets/sounds/metadata.json"),
-        ];
+    /// 加载内嵌音频资源
+    fn load_embedded_audio(&mut self) -> Result<()> {
+        eprintln!("📁 使用文件名约定自动扫描内嵌音频文件...");
 
-        let mut metadata_path = None;
-        for path in &possible_paths {
-            if path.exists() {
-                metadata_path = Some(path.clone());
-                break;
+        // 动态扫描所有内嵌的音频文件
+        for file_path in EmbeddedAudio::iter() {
+            let filename = file_path.as_ref();
+            if self.is_audio_file(filename) {
+                let asset = self.create_asset_from_filename(filename);
+                eprintln!("  ✅ 发现音频文件: {} -> ID: {}, 名称: {}", filename, asset.id, asset.name);
+                self.assets.insert(asset.id.clone(), asset);
             }
         }
 
-        let metadata_path = metadata_path.ok_or_else(|| {
-            anyhow::anyhow!("元数据文件不存在，尝试的路径: {:?}",
-                possible_paths.iter().map(|p| p.to_string_lossy()).collect::<Vec<_>>())
-        })?;
-
-        let metadata_content = fs::read_to_string(&metadata_path)
-            .map_err(|e| anyhow::anyhow!("读取元数据文件失败: {}", e))?;
-
-        let metadata: AudioMetadata = serde_json::from_str(&metadata_content)
-            .map_err(|e| anyhow::anyhow!("解析元数据文件失败: {}", e))?;
-
-        // 转换为 AudioAsset
-        for (filename, asset_info) in metadata.sounds {
-            let asset = AudioAsset {
-                id: asset_info.id,
-                name: asset_info.name,
-                filename,
-            };
-            self.assets.insert(asset.id.clone(), asset);
+        if self.assets.is_empty() {
+            return Err(anyhow::anyhow!("没有找到任何内嵌音频资源。请确保 src/assets/sounds/ 目录中包含音频文件。"));
         }
 
-        eprintln!("✅ 从元数据文件加载了 {} 个音频资源", self.assets.len());
         Ok(())
     }
 
-    /// 扫描音频目录
-    fn scan_audio_directory(&mut self, app: &AppHandle) -> Result<()> {
-        // 尝试多个可能的音频目录路径
-        let possible_paths = vec![
-            // 开发环境路径
-            std::env::current_dir().unwrap_or_default().join("src/assets/sounds"),
-            // 生产环境路径
-            app.path().resource_dir().unwrap_or_default().join("src/assets/sounds"),
-            // 备用路径
-            app.path().app_data_dir().unwrap_or_default().join("sounds"),
-        ];
 
-        let mut sounds_dir = None;
-        for path in &possible_paths {
-            if path.exists() {
-                sounds_dir = Some(path.clone());
-                break;
-            }
+
+    /// 扫描音频目录（仅开发环境使用）
+    fn scan_audio_directory(&mut self, _app: &AppHandle) -> Result<()> {
+        // 仅在开发环境扫描文件系统
+        let sounds_dir = std::env::current_dir()
+            .unwrap_or_default()
+            .join("src/assets/sounds");
+
+        if !sounds_dir.exists() {
+            return Err(anyhow::anyhow!("开发环境音频目录不存在: {:?}", sounds_dir));
         }
-
-        let sounds_dir = sounds_dir.ok_or_else(|| {
-            anyhow::anyhow!("无法找到音频目录，尝试的路径: {:?}",
-                possible_paths.iter().map(|p| p.to_string_lossy()).collect::<Vec<_>>())
-        })?;
 
         let entries = fs::read_dir(&sounds_dir)
             .map_err(|e| anyhow::anyhow!("读取音频目录失败: {}", e))?;
@@ -154,20 +115,48 @@ impl AudioAssetManager {
     }
 
     /// 从文件名创建音频资源
+    /// 支持格式：
+    /// - filename.mp3 -> ID: filename, 名称: filename
+    /// - filename[友好名称].mp3 -> ID: filename, 名称: 友好名称
+    /// - filename[].mp3 -> ID: filename, 名称: filename (空方括号时使用文件名)
     fn create_asset_from_filename(&self, filename: &str) -> AudioAsset {
         let name_without_ext = filename.split('.').next().unwrap_or(filename);
 
-        // 根据文件名推断信息
-        let (id, name) = match name_without_ext {
-            "ji" => ("ikun".to_string(), "iKun".to_string()),
-            "a" => ("elegant".to_string(), "销魂".to_string()),
-            "gaowan" => ("gaowan".to_string(), "睾丸了".to_string()),
-            "100w" => ("100w".to_string(), "100万".to_string()),
-            _ => {
-                let id = name_without_ext.to_lowercase().replace(' ', "_");
-                let name = name_without_ext.to_string();
-                (id, name)
+        // 解析文件名约定：filename[友好名称]
+        let (id, name) = if let Some(bracket_start) = name_without_ext.find('[') {
+            if let Some(bracket_end) = name_without_ext.find(']') {
+                let base_name = name_without_ext[..bracket_start].trim();
+                let friendly_name = name_without_ext[bracket_start + 1..bracket_end].trim();
+
+                // 如果base_name为空，使用整个文件名
+                let id = if base_name.is_empty() {
+                    name_without_ext.to_lowercase().replace(' ', "_").replace(['[', ']'], "")
+                } else {
+                    base_name.to_lowercase().replace(' ', "_")
+                };
+
+                // 如果友好名称为空，使用base_name或文件名
+                let display_name = if friendly_name.is_empty() {
+                    if base_name.is_empty() {
+                        name_without_ext.replace(['[', ']'], "")
+                    } else {
+                        base_name.to_string()
+                    }
+                } else {
+                    friendly_name.to_string()
+                };
+
+                (id, display_name)
+            } else {
+                // 只有左方括号，格式错误，使用整个名称
+                eprintln!("⚠️ 音频文件名格式错误（缺少右方括号）: {}", filename);
+                let id = name_without_ext.to_lowercase().replace(' ', "_").replace('[', "");
+                (id, name_without_ext.replace('[', ""))
             }
+        } else {
+            // 没有方括号，使用文件名作为ID和名称
+            let id = name_without_ext.to_lowercase().replace(' ', "_");
+            (id, name_without_ext.to_string())
         };
 
         AudioAsset {
@@ -187,45 +176,20 @@ impl AudioAssetManager {
         self.assets.get(id)
     }
 
-    /// 获取音频文件的完整路径
+    /// 获取音频文件的完整路径（已废弃，使用ensure_audio_exists代替）
     pub fn get_audio_path(&self, app: &AppHandle, asset_id: &str) -> Result<PathBuf> {
-        let asset = self.get_asset_by_id(asset_id)
-            .ok_or_else(|| anyhow::anyhow!("未找到音频资源: {}", asset_id))?;
-
-        // 首先尝试从用户配置目录获取
-        let config_dir = app.path().app_config_dir()
-            .map_err(|e| anyhow::anyhow!("无法获取应用配置目录: {}", e))?;
-        
-        let user_audio_path = config_dir.join("sounds").join(&asset.filename);
-        if user_audio_path.exists() {
-            return Ok(user_audio_path);
-        }
-
-        // 如果用户配置目录中没有，尝试从多个可能的资源目录获取
-        let possible_resource_paths = vec![
-            // 开发环境路径
-            std::env::current_dir().unwrap_or_default().join("src/assets/sounds").join(&asset.filename),
-            // 生产环境路径
-            app.path().resource_dir().unwrap_or_default().join("src/assets/sounds").join(&asset.filename),
-        ];
-
-        for resource_audio_path in possible_resource_paths {
-            if resource_audio_path.exists() {
-                return Ok(resource_audio_path);
-            }
-        }
-
-        Err(anyhow::anyhow!("音频文件不存在: {}", asset.filename))
+        // 直接调用ensure_audio_exists，它会处理内嵌资源
+        self.ensure_audio_exists(app, asset_id)
     }
 
-    /// 确保音频文件存在，如果不存在则从资源目录复制到用户配置目录
+    /// 确保音频文件存在，如果不存在则从内嵌资源或资源目录复制到用户配置目录
     pub fn ensure_audio_exists(&self, app: &AppHandle, asset_id: &str) -> Result<PathBuf> {
         let asset = self.get_asset_by_id(asset_id)
             .ok_or_else(|| anyhow::anyhow!("未找到音频资源: {}", asset_id))?;
 
         let config_dir = app.path().app_config_dir()
             .map_err(|e| anyhow::anyhow!("无法获取应用配置目录: {}", e))?;
-        
+
         let sounds_dir = config_dir.join("sounds");
         let target_path = sounds_dir.join(&asset.filename);
 
@@ -238,33 +202,37 @@ impl AudioAssetManager {
         std::fs::create_dir_all(&sounds_dir)
             .map_err(|e| anyhow::anyhow!("创建sounds目录失败: {}", e))?;
 
-        // 尝试多个可能的源文件路径
-        let possible_source_paths = vec![
-            // 开发环境路径
-            std::env::current_dir().unwrap_or_default().join("src/assets/sounds").join(&asset.filename),
-            // 生产环境路径
-            app.path().resource_dir().unwrap_or_default().join("src/assets/sounds").join(&asset.filename),
-        ];
+        // 优先从内嵌资源复制
+        if let Some(embedded_file) = EmbeddedAudio::get(&asset.filename) {
+            std::fs::write(&target_path, embedded_file.data.as_ref())
+                .map_err(|e| anyhow::anyhow!("写入内嵌音频文件失败: {}", e))?;
 
-        let mut source_path = None;
-        for path in &possible_source_paths {
-            if path.exists() {
-                source_path = Some(path.clone());
-                break;
-            }
+            eprintln!("✅ 音频文件已从内嵌资源复制: {} -> {:?}", asset.name, target_path);
+            return Ok(target_path);
         }
 
-        let source_path = source_path.ok_or_else(|| {
-            anyhow::anyhow!("源音频文件不存在，尝试的路径: {:?}",
-                possible_source_paths.iter().map(|p| p.to_string_lossy()).collect::<Vec<_>>())
-        })?;
+        // 回退到文件系统复制（仅开发环境）
+        let dev_source_path = std::env::current_dir()
+            .unwrap_or_default()
+            .join("src/assets/sounds")
+            .join(&asset.filename);
 
-        std::fs::copy(&source_path, &target_path)
-            .map_err(|e| anyhow::anyhow!("复制音频文件失败: {}", e))?;
+        if dev_source_path.exists() {
+            std::fs::copy(&dev_source_path, &target_path)
+                .map_err(|e| anyhow::anyhow!("复制音频文件失败: {}", e))?;
 
-        eprintln!("✅ 音频文件已复制: {} -> {:?}", asset.name, target_path);
-        Ok(target_path)
+            eprintln!("✅ 音频文件已从开发环境复制: {} -> {:?}", asset.name, target_path);
+            return Ok(target_path);
+        }
+
+        // 如果内嵌资源和文件系统都没有找到，返回错误
+        Err(anyhow::anyhow!(
+            "音频资源 '{}' 不存在。请确保音频文件已正确内嵌到二进制中，或在开发环境中存在于 src/assets/sounds/ 目录。",
+            asset_id
+        ))
     }
+
+
 
     /// 解析音频URL，支持资源ID、文件路径和网络URL
     pub fn parse_audio_url(&self, _app: &AppHandle, audio_url: &str) -> Result<AudioSource> {
@@ -288,24 +256,10 @@ impl AudioAssetManager {
             return Ok(AudioSource::Asset(audio_url.to_string()));
         }
 
-        // 兼容旧格式
-        let legacy_mapping = [
-            ("ji", "ikun"),
-            ("a", "elegant"),
-            ("ji.mp3", "ikun"),
-            ("a.mp3", "elegant"),
-            ("gaowan.mp3", "gaowan"),
-            ("100w.m4a", "100w"),
-            ("src/assets/sounds/ji.mp3", "ikun"),
-            ("src/assets/sounds/a.mp3", "elegant"),
-            ("src/assets/sounds/gaowan.mp3", "gaowan"),
-            ("src/assets/sounds/100w.m4a", "100w"),
-        ];
-
-        for (old_format, new_id) in &legacy_mapping {
-            if audio_url == *old_format {
-                return Ok(AudioSource::Asset(new_id.to_string()));
-            }
+        // 尝试通过文件名匹配（去掉扩展名）
+        let filename_without_ext = audio_url.split('.').next().unwrap_or(audio_url);
+        if self.assets.contains_key(filename_without_ext) {
+            return Ok(AudioSource::Asset(filename_without_ext.to_string()));
         }
 
         // 检查是否是文件路径

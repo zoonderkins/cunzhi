@@ -53,3 +53,11 @@ body {
   color: var(--text-color, #000000);
   min-height: 100vh;
 }
+
+/* 确保引用块的边框在所有主题下都显示 */
+.markdown-content blockquote {
+  border-left: 4px solid #14b8a6 !important;
+  padding-left: 1rem !important;
+  margin-left: 0 !important;
+  font-style: italic !important;
+}
