@@ -1,22 +1,19 @@
-/* CSS 变量默认值 - 由主题系统动态设置 */
+/* 语义化 CSS 变量 - 由主题系统动态设置 */
 :root {
-  --primary-color: #14b8a6;
-  --body-color: #ffffff;
-  --card-color: #ffffff;
-  --text-color: #111827;
-  --text-color-secondary: #6b7280;
-  --text-color-muted: #9ca3af;
-  --border-color: #e5e7eb;
-}
-
-/* 暗黑模式变量 - 由主题系统动态设置 */
-.dark {
-  --body-color: #101014;
-  --card-color: #18181c;
-  --text-color: #e5e7eb;
-  --text-color-secondary: #d1d5db;
-  --text-color-muted: #9ca3af;
-  --border-color: #374151;
+  /* 表面色变量 - 用于 UnoCSS 语义化颜色 */
+  --color-surface: #ffffff;
+  --color-surface-50: #f9fafb;
+  --color-surface-100: #f3f4f6;
+  --color-surface-200: #e5e7eb;
+  --color-surface-300: #d1d5db;
+  --color-surface-400: #9ca3af;
+  --color-surface-500: #6b7280;
+  --color-surface-600: #4b5563;
+  --color-surface-700: #374151;
+  --color-surface-800: #1f2937;
+  --color-surface-900: #111827;
+  --color-surface-950: #030712;
+  --color-on-surface: #111827;
 }
 
 /* UnoCSS 自定义样式 */

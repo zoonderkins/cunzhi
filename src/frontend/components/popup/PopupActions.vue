@@ -10,6 +10,7 @@ interface Props {
   canSubmit?: boolean
   connectionStatus?: string
   continueReplyEnabled?: boolean
+  inputStatusText?: string
 }
 
 interface Emits {
@@ -23,6 +24,7 @@ const props = withDefaults(defineProps<Props>(), {
   canSubmit: false,
   connectionStatus: '已连接',
   continueReplyEnabled: true,
+  inputStatusText: '',
 })
 
 const emit = defineEmits<Emits>()
@@ -42,9 +44,17 @@ const shortcutText = computed(() => {
 })
 
 const statusText = computed(() => {
+  // 如果可以提交，直接显示快捷键提示
   if (props.canSubmit) {
     return shortcutText.value
   }
+
+  // 如果有输入状态文本且不是默认状态，显示输入状态
+  if (props.inputStatusText && props.inputStatusText !== '等待输入...') {
+    return props.inputStatusText
+  }
+
+  // 根据请求类型显示不同的提示
   if (props.request?.predefined_options) {
     return '选择选项或输入文本'
   }
@@ -72,11 +82,11 @@ function handleContinue() {
 </script>
 
 <template>
-  <div class="px-4 py-3 bg-theme-card min-h-[60px] select-none">
+  <div class="px-4 py-3 bg-gray-100 min-h-[60px] select-none">
     <div v-if="!loading" class="flex justify-between items-center">
       <!-- 左侧状态信息 -->
       <div class="flex items-center">
-        <div class="flex items-center gap-2 text-xs text-theme-text opacity-70">
+        <div class="flex items-center gap-2 text-xs text-gray-600">
           <div class="w-2 h-2 rounded-full bg-primary-500" />
           <span class="font-medium">{{ connectionStatus }}</span>
           <span class="opacity-60">|</span>

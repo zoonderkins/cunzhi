@@ -52,7 +52,7 @@ function handleImageError(event: Event) {
               class="w-10 h-10 rounded-xl shadow-lg"
               @error="handleImageError"
             >
-            <h1 class="text-4xl font-medium">
+            <h1 class="text-4xl font-medium text-white">
               寸止
             </h1>
           </div>
@@ -61,14 +61,14 @@ function handleImageError(event: Event) {
           <div class="mb-4">
             <n-tag type="success" size="small" round class="px-3 py-1">
               <template #icon>
-                <div class="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
+                <div class="w-2 h-2 bg-success rounded-full animate-pulse" />
               </template>
               MCP 服务已启动
             </n-tag>
           </div>
 
           <!-- 副标题 -->
-          <p class="text-base opacity-50 font-normal">
+          <p class="text-base opacity-50 font-normal text-white">
             告别AI提前终止烦恼，助力AI更加持久
           </p>
         </div>

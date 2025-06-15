@@ -10,6 +10,7 @@ import { useTheme } from './composables/useTheme'
 // 响应式数据
 const mcpRequest = ref(null)
 const showMcpPopup = ref(false)
+const isInitializing = ref(true)
 
 const { currentTheme, naiveTheme, setTheme, loadTheme, setupSystemThemeListener } = useTheme()
 const {
@@ -53,6 +54,7 @@ async function handleMcpCancel() {
 
 // 显示MCP弹窗
 async function showMcpDialog(request: any) {
+  // 同时设置请求数据和显示状态，避免中间状态
   mcpRequest.value = request
   showMcpPopup.value = true
 
@@ -128,6 +130,9 @@ onMounted(async () => {
 
   // 监听系统主题变化
   setupSystemThemeListener()
+
+  // 结束初始化状态
+  isInitializing.value = false
 })
 </script>
 
@@ -139,6 +144,7 @@ onMounted(async () => {
           <AppContent
             :mcp-request="mcpRequest" :show-mcp-popup="showMcpPopup" :current-theme="currentTheme"
             :always-on-top="alwaysOnTop" :audio-notification-enabled="audioNotificationEnabled" :audio-url="audioUrl"
+            :is-initializing="isInitializing"
             @mcp-response="handleMcpResponse" @mcp-cancel="handleMcpCancel" @theme-change="setTheme"
             @toggle-always-on-top="toggleAlwaysOnTop" @toggle-audio-notification="toggleAudioNotification"
             @update-audio-url="updateAudioUrl" @test-audio="testAudioSound" @stop-audio="stopAudioSound"

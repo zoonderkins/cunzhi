@@ -213,8 +213,8 @@ onMounted(async () => {
     <template #header>
       <n-space align="center">
         <!-- 图标 -->
-        <div class="w-10 h-10 rounded-lg bg-orange-100 dark:bg-orange-900 flex items-center justify-center">
-          <div class="i-carbon-volume-up text-lg text-gray-700 dark:text-gray-200" />
+        <div class="w-10 h-10 rounded-lg bg-warning/10 dark:bg-warning/20 flex items-center justify-center">
+          <div class="i-carbon-volume-up text-lg text-orange-600 dark:text-orange-400" />
         </div>
 
         <!-- 标题和副标题 -->
@@ -234,7 +234,7 @@ onMounted(async () => {
       <!-- 音频通知开关 -->
       <div class="flex items-center justify-between">
         <div class="flex items-center">
-          <div class="w-1.5 h-1.5 bg-green-500 rounded-full mr-3 flex-shrink-0" />
+          <div class="w-1.5 h-1.5 bg-warning rounded-full mr-3 flex-shrink-0" />
           <div>
             <div class="text-sm font-medium leading-relaxed">
               音频通知
@@ -254,7 +254,7 @@ onMounted(async () => {
       <!-- 音效选择 -->
       <div v-if="audioNotificationEnabled" class="pt-4 border-t border-gray-200 dark:border-gray-700">
         <div class="flex items-start">
-          <div class="w-1.5 h-1.5 bg-green-500 rounded-full mr-3 mt-2 flex-shrink-0" />
+          <div class="w-1.5 h-1.5 bg-warning rounded-full mr-3 mt-2 flex-shrink-0" />
           <div class="flex-1">
             <div class="text-sm font-medium mb-3 leading-relaxed">
               音效选择
@@ -366,7 +366,7 @@ onMounted(async () => {
             </div>
 
             <!-- 当前音效显示 -->
-            <div class="mt-3 p-2 bg-gray-50 dark:bg-gray-800 rounded text-xs">
+            <div class="mt-3 p-2 bg-gray-100 rounded text-xs">
               <span class="opacity-60">当前音效：</span>
               <span v-if="selectedSoundType === 'preset'">
                 {{ presetSounds.find(p => p.id === selectedPreset)?.name }}

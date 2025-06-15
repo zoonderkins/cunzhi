@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
 import { invoke } from '@tauri-apps/api/core'
 import { useMessage } from 'naive-ui'
+import { onMounted, ref } from 'vue'
 
 // MCP工具配置接口
 interface MCPToolConfig {
@@ -29,12 +29,14 @@ async function loadMcpTools() {
     loading.value = true
     const tools = await invoke('get_mcp_tools_config') as MCPToolConfig[]
     mcpTools.value = tools
-  } catch (error) {
+  }
+  catch (error) {
     console.error('加载MCP工具配置失败:', error)
     if (message) {
       message.error(`加载MCP工具配置失败: ${error}`)
     }
-  } finally {
+  }
+  finally {
     loading.value = false
   }
 }
@@ -50,7 +52,7 @@ async function toggleTool(toolId: string) {
     const newEnabled = !tool.enabled
     const requiresRestart = await invoke('set_mcp_tool_enabled', {
       toolId,
-      enabled: newEnabled
+      enabled: newEnabled,
     }) as boolean
 
     // 更新本地状态
@@ -62,7 +64,8 @@ async function toggleTool(toolId: string) {
         message.info('MCP工具配置已更新，需要重启应用生效')
       }
     }
-  } catch (error) {
+  }
+  catch (error) {
     console.error('更新MCP工具状态失败:', error)
     if (message) {
       message.error(`更新MCP工具状态失败: ${error}`)
@@ -77,7 +80,8 @@ async function restartApp() {
       message.loading('正在重启应用...', { duration: 2000 })
     }
     await invoke('restart_application')
-  } catch (error) {
+  }
+  catch (error) {
     console.error('重启应用失败:', error)
     if (message) {
       message.error(`重启应用失败: ${error}`)
@@ -122,7 +126,9 @@ onMounted(() => {
       <!-- 加载状态 -->
       <div v-if="loading" class="text-center py-8">
         <n-spin size="medium" />
-        <div class="mt-2 text-sm opacity-60">加载MCP工具配置中...</div>
+        <div class="mt-2 text-sm opacity-60">
+          加载MCP工具配置中...
+        </div>
       </div>
 
       <!-- MCP工具配置卡片 -->
@@ -145,7 +151,6 @@ onMounted(() => {
               >
                 <div
                   :class="tool.icon"
-                  class="text-lg text-gray-700 dark:text-gray-200"
                 />
               </div>
 

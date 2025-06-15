@@ -40,7 +40,7 @@ async function copyPromptContent() {
             <n-space align="center">
               <!-- 图标 -->
               <div class="w-10 h-10 rounded-lg bg-orange-100 dark:bg-orange-900 flex items-center justify-center">
-                <div class="i-carbon-document text-lg text-gray-700 dark:text-gray-200" />
+                <div class="i-carbon-document text-lg text-orange-600 dark:text-orange-400" />
               </div>
 
               <!-- 标题信息 -->
@@ -108,7 +108,7 @@ async function copyPromptContent() {
           <n-space align="center">
             <!-- 图标 -->
             <div class="w-10 h-10 rounded-lg bg-blue-100 dark:bg-blue-900 flex items-center justify-center">
-              <div class="i-carbon-information text-lg text-gray-700 dark:text-gray-200" />
+              <div class="i-carbon-information text-lg text-blue-600 dark:text-blue-400" />
             </div>
 
             <!-- 标题信息 -->

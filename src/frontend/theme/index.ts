@@ -1,50 +1,47 @@
 import type { GlobalTheme } from 'naive-ui'
 import { darkTheme, lightTheme } from 'naive-ui'
-import { colors, textColors } from './colors'
-
-// 使用统一的颜色配置
-export const themeColors = colors
+import { functionalColors, primaryColors, themeColors } from './colors'
 
 // 自定义暗黑主题
 export const customDarkTheme: GlobalTheme = {
   ...darkTheme,
   common: {
     ...darkTheme.common,
-    primaryColor: themeColors.primary[500],
-    primaryColorHover: themeColors.primary[400],
-    primaryColorPressed: themeColors.primary[600],
-    primaryColorSuppl: themeColors.primary[400],
+    primaryColor: primaryColors[500],
+    primaryColorHover: primaryColors[400],
+    primaryColorPressed: primaryColors[600],
+    primaryColorSuppl: primaryColors[400],
 
-    // 背景色 - 使用指定的暗黑模式颜色
-    bodyColor: themeColors.dark.primary, // #101014
-    popoverColor: themeColors.dark.secondary, // #18181c
-    cardColor: themeColors.dark.secondary, // #18181c
-    modalColor: themeColors.dark.secondary, // #18181c
+    // 背景色 - 使用新的主题颜色系统
+    bodyColor: themeColors.dark.surface,
+    popoverColor: themeColors.dark.container,
+    cardColor: themeColors.dark.container,
+    modalColor: themeColors.dark.container,
 
     // 边框色
-    borderColor: themeColors.gray[700],
-    dividerColor: themeColors.gray[700],
+    borderColor: themeColors.dark.border,
+    dividerColor: themeColors.dark.divider,
 
-    // 文字色 - 使用统一配置
-    textColorBase: textColors.dark.primary,
-    textColor1: textColors.dark.primary,
-    textColor2: textColors.dark.secondary,
-    textColor3: textColors.dark.muted,
-    textColorDisabled: textColors.dark.disabled,
+    // 文字色 - 使用新的颜色系统
+    textColorBase: themeColors.dark.onSurface,
+    textColor1: themeColors.dark.onSurface,
+    textColor2: themeColors.dark.onSurfaceSecondary,
+    textColor3: themeColors.dark.onSurfaceMuted,
+    textColorDisabled: themeColors.dark.onSurfaceDisabled,
 
     // 输入框
-    inputColor: themeColors.dark.accent,
-    inputColorDisabled: themeColors.gray[800],
+    inputColor: themeColors.dark.containerSecondary,
+    inputColorDisabled: themeColors.dark.surface300,
 
     // 悬停色
     hoverColor: 'rgba(255, 255, 255, 0.09)',
     pressedColor: 'rgba(255, 255, 255, 0.13)',
 
     // 成功、警告、错误色
-    successColor: '#22c55e',
-    warningColor: '#f59e0b',
-    errorColor: '#ef4444',
-    infoColor: themeColors.primary[500],
+    successColor: functionalColors.success,
+    warningColor: functionalColors.warning,
+    errorColor: functionalColors.error,
+    infoColor: functionalColors.info,
   },
 }
 
@@ -53,41 +50,41 @@ export const customLightTheme: GlobalTheme = {
   ...lightTheme,
   common: {
     ...lightTheme.common,
-    primaryColor: themeColors.primary[500],
-    primaryColorHover: themeColors.primary[400],
-    primaryColorPressed: themeColors.primary[600],
-    primaryColorSuppl: themeColors.primary[400],
+    primaryColor: primaryColors[500],
+    primaryColorHover: primaryColors[400],
+    primaryColorPressed: primaryColors[600],
+    primaryColorSuppl: primaryColors[400],
 
-    // 背景色
-    bodyColor: themeColors.light.primary,
-    popoverColor: themeColors.light.primary,
-    cardColor: themeColors.light.primary,
-    modalColor: themeColors.light.primary,
+    // 背景色 - 使用新的主题颜色系统
+    bodyColor: themeColors.light.surface,
+    popoverColor: themeColors.light.container,
+    cardColor: themeColors.light.container,
+    modalColor: themeColors.light.container,
 
     // 边框色
-    borderColor: themeColors.gray[200],
-    dividerColor: themeColors.gray[200],
+    borderColor: themeColors.light.border,
+    dividerColor: themeColors.light.divider,
 
-    // 文字色 - 使用统一配置
-    textColorBase: textColors.light.primary,
-    textColor1: textColors.light.primary,
-    textColor2: textColors.light.secondary,
-    textColor3: textColors.light.muted,
-    textColorDisabled: textColors.light.disabled,
+    // 文字色 - 使用新的颜色系统
+    textColorBase: themeColors.light.onSurface,
+    textColor1: themeColors.light.onSurface,
+    textColor2: themeColors.light.onSurfaceSecondary,
+    textColor3: themeColors.light.onSurfaceMuted,
+    textColorDisabled: themeColors.light.onSurfaceDisabled,
 
     // 输入框
-    inputColor: themeColors.light.primary,
-    inputColorDisabled: themeColors.gray[50],
+    inputColor: themeColors.light.containerSecondary,
+    inputColorDisabled: themeColors.light.surface100,
 
     // 悬停色
     hoverColor: 'rgba(0, 0, 0, 0.09)',
     pressedColor: 'rgba(0, 0, 0, 0.13)',
 
     // 成功、警告、错误色
-    successColor: '#22c55e',
-    warningColor: '#f59e0b',
-    errorColor: '#ef4444',
-    infoColor: themeColors.primary[500],
+    successColor: functionalColors.success,
+    warningColor: functionalColors.warning,
+    errorColor: functionalColors.error,
+    infoColor: functionalColors.info,
   },
 }
 
@@ -100,26 +97,33 @@ export function getTheme(themeName: string): GlobalTheme {
   return themeName === 'dark' ? customDarkTheme : customLightTheme
 }
 
-// CSS 变量映射
+// CSS 变量映射 - 新的颜色系统
 export function applyThemeVariables(themeName: string) {
-  const theme = getTheme(themeName)
   const root = document.documentElement
 
-  // 设置 CSS 变量
-  if (theme.common) {
-    root.style.setProperty('--primary-color', theme.common.primaryColor)
-    root.style.setProperty('--body-color', theme.common.bodyColor)
-    root.style.setProperty('--card-color', theme.common.cardColor)
-    root.style.setProperty('--text-color', theme.common.textColorBase)
-    root.style.setProperty('--text-color-secondary', theme.common.textColor2)
-    root.style.setProperty('--text-color-muted', theme.common.textColor3)
-    root.style.setProperty('--border-color', theme.common.borderColor)
-  }
-
-  // 设置主题类
-  root.classList.remove('light', 'dark')
+  // 确定实际主题
   const effectiveTheme = themeName === 'system'
     ? (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light')
     : themeName
+
+  const colors = themeColors[effectiveTheme as keyof typeof themeColors]
+
+  // 设置语义化 CSS 变量 - 用于 UnoCSS
+  root.style.setProperty('--color-surface', colors.surface)
+  root.style.setProperty('--color-surface-50', colors.surface50)
+  root.style.setProperty('--color-surface-100', colors.surface100)
+  root.style.setProperty('--color-surface-200', colors.surface200)
+  root.style.setProperty('--color-surface-300', colors.surface300)
+  root.style.setProperty('--color-surface-400', colors.surface400)
+  root.style.setProperty('--color-surface-500', colors.surface500)
+  root.style.setProperty('--color-surface-600', colors.surface600)
+  root.style.setProperty('--color-surface-700', colors.surface700)
+  root.style.setProperty('--color-surface-800', colors.surface800)
+  root.style.setProperty('--color-surface-900', colors.surface900)
+  root.style.setProperty('--color-surface-950', colors.surface950)
+  root.style.setProperty('--color-on-surface', colors.onSurface)
+
+  // 设置主题类
+  root.classList.remove('light', 'dark')
   root.classList.add(effectiveTheme)
 }

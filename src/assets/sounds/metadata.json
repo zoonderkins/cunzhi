@@ -2,6 +2,10 @@
   "version": "1.0",
   "description": "音频资源元数据配置",
   "sounds": {
+    "ji.mp3": {
+      "id": "ji",
+      "name": "鸡"
+    },
     "ganma.mp3": {
       "id": "ganma",
       "name": "iKun"

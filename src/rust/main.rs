@@ -46,6 +46,7 @@ pub fn run() {
             send_mcp_response,
             get_cli_args,
             read_mcp_request,
+            select_image_files,
             exit_app
         ])
         .setup(|app| {

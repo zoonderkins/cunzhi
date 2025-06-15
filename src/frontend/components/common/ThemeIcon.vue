@@ -14,7 +14,7 @@ const iconClass = computed(() => {
 
 <template>
   <div
-    class="inline-flex items-center justify-center w-4 h-4 transition-transform duration-300 hover:rotate-180"
+    class="inline-flex items-center justify-center w-4 h-4 transition-transform duration-300 hover:rotate-180 text-white"
     :class="[iconClass]"
   />
 </template>

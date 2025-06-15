@@ -175,6 +175,15 @@ pub fn read_mcp_request(file_path: String) -> Result<serde_json::Value, String> 
 }
 
 #[tauri::command]
+pub async fn select_image_files() -> Result<Vec<String>, String> {
+    // 简化版本：返回测试图片数据
+    // 在实际应用中，这里应该调用系统文件对话框
+    let test_image_base64 = "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KICA8cmVjdCB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgZmlsbD0iIzMzNzNkYyIvPgogIDx0ZXh0IHg9IjUwIiB5PSI1NSIgZm9udC1mYW1pbHk9IkFyaWFsIiBmb250LXNpemU9IjE0IiBmaWxsPSJ3aGl0ZSIgdGV4dC1hbmNob3I9Im1pZGRsZSI+VGF1cmk8L3RleHQ+Cjwvc3ZnPg==";
+
+    Ok(vec![test_image_base64.to_string()])
+}
+
+#[tauri::command]
 pub async fn exit_app(app: AppHandle) -> Result<(), String> {
     // 关闭所有窗口
     if let Some(window) = app.get_webview_window("main") {

@@ -6,7 +6,7 @@ import {
   presetWebFonts,
   presetWind3,
 } from 'unocss'
-import { colors, themeVariables } from './src/frontend/theme/colors'
+import { semanticColors } from './src/frontend/theme/colors'
 
 export default defineConfig({
   presets: [
@@ -34,8 +34,8 @@ export default defineConfig({
   ],
   theme: {
     colors: {
-      ...colors,
-      ...themeVariables,
+      // 语义化颜色系统 - 重新定义基础颜色让它们适配主题
+      ...semanticColors,
     },
     fontSize: {
       'xs': '0.75rem',
@@ -62,29 +62,75 @@ export default defineConfig({
     [/^fade-in$/, () => ({ opacity: '1' })],
   ],
   safelist: [
-    // 确保动态类名不被清除
-    'bg-blue-100',
-    'bg-purple-100',
-    'bg-green-100',
-    'bg-orange-100',
-    'bg-cyan-100',
-    'bg-blue-900',
-    'bg-purple-900',
-    'bg-green-900',
-    'bg-orange-900',
-    'bg-cyan-900',
+    // 语义化颜色类名 - 基于新的颜色系统
+    'bg-black',
+    'bg-white',
+    'text-black',
+    'text-white',
+    'border-black',
+    'border-white',
+    // 灰度色阶
+    'bg-gray-50',
+    'bg-gray-100',
+    'bg-gray-200',
+    'bg-gray-300',
+    'bg-gray-400',
+    'bg-gray-500',
+    'bg-gray-600',
+    'bg-gray-700',
+    'bg-gray-800',
+    'bg-gray-900',
+    'bg-gray-950',
+    'text-gray-50',
+    'text-gray-100',
+    'text-gray-200',
+    'text-gray-300',
+    'text-gray-400',
+    'text-gray-500',
+    'text-gray-600',
+    'text-gray-700',
+    'text-gray-800',
+    'text-gray-900',
+    'text-gray-950',
+    'border-gray-50',
+    'border-gray-100',
+    'border-gray-200',
+    'border-gray-300',
+    'border-gray-400',
+    'border-gray-500',
+    'border-gray-600',
+    'border-gray-700',
+    'border-gray-800',
+    'border-gray-900',
+    'border-gray-950',
+    // 主色调
+    'bg-primary-50',
+    'bg-primary-100',
+    'bg-primary-200',
+    'bg-primary-300',
+    'bg-primary-400',
+    'bg-primary-500',
+    'bg-primary-600',
+    'bg-primary-700',
+    'bg-primary-800',
+    'bg-primary-900',
+    'bg-primary-950',
+    'text-primary-500',
+    'text-primary-600',
     'text-primary-700',
     'border-primary-200',
-    'bg-primary-50',
-    'bg-primary-500',
+    'border-primary-500',
+    // 功能色
+    'bg-success',
+    'bg-warning',
+    'bg-error',
+    'bg-info',
+    'text-success',
+    'text-warning',
+    'text-error',
+    'text-info',
+    // 动画
     'animate-pulse',
-    // 主题变量相关
-    'bg-theme-body',
-    'bg-theme-card',
-    'text-theme-text',
-    'text-theme-text-secondary',
-    'text-theme-text-muted',
-    'border-theme-border',
     // 图标类
     'i-carbon-settings-services',
     'i-carbon-data-base',
@@ -105,5 +151,6 @@ export default defineConfig({
     'i-carbon-send',
     'i-carbon-warning',
     'i-carbon-volume-up',
+    'i-carbon-arrow-left',
   ],
 })

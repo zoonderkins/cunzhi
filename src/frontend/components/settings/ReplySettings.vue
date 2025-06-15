@@ -46,8 +46,8 @@ onMounted(() => {
     <template #header>
       <n-space align="center">
         <!-- 图标 -->
-        <div class="w-10 h-10 rounded-lg bg-blue-100 dark:bg-blue-900 flex items-center justify-center">
-          <div class="i-carbon-repeat text-lg text-gray-700 dark:text-gray-200" />
+        <div class="w-10 h-10 rounded-lg bg-info/10 dark:bg-info/20 flex items-center justify-center">
+          <div class="i-carbon-repeat text-lg text-blue-600 dark:text-blue-400" />
         </div>
 
         <!-- 标题和副标题 -->
@@ -67,9 +67,11 @@ onMounted(() => {
       <!-- 启用继续回复 -->
       <div class="flex items-center justify-between">
         <div class="flex items-center">
-          <div class="w-1.5 h-1.5 bg-green-500 rounded-full mr-3 flex-shrink-0"></div>
+          <div class="w-1.5 h-1.5 bg-info rounded-full mr-3 flex-shrink-0" />
           <div>
-            <div class="text-sm font-medium leading-relaxed">启用继续回复</div>
+            <div class="text-sm font-medium leading-relaxed">
+              启用继续回复
+            </div>
             <div class="text-xs opacity-60">
               启用后将显示继续按钮
             </div>
@@ -85,9 +87,11 @@ onMounted(() => {
       <!-- 继续提示词 -->
       <div v-if="localConfig.enable_continue_reply">
         <div class="flex items-center mb-3">
-          <div class="w-1.5 h-1.5 bg-green-500 rounded-full mr-3 flex-shrink-0"></div>
+          <div class="w-1.5 h-1.5 bg-info rounded-full mr-3 flex-shrink-0" />
           <div>
-            <div class="text-sm font-medium leading-relaxed">继续提示词</div>
+            <div class="text-sm font-medium leading-relaxed">
+              继续提示词
+            </div>
             <div class="text-xs opacity-60">
               点击继续按钮时发送的提示词
             </div>

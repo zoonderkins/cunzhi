@@ -3,7 +3,7 @@ import type { McpRequest } from '../../types/popup'
 import hljs from 'highlight.js'
 import MarkdownIt from 'markdown-it'
 import { useMessage } from 'naive-ui'
-import { nextTick, onMounted, watch } from 'vue'
+import { nextTick, onMounted, onUpdated, watch } from 'vue'
 import 'highlight.js/styles/github-dark.css'
 
 interface Props {
@@ -60,9 +60,37 @@ function createCopyButton(preEl: Element) {
 
   const copyButton = document.createElement('div')
   copyButton.className = 'copy-button'
-  copyButton.style.cssText = 'position: absolute; top: 12px; right: 12px; z-index: 999; opacity: 0; transition: opacity 0.2s; pointer-events: auto; height: 24px; width: 24px; display: flex; align-items: center; justify-content: center;'
+  // 极简设计：无背景，无边框
+  copyButton.style.cssText = `
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    z-index: 1000;
+    opacity: 1;
+    transition: opacity 0.2s ease;
+    pointer-events: auto;
+    height: 20px;
+    width: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  `
+
   copyButton.innerHTML = `
-    <button style="display: flex; align-items: center; justify-content: center; width: 100%; height: 100%; color: #d1d5db; transition: color 0.2s; border: none; background: none; cursor: pointer; padding: 0; margin: 0;" onmouseover="this.style.color='#9ca3af'" onmouseout="this.style.color='#d1d5db'">
+    <button style="
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+      height: 100%;
+      color: #9ca3af;
+      transition: color 0.2s ease;
+      border: none;
+      background: none;
+      cursor: pointer;
+      padding: 0;
+      margin: 0;
+    " onmouseover="this.style.color='#14b8a6'" onmouseout="this.style.color='#9ca3af'">
       <div class="i-carbon-copy" style="width: 16px; height: 16px; display: block;"></div>
     </button>
   `
@@ -79,11 +107,11 @@ function createCopyButton(preEl: Element) {
       // 更新为成功状态
       const icon = button.querySelector('div')!
       icon.className = 'i-carbon-checkmark'
-      icon.style.cssText = 'width: 16px; height: 16px; color: #22c55e;'
+      icon.style.cssText = 'width: 16px; height: 16px; color: #22c55e; display: block;'
 
       setTimeout(() => {
         icon.className = 'i-carbon-copy'
-        icon.style.cssText = 'width: 16px; height: 16px;'
+        icon.style.cssText = 'width: 16px; height: 16px; display: block;'
       }, 2000)
       message.success('代码已复制到剪贴板')
     }
@@ -97,13 +125,7 @@ function createCopyButton(preEl: Element) {
   preElement.style.position = 'relative'
   preElement.style.zIndex = '1'
 
-  // 添加鼠标悬停事件来显示/隐藏按钮
-  preElement.addEventListener('mouseenter', () => {
-    copyButton.style.opacity = '1'
-  })
-  preElement.addEventListener('mouseleave', () => {
-    copyButton.style.opacity = '0'
-  })
+  // 按钮始终显示，不需要悬停事件
 
   preElement.appendChild(copyButton)
 }
@@ -131,38 +153,69 @@ function setupCodeCopy() {
     clearTimeout(setupCodeCopyTimer)
   }
 
+  // 增加延迟时间，确保DOM完全渲染
   setupCodeCopyTimer = window.setTimeout(() => {
     nextTick(() => {
       // 确保选择正确的 pre 元素
       const preElements = document.querySelectorAll('.markdown-content pre')
+      console.log('设置代码复制按钮，找到', preElements.length, '个代码块')
       preElements.forEach((preEl) => {
         createCopyButton(preEl)
       })
       setupInlineCodeCopy()
+
+      // 如果没有找到代码块，再次尝试
+      if (preElements.length === 0) {
+        setTimeout(() => {
+          const retryElements = document.querySelectorAll('.markdown-content pre')
+          console.log('重试设置代码复制按钮，找到', retryElements.length, '个代码块')
+          retryElements.forEach((preEl) => {
+            createCopyButton(preEl)
+          })
+        }, 200)
+      }
     })
-  }, 100)
+  }, 300)
 }
 
 // 监听request变化，重新设置代码复制
 watch(() => props.request, () => {
   if (props.request) {
+    console.log('Request变化，设置代码复制')
     setupCodeCopy()
   }
 }, { deep: true })
 
+// 监听loading状态变化
+watch(() => props.loading, (newLoading) => {
+  if (!newLoading && props.request) {
+    console.log('Loading完成，设置代码复制')
+    setupCodeCopy()
+  }
+})
+
 onMounted(() => {
+  console.log('PopupContent mounted')
   if (props.request) {
+    setupCodeCopy()
+  }
+})
+
+// 在DOM更新后也尝试设置
+onUpdated(() => {
+  if (props.request && !props.loading) {
+    console.log('PopupContent updated，设置代码复制')
     setupCodeCopy()
   }
 })
 </script>
 
 <template>
-  <div class="text-theme-text">
+  <div class="text-white">
     <!-- 加载状态 -->
     <div v-if="loading" class="flex flex-col items-center justify-center py-8">
       <n-spin size="medium" />
-      <p class="text-sm mt-3 text-theme-text opacity-60">
+      <p class="text-sm mt-3 text-white opacity-60">
         加载中...
       </p>
     </div>
@@ -172,33 +225,32 @@ onMounted(() => {
       <!-- 主要内容 -->
       <div
         v-if="request.is_markdown" class="markdown-content prose prose-sm dark:prose-invert max-w-none
-               prose-headings:font-semibold prose-headings:text-theme-text prose-headings:leading-tight
+               prose-headings:font-semibold prose-headings:text-white prose-headings:leading-tight
                prose-h1:!mt-4 prose-h1:!mb-2 prose-h1:!text-lg prose-h1:!font-bold prose-h1:!leading-tight
                prose-h2:!mt-3 prose-h2:!mb-1.5 prose-h2:!text-base prose-h2:!font-semibold prose-h2:!leading-tight
                prose-h3:!mt-2.5 prose-h3:!mb-1 prose-h3:!text-sm prose-h3:!font-medium prose-h3:!leading-tight
                prose-h4:!mt-2 prose-h4:!mb-1 prose-h4:!text-sm prose-h4:!font-medium prose-h4:!leading-tight
-               prose-p:my-1 prose-p:text-theme-text prose-p:opacity-85 prose-p:leading-relaxed prose-p:text-sm
-               prose-ul:my-1 prose-ul:text-theme-text prose-ul:opacity-85 prose-ul:text-sm prose-ul:pl-4
-               prose-ol:my-1 prose-ol:text-theme-text prose-ol:opacity-85 prose-ol:text-sm prose-ol:pl-4
-               prose-li:my-1 prose-li:text-theme-text prose-li:opacity-85 prose-li:text-sm prose-li:leading-relaxed
-               prose-blockquote:my-2 prose-blockquote:text-theme-text-muted prose-blockquote:opacity-90 prose-blockquote:text-sm
+               prose-p:my-1 prose-p:text-white prose-p:opacity-85 prose-p:leading-relaxed prose-p:text-sm
+               prose-ul:my-1 prose-ul:text-white prose-ul:opacity-85 prose-ul:text-sm prose-ul:pl-4
+               prose-ol:my-1 prose-ol:text-white prose-ol:opacity-85 prose-ol:text-sm prose-ol:pl-4
+               prose-li:my-1 prose-li:text-white prose-li:opacity-85 prose-li:text-sm prose-li:leading-relaxed
+               prose-blockquote:my-2 prose-blockquote:text-gray-300 prose-blockquote:opacity-90 prose-blockquote:text-sm
                prose-blockquote:border-l-4 prose-blockquote:border-primary-500
                prose-blockquote:pl-4 prose-blockquote:ml-0 prose-blockquote:italic
-               prose-pre:relative prose-pre:bg-gray-50/50 dark:prose-pre:bg-gray-800/30
-               prose-pre:border prose-pre:border-gray-200/50 dark:prose-pre:border-gray-700/30 prose-pre:rounded-lg prose-pre:p-4 prose-pre:my-3 prose-pre:overflow-x-auto
+               prose-pre:relative prose-pre:bg-black prose-pre:border prose-pre:border-gray-700 prose-pre:rounded-lg prose-pre:p-4 prose-pre:my-3 prose-pre:overflow-x-auto
                prose-code:px-1 prose-code:py-0.5 prose-code:text-xs prose-code:cursor-pointer prose-code:font-mono
                prose-a:text-primary-500 prose-a:no-underline hover:prose-a:underline hover:prose-a:text-primary-400
-               prose-strong:text-theme-text prose-strong:font-semibold
-               prose-em:text-theme-text-secondary prose-em:italic" v-html="renderMarkdown(request.message)"
+               prose-strong:text-white prose-strong:font-semibold
+               prose-em:text-gray-300 prose-em:italic" v-html="renderMarkdown(request.message)"
       />
-      <div v-else class="whitespace-pre-wrap leading-relaxed text-theme-text opacity-80">
+      <div v-else class="whitespace-pre-wrap leading-relaxed text-white">
         {{ request.message }}
       </div>
     </div>
 
     <!-- 错误状态 -->
     <n-alert v-else type="error" title="数据加载错误">
-      <div class="text-theme-text opacity-80">
+      <div class="text-white">
         Request对象: {{ JSON.stringify(request) }}
       </div>
     </n-alert>

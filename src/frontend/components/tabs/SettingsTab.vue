@@ -20,6 +20,7 @@ interface Emits {
   stopAudio: []
   testAudioError: [error: any]
   updateWindowSize: [size: { width: number, height: number, fixed: boolean }]
+  updateWindowMode: [fixed: boolean]
 }
 
 defineProps<Props>()
@@ -45,6 +46,7 @@ function handleWindowSizeUpdate(size: { width: number, height: number, fixed: bo
         :always-on-top="alwaysOnTop"
         :window-width="600"
         :window-height="900"
+        :fixed-window-size="false"
         @toggle-always-on-top="$emit('toggleAlwaysOnTop')"
         @update-window-size="handleWindowSizeUpdate"
       />

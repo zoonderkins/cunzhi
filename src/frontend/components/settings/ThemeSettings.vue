@@ -15,8 +15,8 @@ defineEmits(['themeChange'])
     <template #header>
       <n-space align="center">
         <!-- 图标 -->
-        <div class="w-10 h-10 rounded-lg bg-purple-100 dark:bg-purple-900 flex items-center justify-center">
-          <div class="i-carbon-color-palette text-lg text-gray-700 dark:text-gray-200" />
+        <div class="w-10 h-10 rounded-lg bg-primary-100 dark:bg-primary-900 flex items-center justify-center">
+          <div class="i-carbon-color-palette text-lg text-primary-600 dark:text-primary-400" />
         </div>
 
         <!-- 标题和副标题 -->
@@ -34,7 +34,7 @@ defineEmits(['themeChange'])
     <!-- 设置内容 -->
     <div class="flex items-center justify-between">
       <div class="flex items-center">
-        <div class="w-1.5 h-1.5 bg-green-500 rounded-full mr-3 flex-shrink-0"></div>
+        <div class="w-1.5 h-1.5 bg-primary-500 rounded-full mr-3 flex-shrink-0"></div>
         <div>
           <div class="text-sm font-medium leading-relaxed">
             界面主题
@@ -53,8 +53,11 @@ defineEmits(['themeChange'])
         >
           <template #icon>
             <div
-              class="w-3 h-3 bg-white rounded-full border"
-              :class="currentTheme === 'light' ? 'border-white' : 'border-gray-400'"
+              class="w-3 h-3 rounded-full border transition-all duration-200"
+              :style="{
+                backgroundColor: '#ffffff',
+                borderColor: currentTheme === 'light' ? '#14b8a6' : '#d1d5db'
+              }"
             />
           </template>
           浅色
@@ -68,8 +71,11 @@ defineEmits(['themeChange'])
         >
           <template #icon>
             <div
-              class="w-3 h-3 bg-gray-800 rounded-full border"
-              :class="currentTheme === 'dark' ? 'border-gray-800' : 'border-gray-400'"
+              class="w-3 h-3 rounded-full border transition-all duration-200"
+              :style="{
+                backgroundColor: '#1f2937',
+                borderColor: currentTheme === 'dark' ? '#14b8a6' : '#d1d5db'
+              }"
             />
           </template>
           深色
@@ -83,8 +89,11 @@ defineEmits(['themeChange'])
         >
           <template #icon>
             <div
-              class="w-3 h-3 bg-gradient-to-r from-white to-gray-800 rounded-full border"
-              :class="currentTheme === 'system' ? 'border-gray-600' : 'border-gray-400'"
+              class="w-3 h-3 rounded-full border transition-all duration-200"
+              :style="{
+                background: 'linear-gradient(to right, #ffffff, #1f2937)',
+                borderColor: currentTheme === 'system' ? '#14b8a6' : '#d1d5db'
+              }"
             />
           </template>
           跟随

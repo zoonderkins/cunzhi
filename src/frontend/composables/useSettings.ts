@@ -12,6 +12,9 @@ export function useSettings() {
     min_width: 600,
     min_height: 800,
   })
+  const windowWidth = ref(600)
+  const windowHeight = ref(900)
+  const fixedWindowSize = ref(false)
 
   // Naive UI 消息实例
   let message: any = null
@@ -33,6 +36,20 @@ export function useSettings() {
       // 加载音效URL设置
       const audioUrlValue = await invoke('get_audio_url')
       audioUrl.value = audioUrlValue as string
+
+      // 加载窗口尺寸和模式设置
+      try {
+        const windowSettings = await invoke('get_window_settings')
+        if (windowSettings) {
+          const settings = windowSettings as any
+          windowWidth.value = settings.width || 600
+          windowHeight.value = settings.height || 900
+          fixedWindowSize.value = settings.fixed || false
+        }
+      }
+      catch {
+        console.log('窗口设置不存在，使用默认值')
+      }
 
       // 同步窗口状态
       await invoke('sync_window_state')
@@ -106,11 +123,18 @@ export function useSettings() {
   }
 
   // 更新窗口大小
-  async function updateWindowSize(size: { width: number; height: number; fixed: boolean }) {
+  async function updateWindowSize(size: { width: number, height: number, fixed: boolean }) {
     try {
       await invoke('update_window_size', { sizeUpdate: size })
+
+      // 更新本地状态
+      windowWidth.value = size.width
+      windowHeight.value = size.height
+      fixedWindowSize.value = size.fixed
+
       if (message) {
-        message.success(`窗口大小已更新为 ${size.width}x${size.height}`)
+        const mode = size.fixed ? '固定大小' : '自由拉伸'
+        message.success(`窗口设置已更新：${mode} ${size.width}x${size.height}`)
       }
     }
     catch (error) {
@@ -137,6 +161,9 @@ export function useSettings() {
     audioNotificationEnabled,
     audioUrl,
     windowConfig,
+    windowWidth,
+    windowHeight,
+    fixedWindowSize,
     setMessageInstance,
     loadWindowSettings,
     toggleAlwaysOnTop,

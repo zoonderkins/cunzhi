@@ -19,8 +19,7 @@ defineProps<{
       <n-space align="center">
         <!-- 图标 -->
         <div
-          class="w-10 h-10 rounded-lg flex items-center justify-center"
-          :class="[
+          class="w-10 h-10 rounded-lg flex items-center justify-center" :class="[
             feature.iconBg,
             feature.iconBg.includes('blue') ? 'dark:bg-blue-900'
             : feature.iconBg.includes('purple') ? 'dark:bg-purple-900'
@@ -31,7 +30,6 @@ defineProps<{
           <!-- UnoCSS图标 -->
           <div
             :class="feature.icon"
-            class="text-lg text-gray-700 dark:text-gray-200"
           />
         </div>
 
@@ -49,12 +47,8 @@ defineProps<{
 
     <!-- 功能列表 -->
     <n-space vertical size="small">
-      <div
-        v-for="(item, index) in feature.features"
-        :key="index"
-        class="flex items-center text-sm leading-relaxed"
-      >
-        <div class="w-1.5 h-1.5 bg-green-500 rounded-full mr-3 flex-shrink-0"></div>
+      <div v-for="(item, index) in feature.features" :key="index" class="flex items-center text-sm leading-relaxed">
+        <div class="w-1.5 h-1.5 bg-green-500 rounded-full mr-3 flex-shrink-0" />
         <span class="opacity-90">{{ item }}</span>
       </div>
     </n-space>

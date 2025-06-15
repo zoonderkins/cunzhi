@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
 import { useTheme } from '../../composables/useTheme'
-import { colors } from '../../theme/colors'
+import { semanticColors } from '../../theme/colors'
 
 const { currentTheme, setTheme } = useTheme()
 
@@ -12,8 +12,8 @@ const themeOptions = [
 ]
 
 const colorPalettes = [
-  { name: 'Primary', key: 'primary', colors: colors.primary },
-  { name: 'Gray', key: 'gray', colors: colors.gray },
+  { name: 'Primary', key: 'primary', colors: semanticColors.primary },
+  { name: 'Gray', key: 'gray', colors: semanticColors.gray },
 ]
 
 const themeVariables = [
@@ -34,7 +34,8 @@ function getVariableValue(variable: string) {
 
 function copyColorValue(color: string) {
   navigator.clipboard.writeText(color)
-  alert(`已复制颜色值: ${color}`)
+  // 使用 console.log 替代 alert，避免阻塞用户界面
+  console.log(`已复制颜色值: ${color}`)
 }
 
 const systemPreference = computed(() => {

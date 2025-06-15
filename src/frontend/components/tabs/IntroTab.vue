@@ -3,7 +3,7 @@ import FeatureCard from '../common/FeatureCard.vue'
 
 const features = [
   {
-    icon: 'i-carbon-chat',
+    icon: 'i-carbon-chat text-lg text-blue-600 dark:text-blue-400',
     title: 'Zhi 智能审查工具',
     subtitle: '寸止交互系统',
     iconBg: 'bg-blue-100',
@@ -16,7 +16,7 @@ const features = [
     ],
   },
   {
-    icon: 'i-carbon-data-base',
+    icon: 'i-carbon-data-base text-lg text-purple-600 dark:text-purple-400',
     title: '记忆管理工具',
     subtitle: '智能记忆系统',
     iconBg: 'bg-purple-100',
@@ -29,7 +29,7 @@ const features = [
     ],
   },
   {
-    icon: 'i-carbon-volume-up',
+    icon: 'i-carbon-volume-up text-lg text-orange-600 dark:text-orange-400',
     title: '音频通知系统',
     subtitle: '智能音效管理',
     iconBg: 'bg-orange-100',
@@ -42,7 +42,7 @@ const features = [
     ],
   },
   {
-    icon: 'i-carbon-settings',
+    icon: 'i-carbon-settings text-lg text-green-600 dark:text-green-400',
     title: '个性化设置',
     subtitle: '全面配置选项',
     iconBg: 'bg-green-100',
