@@ -69,8 +69,8 @@ onMounted(() => {
   <div class="min-h-screen bg-black">
     <!-- MCP弹窗模式 -->
     <div v-if="props.showMcpPopup && props.mcpRequest" class="flex flex-col w-full h-screen bg-black text-white select-none">
-      <!-- 头部 - 固定 -->
-      <div class="flex-shrink-0 bg-gray-100 border-b-2 border-gray-200">
+      <!-- 头部 - 固定在顶部 -->
+      <div class="sticky top-0 z-50 flex-shrink-0 bg-gray-100 border-b-2 border-gray-200">
         <PopupHeader
           :current-theme="props.appConfig.theme"
           :loading="false"

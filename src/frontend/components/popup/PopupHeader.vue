@@ -8,11 +8,11 @@ interface Props {
 }
 
 interface Emits {
-  themeChange: []
+  themeChange: [theme: string]
   openMainLayout: []
 }
 
-withDefaults(defineProps<Props>(), {
+const props = withDefaults(defineProps<Props>(), {
   currentTheme: 'dark',
   loading: false,
   showMainLayout: false,
@@ -21,7 +21,9 @@ withDefaults(defineProps<Props>(), {
 const emit = defineEmits<Emits>()
 
 function handleThemeChange() {
-  emit('themeChange')
+  // 切换到下一个主题
+  const nextTheme = props.currentTheme === 'light' ? 'dark' : 'light'
+  emit('themeChange', nextTheme)
 }
 
 function handleOpenMainLayout() {
@@ -46,12 +48,12 @@ function handleOpenMainLayout() {
           size="small"
           quaternary
           circle
-          :title="showMainLayout ? '返回聊天' : '打开设置'"
+          :title="props.showMainLayout ? '返回聊天' : '打开设置'"
           @click="handleOpenMainLayout"
         >
           <template #icon>
             <div
-              :class="showMainLayout ? 'i-carbon-chat' : 'i-carbon-settings'"
+              :class="props.showMainLayout ? 'i-carbon-chat' : 'i-carbon-settings'"
               class="w-4 h-4 text-white"
             />
           </template>
@@ -60,11 +62,11 @@ function handleOpenMainLayout() {
           size="small"
           quaternary
           circle
-          :title="`切换到${currentTheme === 'light' ? '深色' : '浅色'}主题`"
+          :title="`切换到${props.currentTheme === 'light' ? '深色' : '浅色'}主题`"
           @click="handleThemeChange"
         >
           <template #icon>
-            <ThemeIcon :theme="currentTheme" class="w-4 h-4" />
+            <ThemeIcon :theme="props.currentTheme" class="w-4 h-4" />
           </template>
         </n-button>
       </n-space>

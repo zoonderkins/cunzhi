@@ -114,11 +114,12 @@ onMounted(() => {
       >
         <!-- 卡片头部 -->
         <template #header>
-          <n-space align="center" justify="space-between">
-            <n-space align="center">
+          <div class="flex items-center justify-between">
+            <!-- 左侧内容区域 - 允许收缩但不会挤压右侧 -->
+            <div class="flex items-center gap-3 flex-1 min-w-0">
               <!-- 图标 -->
               <div
-                class="w-10 h-10 rounded-lg flex items-center justify-center"
+                class="w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0"
                 :class="[tool.icon_bg, tool.dark_icon_bg]"
               >
                 <div
@@ -127,7 +128,7 @@ onMounted(() => {
               </div>
 
               <!-- 标题和副标题 -->
-              <div>
+              <div class="flex-1 min-w-0">
                 <n-space align="center">
                   <div class="text-lg font-medium tracking-tight">
                     {{ tool.name }}
@@ -158,14 +159,21 @@ onMounted(() => {
                     已禁用
                   </n-tag>
                 </n-space>
-                <div class="text-sm opacity-60 font-normal mt-1">
-                  {{ tool.description }}
-                </div>
+                <n-tooltip :show-arrow="false" placement="bottom-start" :style="{ maxWidth: '400px' }">
+                  <template #trigger>
+                    <div class="text-sm opacity-60 font-normal mt-1 truncate cursor-help">
+                      {{ tool.description }}
+                    </div>
+                  </template>
+                  <div class="text-sm leading-relaxed">
+                    {{ tool.description }}
+                  </div>
+                </n-tooltip>
               </div>
-            </n-space>
+            </div>
 
-            <!-- 操作按钮 -->
-            <n-space>
+            <!-- 右侧操作按钮区域 - 固定宽度，不会被挤压 -->
+            <div class="flex-shrink-0 ml-4">
               <!-- 开关 -->
               <n-switch
                 v-if="tool.can_disable"
@@ -173,8 +181,8 @@ onMounted(() => {
                 size="small"
                 @update:value="toggleTool(tool.id)"
               />
-            </n-space>
-          </n-space>
+            </div>
+          </div>
         </template>
 
         <!-- 工具状态说明 -->
