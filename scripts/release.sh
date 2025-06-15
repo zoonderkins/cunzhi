@@ -262,7 +262,7 @@ perform_release() {
     # 如果不是从main分支执行的，合并当前分支到main
     if [[ "$current_branch" != "main" ]]; then
         print_info "合并 $current_branch 分支到main..."
-        if ! git merge "$current_branch" --no-ff -m "release: merge $current_branch for version $new_version"; then
+        if ! git merge "$current_branch" --no-ff -m "feat: merge $current_branch for version $new_version"; then
             print_error "合并失败，可能存在冲突。请手动解决冲突后重新运行脚本。"
         fi
     fi
@@ -277,7 +277,7 @@ perform_release() {
     # 提交版本更新
     print_info "提交版本更新..."
     git add .
-    git commit -m "chore: bump version to $new_version"
+    git commit -m "release: Release $new_version"
 
     # 检查并提交任何剩余的更改（如Cargo.lock）
     if ! git diff-index --quiet HEAD --; then
@@ -286,9 +286,12 @@ perform_release() {
         git commit -m "chore: update Cargo.lock after version bump"
     fi
 
+    # 获取当前commit的标题作为tag消息（Release xxx）
+    release_commit_title=$(git log --format=%s -1)
+
     # 创建tag（不包含颜色代码）
     print_info "创建tag v$new_version..."
-    git tag -a "v$new_version" -m "Release version $new_version"
+    git tag -a "v$new_version" -m "$release_commit_title"
 
     # 推送main分支和tag
     print_info "推送main分支和tag到远程仓库..."
