@@ -51,3 +51,11 @@ tauri-build = { version = "2.0", features = [] }
 
 [features]
 default = []
+
+# 发布版本优化配置
+[profile.release]
+opt-level = "z"        # 优化体积而非速度
+lto = true            # 链接时优化，减少最终二进制大小
+codegen-units = 1     # 减少代码生成单元，提高优化效果
+panic = "abort"       # 减少panic处理代码
+strip = true          # 移除调试符号
