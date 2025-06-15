@@ -18,7 +18,7 @@ interface MCPToolConfig {
 // MCP工具配置状态
 const mcpTools = ref<MCPToolConfig[]>([])
 const loading = ref(true)
-const needsRestart = ref(false)
+const needsReconnect = ref(false)
 
 // Naive UI 消息实例
 const message = useMessage()
@@ -50,41 +50,25 @@ async function toggleTool(toolId: string) {
 
   try {
     const newEnabled = !tool.enabled
-    const requiresRestart = await invoke('set_mcp_tool_enabled', {
+    await invoke('set_mcp_tool_enabled', {
       toolId,
       enabled: newEnabled,
-    }) as boolean
+    })
 
     // 更新本地状态
     tool.enabled = newEnabled
 
-    if (requiresRestart) {
-      needsRestart.value = true
-      if (message) {
-        message.info('MCP工具配置已更新，需要重启应用生效')
-      }
+    // 显示重连提示
+    needsReconnect.value = true
+
+    if (message) {
+      message.warning('MCP工具配置已更新，请在MCP客户端中重连服务')
     }
   }
   catch (error) {
     console.error('更新MCP工具状态失败:', error)
     if (message) {
       message.error(`更新MCP工具状态失败: ${error}`)
-    }
-  }
-}
-
-// 重启应用
-async function restartApp() {
-  try {
-    if (message) {
-      message.loading('正在重启应用...', { duration: 2000 })
-    }
-    await invoke('restart_application')
-  }
-  catch (error) {
-    console.error('重启应用失败:', error)
-    if (message) {
-      message.error(`重启应用失败: ${error}`)
     }
   }
 }
@@ -97,30 +81,18 @@ onMounted(() => {
 <template>
   <div class="max-w-3xl mx-auto tab-content">
     <n-space vertical size="large">
-      <!-- 重启提示 -->
+      <!-- MCP服务重连提示 -->
       <n-alert
-        v-if="needsRestart"
-        title="需要重启应用"
+        v-if="needsReconnect"
+        title="需要重连MCP服务"
         type="warning"
         closable
-        @close="needsRestart = false"
+        @close="needsReconnect = false"
       >
         <template #icon>
-          <div class="i-carbon-restart text-lg" />
+          <div class="i-carbon-connection-signal text-lg" />
         </template>
-        MCP工具配置已更改，需要重启应用才能生效。
-        <template #action>
-          <n-button
-            type="warning"
-            size="small"
-            @click="restartApp"
-          >
-            <template #icon>
-              <div class="i-carbon-restart" />
-            </template>
-            立即重启
-          </n-button>
-        </template>
+        MCP工具配置已更改，请在您的MCP客户端中重新连接寸止服务以使更改生效。
       </n-alert>
 
       <!-- 加载状态 -->

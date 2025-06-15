@@ -54,9 +54,9 @@ const canSubmit = computed(() => {
 // 工具栏状态文本
 const statusText = computed(() => {
   // 检查是否有任何输入内容
-  const hasInput = selectedOptions.value.length > 0 ||
-                   uploadedImages.value.length > 0 ||
-                   userInput.value.trim().length > 0
+  const hasInput = selectedOptions.value.length > 0
+    || uploadedImages.value.length > 0
+    || userInput.value.trim().length > 0
 
   // 如果有任何输入内容，返回空字符串让 PopupActions 显示快捷键
   if (hasInput) {

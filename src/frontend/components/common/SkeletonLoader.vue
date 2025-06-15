@@ -6,7 +6,7 @@ interface Props {
   showActions?: boolean
 }
 
-const props = withDefaults(defineProps<Props>(), {
+const _props = withDefaults(defineProps<Props>(), {
   type: 'popup',
   lines: 3,
   showHeader: true,

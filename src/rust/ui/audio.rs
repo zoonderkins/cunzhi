@@ -17,7 +17,7 @@ pub struct AudioController {
 #[tauri::command]
 pub async fn get_audio_notification_enabled(state: State<'_, AppState>) -> Result<bool, String> {
     let config = state.config.lock().map_err(|e| format!("获取配置失败: {}", e))?;
-    Ok(config.audio_notification_enabled)
+    Ok(config.audio_config.notification_enabled)
 }
 
 #[tauri::command]
@@ -31,7 +31,7 @@ pub async fn set_audio_notification_enabled(enabled: bool, state: State<'_, AppS
 
     {
         let mut config = state.config.lock().map_err(|e| format!("获取配置失败: {}", e))?;
-        config.audio_notification_enabled = enabled;
+        config.audio_config.notification_enabled = enabled;
     }
 
     // 保存配置到文件
@@ -42,14 +42,14 @@ pub async fn set_audio_notification_enabled(enabled: bool, state: State<'_, AppS
 #[tauri::command]
 pub async fn get_audio_url(state: State<'_, AppState>) -> Result<String, String> {
     let config = state.config.lock().map_err(|e| format!("获取配置失败: {}", e))?;
-    Ok(config.audio_url.clone())
+    Ok(config.audio_config.custom_url.clone())
 }
 
 #[tauri::command]
 pub async fn set_audio_url(url: String, state: State<'_, AppState>, app: tauri::AppHandle) -> Result<(), String> {
     {
         let mut config = state.config.lock().map_err(|e| format!("获取配置失败: {}", e))?;
-        config.audio_url = url;
+        config.audio_config.custom_url = url;
     }
 
     // 保存配置到文件
@@ -62,7 +62,7 @@ pub async fn play_notification_sound(state: State<'_, AppState>, app: tauri::App
     // 检查是否启用音频通知
     let (enabled, audio_url) = {
         let config = state.config.lock().map_err(|e| format!("获取配置失败: {}", e))?;
-        (config.audio_notification_enabled, config.audio_url.clone())
+        (config.audio_config.notification_enabled, config.audio_config.custom_url.clone())
     };
 
     if !enabled {
@@ -84,7 +84,7 @@ pub async fn test_audio_sound(state: State<'_, AppState>, app: tauri::AppHandle)
     // 获取当前配置的音效URL
     let audio_url = {
         let config = state.config.lock().map_err(|e| format!("获取配置失败: {}", e))?;
-        config.audio_url.clone()
+        config.audio_config.custom_url.clone()
     };
 
     // 同步测试音频播放，确保能捕获错误

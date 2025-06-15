@@ -55,7 +55,7 @@ pub async fn load_config_and_apply_window_settings(state: &State<'_, AppState>, 
     let (always_on_top, window_config) = {
         let config = state.config.lock()
             .map_err(|e| anyhow::anyhow!("获取配置失败: {}", e))?;
-        (config.always_on_top, config.window_config.clone())
+        (config.ui_config.always_on_top, config.ui_config.window_config.clone())
     };
 
     // 应用到窗口

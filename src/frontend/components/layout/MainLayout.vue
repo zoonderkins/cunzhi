@@ -10,6 +10,9 @@ interface Props {
   alwaysOnTop: boolean
   audioNotificationEnabled: boolean
   audioUrl: string
+  windowWidth: number
+  windowHeight: number
+  fixedWindowSize: boolean
 }
 
 interface Emits {
@@ -90,6 +93,9 @@ function handleImageError(event: Event) {
               :always-on-top="alwaysOnTop"
               :audio-notification-enabled="audioNotificationEnabled"
               :audio-url="audioUrl"
+              :window-width="windowWidth"
+              :window-height="windowHeight"
+              :fixed-window-size="fixedWindowSize"
               @theme-change="$emit('themeChange', $event)"
               @toggle-always-on-top="$emit('toggleAlwaysOnTop')"
               @toggle-audio-notification="$emit('toggleAudioNotification')"

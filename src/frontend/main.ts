@@ -1,7 +1,5 @@
 import {
   create,
-  darkTheme,
-  lightTheme,
   NAlert,
   NButton,
   NCard,

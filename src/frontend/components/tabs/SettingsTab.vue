@@ -9,6 +9,9 @@ interface Props {
   alwaysOnTop: boolean
   audioNotificationEnabled: boolean
   audioUrl: string
+  windowWidth: number
+  windowHeight: number
+  fixedWindowSize: boolean
 }
 
 interface Emits {
@@ -20,7 +23,6 @@ interface Emits {
   stopAudio: []
   testAudioError: [error: any]
   updateWindowSize: [size: { width: number, height: number, fixed: boolean }]
-  updateWindowMode: [fixed: boolean]
 }
 
 defineProps<Props>()
@@ -44,9 +46,9 @@ function handleWindowSizeUpdate(size: { width: number, height: number, fixed: bo
       <!-- 窗口设置组件 -->
       <WindowSettings
         :always-on-top="alwaysOnTop"
-        :window-width="600"
-        :window-height="900"
-        :fixed-window-size="false"
+        :window-width="windowWidth"
+        :window-height="windowHeight"
+        :fixed-window-size="fixedWindowSize"
         @toggle-always-on-top="$emit('toggleAlwaysOnTop')"
         @update-window-size="handleWindowSizeUpdate"
       />

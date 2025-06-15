@@ -1,6 +1,6 @@
-import type { McpRequest, PopupEvent, PopupResponse } from '../types/popup'
+import type { McpRequest, PopupResponse } from '../types/popup'
 // 弹窗系统组合式API
-import { computed, onMounted, onUnmounted, ref } from 'vue'
+import { computed, onUnmounted, ref } from 'vue'
 import { PopupManager } from './usePopupManager'
 
 export function usePopup(config?: {
@@ -21,7 +21,7 @@ export function usePopup(config?: {
   const currentRequest = computed(() => manager.state.request)
 
   // 事件处理器
-  const eventHandlers = ref<Map<string, Function[]>>(new Map())
+  const eventHandlers = ref<Map<string, ((...args: any[]) => void)[]>>(new Map())
 
   // 显示弹窗
   function showPopup(request: McpRequest) {
@@ -59,7 +59,7 @@ export function usePopup(config?: {
   }
 
   // 事件监听
-  function onPopupEvent(event: string, callback: Function) {
+  function onPopupEvent(event: string, callback: (...args: any[]) => void) {
     manager.on(event, callback)
 
     // 记录事件处理器以便清理
@@ -70,7 +70,7 @@ export function usePopup(config?: {
   }
 
   // 移除事件监听
-  function offPopupEvent(event: string, callback: Function) {
+  function offPopupEvent(event: string, callback: (...args: any[]) => void) {
     manager.off(event, callback)
 
     const handlers = eventHandlers.value.get(event)

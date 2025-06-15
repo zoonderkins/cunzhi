@@ -1,11 +1,11 @@
 import type { IPopupManager, McpRequest, PopupConfig, PopupEvent, PopupResponse, PopupState } from '../types/popup'
 // 弹窗管理系统
-import { reactive, ref } from 'vue'
+import { reactive } from 'vue'
 
 export class PopupManager implements IPopupManager {
   public state: PopupState
   public config: PopupConfig
-  private eventListeners: Map<string, Function[]> = new Map()
+  private eventListeners: Map<string, ((...args: any[]) => void)[]> = new Map()
 
   constructor(config: Partial<PopupConfig> = {}) {
     this.state = reactive({
@@ -105,14 +105,14 @@ export class PopupManager implements IPopupManager {
   }
 
   // 事件系统
-  on(event: string, callback: Function): void {
+  on(event: string, callback: (...args: any[]) => void): void {
     if (!this.eventListeners.has(event)) {
       this.eventListeners.set(event, [])
     }
     this.eventListeners.get(event)!.push(callback)
   }
 
-  off(event: string, callback: Function): void {
+  off(event: string, callback: (...args: any[]) => void): void {
     const listeners = this.eventListeners.get(event)
     if (listeners) {
       const index = listeners.indexOf(callback)

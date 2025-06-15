@@ -164,12 +164,10 @@ function switchTemplate(index: number) {
 
 function handleResponse(response: any) {
   console.log('MCP 响应:', response)
-  alert(`收到响应: ${JSON.stringify(response, null, 2)}`)
 }
 
 function handleCancel() {
   console.log('MCP 取消')
-  alert('用户取消了操作')
 }
 
 function handleThemeChange(theme: string) {
@@ -179,7 +177,6 @@ function handleThemeChange(theme: string) {
 
 function handleOpenMainLayout() {
   console.log('打开主界面')
-  alert('主界面切换功能（测试模式下模拟）')
 }
 
 function togglePopup() {

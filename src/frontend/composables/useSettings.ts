@@ -1,4 +1,5 @@
 import { invoke } from '@tauri-apps/api/core'
+import { getCurrentWebviewWindow } from '@tauri-apps/api/webviewWindow'
 import { ref } from 'vue'
 
 export function useSettings() {
@@ -7,17 +8,27 @@ export function useSettings() {
   const audioUrl = ref('')
   const windowConfig = ref({
     auto_resize: true,
-    max_width: 800,
+    max_width: 1500,
     max_height: 1000,
     min_width: 600,
-    min_height: 800,
+    min_height: 400,
   })
   const windowWidth = ref(600)
   const windowHeight = ref(900)
   const fixedWindowSize = ref(false)
 
+  // 继续回复设置
+  const continueReplyEnabled = ref(true)
+  const continuePrompt = ref('请按照最佳实践继续')
+
   // Naive UI 消息实例
   let message: any = null
+
+  // 节流定时器
+  let resizeThrottleTimer: number | null = null
+
+  // 窗口大小变化监听器
+  let windowResizeUnlisten: (() => void) | null = null
 
   function setMessageInstance(messageInstance: any) {
     message = messageInstance
@@ -42,8 +53,8 @@ export function useSettings() {
         const windowSettings = await invoke('get_window_settings')
         if (windowSettings) {
           const settings = windowSettings as any
-          windowWidth.value = settings.width || 600
-          windowHeight.value = settings.height || 900
+          windowWidth.value = settings.current_width || 600
+          windowHeight.value = settings.current_height || 900
           fixedWindowSize.value = settings.fixed || false
         }
       }
@@ -51,8 +62,26 @@ export function useSettings() {
         console.log('窗口设置不存在，使用默认值')
       }
 
+      // 加载继续回复设置
+      try {
+        const replyConfig = await invoke('get_reply_config')
+        if (replyConfig) {
+          const config = replyConfig as any
+          continueReplyEnabled.value = config.enable_continue_reply || true
+          continuePrompt.value = config.continue_prompt || '请按照最佳实践继续'
+        }
+      }
+      catch {
+        console.log('继续回复设置不存在，使用默认值')
+      }
+
       // 同步窗口状态
       await invoke('sync_window_state')
+
+      // 根据当前模式设置监听器
+      if (!fixedWindowSize.value) {
+        await setupWindowResizeListener()
+      }
     }
     catch (error) {
       console.error('加载窗口设置失败:', error)
@@ -125,12 +154,23 @@ export function useSettings() {
   // 更新窗口大小
   async function updateWindowSize(size: { width: number, height: number, fixed: boolean }) {
     try {
+      // update_window_size 命令已经会同时更新 WindowConfig 中的所有相关设置
       await invoke('update_window_size', { sizeUpdate: size })
 
       // 更新本地状态
       windowWidth.value = size.width
       windowHeight.value = size.height
       fixedWindowSize.value = size.fixed
+
+      // 根据模式设置监听器
+      if (size.fixed) {
+        // 固定模式：移除监听器
+        removeWindowResizeListener()
+      }
+      else {
+        // 自由拉伸模式：启用监听器
+        await setupWindowResizeListener()
+      }
 
       if (message) {
         const mode = size.fixed ? '固定大小' : '自由拉伸'
@@ -145,6 +185,78 @@ export function useSettings() {
     }
   }
 
+  // 节流保存窗口尺寸
+  function throttledSaveWindowSize() {
+    if (resizeThrottleTimer) {
+      clearTimeout(resizeThrottleTimer)
+    }
+
+    resizeThrottleTimer = window.setTimeout(async () => {
+      try {
+        // 只在自由拉伸模式下保存
+        if (!fixedWindowSize.value) {
+          // 获取当前窗口的逻辑尺寸
+          const result = await invoke('get_current_window_size')
+          if (result && typeof result === 'object') {
+            const { width, height } = result as any
+
+            await invoke('set_window_settings', {
+              windowSettings: {
+                free_width: width,
+                free_height: height,
+                fixed: false,
+              },
+            })
+
+            // 更新本地状态
+            windowWidth.value = width
+            windowHeight.value = height
+
+            console.log(`窗口尺寸已保存: ${width}x${height}`)
+          }
+        }
+      }
+      catch (error) {
+        console.error('保存窗口尺寸失败:', error)
+      }
+    }, 1000) // 1秒节流
+  }
+
+  // 设置窗口大小变化监听器
+  async function setupWindowResizeListener() {
+    try {
+      const webview = getCurrentWebviewWindow()
+
+      // 移除之前的监听器
+      if (windowResizeUnlisten) {
+        windowResizeUnlisten()
+      }
+
+      // 监听窗口大小变化
+      windowResizeUnlisten = await webview.onResized(() => {
+        throttledSaveWindowSize()
+      })
+
+      console.log('窗口大小变化监听器已设置')
+    }
+    catch (error) {
+      console.error('设置窗口大小变化监听器失败:', error)
+    }
+  }
+
+  // 移除窗口大小变化监听器
+  function removeWindowResizeListener() {
+    if (windowResizeUnlisten) {
+      windowResizeUnlisten()
+      windowResizeUnlisten = null
+    }
+
+    if (resizeThrottleTimer) {
+      clearTimeout(resizeThrottleTimer)
+      resizeThrottleTimer = null
+    }
+  }
+
   // 加载窗口配置
   async function loadWindowConfig() {
     try {
@@ -156,7 +268,32 @@ export function useSettings() {
     }
   }
 
+  // 更新继续回复设置
+  async function updateReplyConfig(config: { enable_continue_reply?: boolean, continue_prompt?: string }) {
+    try {
+      await invoke('set_reply_config', { config })
+
+      if (config.enable_continue_reply !== undefined) {
+        continueReplyEnabled.value = config.enable_continue_reply
+      }
+      if (config.continue_prompt !== undefined) {
+        continuePrompt.value = config.continue_prompt
+      }
+
+      if (message) {
+        message.success('继续回复设置已更新')
+      }
+    }
+    catch (error) {
+      console.error('更新继续回复设置失败:', error)
+      if (message) {
+        message.error('更新继续回复设置失败')
+      }
+    }
+  }
+
   return {
+    // 状态
     alwaysOnTop,
     audioNotificationEnabled,
     audioUrl,
@@ -164,6 +301,10 @@ export function useSettings() {
     windowWidth,
     windowHeight,
     fixedWindowSize,
+    continueReplyEnabled,
+    continuePrompt,
+
+    // 方法
     setMessageInstance,
     loadWindowSettings,
     toggleAlwaysOnTop,
@@ -172,6 +313,9 @@ export function useSettings() {
     testAudioSound,
     stopAudioSound,
     updateWindowSize,
+    updateReplyConfig,
     loadWindowConfig,
+    setupWindowResizeListener,
+    removeWindowResizeListener,
   }
 }

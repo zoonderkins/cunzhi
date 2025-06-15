@@ -39,7 +39,6 @@ function handleUpdateAudioUrl(url: string) {
 
 function handleTestAudio() {
   console.log('测试音频播放')
-  alert('测试音频播放')
 }
 </script>
 
@@ -114,19 +113,19 @@ function handleTestAudio() {
           <n-card title="测试说明" size="small">
             <n-space vertical size="small">
               <div class="flex items-center text-sm">
-                <div class="w-1.5 h-1.5 bg-green-500 rounded-full mr-3 flex-shrink-0"></div>
+                <div class="w-1.5 h-1.5 bg-green-500 rounded-full mr-3 flex-shrink-0" />
                 这是真实的 MainLayout 组件，所有修改都会实时反映
               </div>
               <div class="flex items-center text-sm">
-                <div class="w-1.5 h-1.5 bg-green-500 rounded-full mr-3 flex-shrink-0"></div>
+                <div class="w-1.5 h-1.5 bg-green-500 rounded-full mr-3 flex-shrink-0" />
                 可以测试主题切换、设置修改等功能
               </div>
               <div class="flex items-center text-sm">
-                <div class="w-1.5 h-1.5 bg-green-500 rounded-full mr-3 flex-shrink-0"></div>
+                <div class="w-1.5 h-1.5 bg-green-500 rounded-full mr-3 flex-shrink-0" />
                 事件会在控制台输出，方便调试
               </div>
               <div class="flex items-center text-sm">
-                <div class="w-1.5 h-1.5 bg-blue-500 rounded-full mr-3 flex-shrink-0"></div>
+                <div class="w-1.5 h-1.5 bg-blue-500 rounded-full mr-3 flex-shrink-0" />
                 <span class="opacity-70">src/frontend/components/layout/MainLayout.vue</span>
               </div>
             </n-space>

@@ -9,14 +9,14 @@ pub async fn get_app_info() -> Result<String, String> {
 #[tauri::command]
 pub async fn get_always_on_top(state: State<'_, AppState>) -> Result<bool, String> {
     let config = state.config.lock().map_err(|e| format!("获取配置失败: {}", e))?;
-    Ok(config.always_on_top)
+    Ok(config.ui_config.always_on_top)
 }
 
 #[tauri::command]
 pub async fn set_always_on_top(enabled: bool, state: State<'_, AppState>, app: tauri::AppHandle) -> Result<(), String> {
     {
         let mut config = state.config.lock().map_err(|e| format!("获取配置失败: {}", e))?;
-        config.always_on_top = enabled;
+        config.ui_config.always_on_top = enabled;
     }
 
     // 保存配置到文件
@@ -35,7 +35,7 @@ pub async fn sync_window_state(state: State<'_, AppState>, app: tauri::AppHandle
     // 根据配置同步窗口状态
     let always_on_top = {
         let config = state.config.lock().map_err(|e| format!("获取配置失败: {}", e))?;
-        config.always_on_top
+        config.ui_config.always_on_top
     };
 
     // 应用到当前窗口
@@ -49,7 +49,7 @@ pub async fn sync_window_state(state: State<'_, AppState>, app: tauri::AppHandle
 #[tauri::command]
 pub async fn get_theme(state: State<'_, AppState>) -> Result<String, String> {
     let config = state.config.lock().map_err(|e| format!("获取配置失败: {}", e))?;
-    Ok(config.theme.clone())
+    Ok(config.ui_config.theme.clone())
 }
 
 #[tauri::command]
@@ -61,7 +61,7 @@ pub async fn set_theme(theme: String, state: State<'_, AppState>, app: tauri::Ap
 
     {
         let mut config = state.config.lock().map_err(|e| format!("获取配置失败: {}", e))?;
-        config.theme = theme;
+        config.ui_config.theme = theme;
     }
 
     // 保存配置到文件
@@ -73,14 +73,14 @@ pub async fn set_theme(theme: String, state: State<'_, AppState>, app: tauri::Ap
 #[tauri::command]
 pub async fn get_window_config(state: State<'_, AppState>) -> Result<WindowConfig, String> {
     let config = state.config.lock().map_err(|e| format!("获取配置失败: {}", e))?;
-    Ok(config.window_config.clone())
+    Ok(config.ui_config.window_config.clone())
 }
 
 #[tauri::command]
 pub async fn set_window_config(window_config: WindowConfig, state: State<'_, AppState>, app: tauri::AppHandle) -> Result<(), String> {
     {
         let mut config = state.config.lock().map_err(|e| format!("获取配置失败: {}", e))?;
-        config.window_config = window_config;
+        config.ui_config.window_config = window_config;
     }
 
     // 保存配置到文件
@@ -100,6 +100,109 @@ pub async fn set_reply_config(reply_config: ReplyConfig, state: State<'_, AppSta
     {
         let mut config = state.config.lock().map_err(|e| format!("获取配置失败: {}", e))?;
         config.reply_config = reply_config;
+    }
+
+    // 保存配置到文件
+    save_config(&state, &app).await.map_err(|e| format!("保存配置失败: {}", e))?;
+
+    Ok(())
+}
+
+#[tauri::command]
+pub async fn get_window_settings(state: State<'_, AppState>) -> Result<serde_json::Value, String> {
+    let config = state.config.lock().map_err(|e| format!("获取配置失败: {}", e))?;
+
+    // 返回窗口设置，包含两种模式的独立尺寸
+    let window_settings = serde_json::json!({
+        "fixed": config.ui_config.window_config.fixed,
+        "current_width": config.ui_config.window_config.current_width(),
+        "current_height": config.ui_config.window_config.current_height(),
+        "fixed_width": config.ui_config.window_config.fixed_width,
+        "fixed_height": config.ui_config.window_config.fixed_height,
+        "free_width": config.ui_config.window_config.free_width,
+        "free_height": config.ui_config.window_config.free_height
+    });
+
+    Ok(window_settings)
+}
+
+#[tauri::command]
+pub async fn get_window_settings_for_mode(fixed: bool, state: State<'_, AppState>) -> Result<serde_json::Value, String> {
+    let config = state.config.lock().map_err(|e| format!("获取配置失败: {}", e))?;
+
+    // 返回指定模式的窗口设置
+    let (width, height) = if fixed {
+        (config.ui_config.window_config.fixed_width, config.ui_config.window_config.fixed_height)
+    } else {
+        (config.ui_config.window_config.free_width, config.ui_config.window_config.free_height)
+    };
+
+    let window_settings = serde_json::json!({
+        "width": width,
+        "height": height,
+        "fixed": fixed
+    });
+
+    Ok(window_settings)
+}
+
+#[tauri::command]
+pub async fn get_current_window_size(app: tauri::AppHandle) -> Result<serde_json::Value, String> {
+    if let Some(window) = app.get_webview_window("main") {
+        // 获取逻辑尺寸而不是物理尺寸
+        if let Ok(logical_size) = window.inner_size().map(|physical_size| {
+            // 获取缩放因子
+            let scale_factor = window.scale_factor().unwrap_or(1.0);
+            // 转换为逻辑尺寸
+            tauri::LogicalSize::new(
+                physical_size.width as f64 / scale_factor,
+                physical_size.height as f64 / scale_factor
+            )
+        }) {
+            let window_size = serde_json::json!({
+                "width": logical_size.width.round() as u32,
+                "height": logical_size.height.round() as u32
+            });
+            return Ok(window_size);
+        }
+    }
+
+    Err("无法获取当前窗口大小".to_string())
+}
+
+#[tauri::command]
+pub async fn set_window_settings(window_settings: serde_json::Value, state: State<'_, AppState>, app: tauri::AppHandle) -> Result<(), String> {
+    {
+        let mut config = state.config.lock().map_err(|e| format!("获取配置失败: {}", e))?;
+
+        // 更新窗口配置
+        if let Some(fixed) = window_settings.get("fixed").and_then(|v| v.as_bool()) {
+            config.ui_config.window_config.fixed = fixed;
+        }
+
+        // 更新固定模式尺寸
+        if let Some(width) = window_settings.get("fixed_width").and_then(|v| v.as_f64()) {
+            config.ui_config.window_config.fixed_width = width;
+        }
+        if let Some(height) = window_settings.get("fixed_height").and_then(|v| v.as_f64()) {
+            config.ui_config.window_config.fixed_height = height;
+        }
+
+        // 更新自由拉伸模式尺寸
+        if let Some(width) = window_settings.get("free_width").and_then(|v| v.as_f64()) {
+            config.ui_config.window_config.free_width = width;
+        }
+        if let Some(height) = window_settings.get("free_height").and_then(|v| v.as_f64()) {
+            config.ui_config.window_config.free_height = height;
+        }
+
+        // 兼容旧的width/height参数，更新当前模式的尺寸
+        if let (Some(width), Some(height)) = (
+            window_settings.get("width").and_then(|v| v.as_f64()),
+            window_settings.get("height").and_then(|v| v.as_f64())
+        ) {
+            config.ui_config.window_config.update_current_size(width, height);
+        }
     }
 
     // 保存配置到文件

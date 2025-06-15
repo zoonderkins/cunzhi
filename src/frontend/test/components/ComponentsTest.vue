@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import { ref } from 'vue'
+import FeatureCard from '../../components/common/FeatureCard.vue'
+import ReplySettings from '../../components/settings/ReplySettings.vue'
 import ThemeSettings from '../../components/settings/ThemeSettings.vue'
 import WindowSettings from '../../components/settings/WindowSettings.vue'
-import ReplySettings from '../../components/settings/ReplySettings.vue'
-import FeatureCard from '../../components/common/FeatureCard.vue'
 
 // 模拟状态
 const currentTheme = ref('dark')
@@ -41,7 +41,6 @@ function handleUpdateAudioUrl(url: string) {
 
 function handleTestAudio() {
   console.log('测试音频播放')
-  alert('测试音频播放')
 }
 
 function handleButtonClick() {
@@ -57,20 +56,20 @@ const features = [
     icon: 'i-carbon-brain',
     title: '智能交互',
     description: 'MCP 标准兼容的智能助手',
-    bgClass: 'bg-blue-100 dark:bg-blue-900'
+    bgClass: 'bg-blue-100 dark:bg-blue-900',
   },
   {
     icon: 'i-carbon-color-palette',
     title: '主题切换',
     description: '支持浅色/深色主题',
-    bgClass: 'bg-purple-100 dark:bg-purple-900'
+    bgClass: 'bg-purple-100 dark:bg-purple-900',
   },
   {
     icon: 'i-carbon-settings',
     title: '设置管理',
     description: '完整的设置管理功能',
-    bgClass: 'bg-green-100 dark:bg-green-900'
-  }
+    bgClass: 'bg-green-100 dark:bg-green-900',
+  },
 ]
 </script>
 
@@ -86,8 +85,10 @@ const features = [
       <n-space vertical size="large">
         <!-- 设置组件测试 -->
         <div class="component-section">
-          <h3 class="section-title">设置组件</h3>
-          
+          <h3 class="section-title">
+            设置组件
+          </h3>
+
           <n-space vertical size="large">
             <!-- 主题设置 -->
             <div class="component-demo">
@@ -99,7 +100,9 @@ const features = [
                 />
               </div>
               <div class="demo-info">
-                <n-tag size="small">src/frontend/components/settings/ThemeSettings.vue</n-tag>
+                <n-tag size="small">
+                  src/frontend/components/settings/ThemeSettings.vue
+                </n-tag>
               </div>
             </div>
 
@@ -118,7 +121,9 @@ const features = [
                 />
               </div>
               <div class="demo-info">
-                <n-tag size="small">src/frontend/components/settings/WindowSettings.vue</n-tag>
+                <n-tag size="small">
+                  src/frontend/components/settings/WindowSettings.vue
+                </n-tag>
               </div>
             </div>
 
@@ -129,7 +134,9 @@ const features = [
                 <ReplySettings />
               </div>
               <div class="demo-info">
-                <n-tag size="small">src/frontend/components/settings/ReplySettings.vue</n-tag>
+                <n-tag size="small">
+                  src/frontend/components/settings/ReplySettings.vue
+                </n-tag>
               </div>
             </div>
           </n-space>
@@ -137,8 +144,10 @@ const features = [
 
         <!-- 通用组件测试 -->
         <div class="component-section">
-          <h3 class="section-title">通用组件</h3>
-          
+          <h3 class="section-title">
+            通用组件
+          </h3>
+
           <div class="component-demo">
             <h4>FeatureCard 组件</h4>
             <div class="demo-container">
@@ -154,15 +163,19 @@ const features = [
               </div>
             </div>
             <div class="demo-info">
-              <n-tag size="small">src/frontend/components/common/FeatureCard.vue</n-tag>
+              <n-tag size="small">
+                src/frontend/components/common/FeatureCard.vue
+              </n-tag>
             </div>
           </div>
         </div>
 
         <!-- 基础组件测试 -->
         <div class="component-section">
-          <h3 class="section-title">基础 Naive UI 组件</h3>
-          
+          <h3 class="section-title">
+            基础 Naive UI 组件
+          </h3>
+
           <div class="component-demo">
             <h4>统一 size="small" 测试</h4>
             <div class="demo-container">
@@ -171,29 +184,31 @@ const features = [
                   <label>输入框:</label>
                   <n-input v-model:value="inputValue" size="small" placeholder="测试输入" />
                 </div>
-                
+
                 <div class="form-row">
                   <label>开关:</label>
                   <n-switch v-model:value="switchValue" size="small" />
                 </div>
-                
+
                 <div class="form-row">
                   <label>复选框:</label>
                   <n-checkbox v-model:checked="checkboxValue" size="small">
                     测试选项
                   </n-checkbox>
                 </div>
-                
+
                 <div class="form-row">
                   <label>按钮:</label>
                   <n-space>
-                    <n-button size="small">默认</n-button>
+                    <n-button size="small">
+                      默认
+                    </n-button>
                     <n-button type="primary" size="small" :loading="buttonLoading" @click="handleButtonClick">
                       主要按钮
                     </n-button>
                   </n-space>
                 </div>
-                
+
                 <div class="form-row">
                   <label>标签:</label>
                   <n-space>
@@ -218,8 +233,10 @@ const features = [
 
         <!-- 状态监控 -->
         <div class="component-section">
-          <h3 class="section-title">状态监控</h3>
-          
+          <h3 class="section-title">
+            状态监控
+          </h3>
+
           <n-card size="small">
             <n-space vertical>
               <div><strong>当前主题:</strong> {{ currentTheme }}</div>

@@ -13,7 +13,7 @@ pub struct WindowSizeUpdate {
 pub async fn apply_window_constraints(state: State<'_, AppState>, app: tauri::AppHandle) -> Result<(), String> {
     let window_config = {
         let config = state.config.lock().map_err(|e| format!("获取配置失败: {}", e))?;
-        config.window_config.clone()
+        config.ui_config.window_config.clone()
     };
 
     if let Some(window) = app.get_webview_window("main") {
@@ -52,20 +52,26 @@ pub async fn update_window_size(size_update: WindowSizeUpdate, state: State<'_, 
     {
         let mut config = state.config.lock().map_err(|e| format!("获取配置失败: {}", e))?;
 
+        // 更新模式设置
+        config.ui_config.window_config.fixed = size_update.fixed;
+
+        // 更新当前模式的尺寸
+        config.ui_config.window_config.update_current_size(size_update.width, size_update.height);
+
         if size_update.fixed {
             // 固定模式：设置最大和最小尺寸为相同值
-            config.window_config.max_width = size_update.width;
-            config.window_config.max_height = size_update.height;
-            config.window_config.min_width = size_update.width;
-            config.window_config.min_height = size_update.height;
-            config.window_config.auto_resize = false;
+            config.ui_config.window_config.max_width = size_update.width;
+            config.ui_config.window_config.max_height = size_update.height;
+            config.ui_config.window_config.min_width = size_update.width;
+            config.ui_config.window_config.min_height = size_update.height;
+            config.ui_config.window_config.auto_resize = false;
         } else {
-            // 自由拉伸模式：设置合理的最小值和较大的最大值
-            config.window_config.min_width = 600.0;
-            config.window_config.min_height = 400.0;
-            config.window_config.max_width = 3000.0;
-            config.window_config.max_height = 2000.0;
-            config.window_config.auto_resize = true;
+            // 自由拉伸模式：设置合理的最小值和限制的最大值
+            config.ui_config.window_config.min_width = 600.0;
+            config.ui_config.window_config.min_height = 400.0;
+            config.ui_config.window_config.max_width = 1500.0;
+            config.ui_config.window_config.max_height = 1000.0;
+            config.ui_config.window_config.auto_resize = true;
         }
     }
 
@@ -95,7 +101,7 @@ pub async fn update_window_size(size_update: WindowSizeUpdate, state: State<'_, 
                 return Err(format!("设置最小窗口大小失败: {}", e));
             }
 
-            if let Err(e) = window.set_max_size(Some(tauri::LogicalSize::new(3000.0, 2000.0))) {
+            if let Err(e) = window.set_max_size(Some(tauri::LogicalSize::new(1500.0, 1000.0))) {
                 return Err(format!("设置最大窗口大小失败: {}", e));
             }
 

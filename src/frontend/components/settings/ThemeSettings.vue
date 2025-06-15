@@ -34,7 +34,7 @@ defineEmits(['themeChange'])
     <!-- 设置内容 -->
     <div class="flex items-center justify-between">
       <div class="flex items-center">
-        <div class="w-1.5 h-1.5 bg-primary-500 rounded-full mr-3 flex-shrink-0"></div>
+        <div class="w-1.5 h-1.5 bg-primary-500 rounded-full mr-3 flex-shrink-0" />
         <div>
           <div class="text-sm font-medium leading-relaxed">
             界面主题
@@ -56,7 +56,7 @@ defineEmits(['themeChange'])
               class="w-3 h-3 rounded-full border transition-all duration-200"
               :style="{
                 backgroundColor: '#ffffff',
-                borderColor: currentTheme === 'light' ? '#14b8a6' : '#d1d5db'
+                borderColor: currentTheme === 'light' ? '#14b8a6' : '#d1d5db',
               }"
             />
           </template>
@@ -74,7 +74,7 @@ defineEmits(['themeChange'])
               class="w-3 h-3 rounded-full border transition-all duration-200"
               :style="{
                 backgroundColor: '#1f2937',
-                borderColor: currentTheme === 'dark' ? '#14b8a6' : '#d1d5db'
+                borderColor: currentTheme === 'dark' ? '#14b8a6' : '#d1d5db',
               }"
             />
           </template>
@@ -92,7 +92,7 @@ defineEmits(['themeChange'])
               class="w-3 h-3 rounded-full border transition-all duration-200"
               :style="{
                 background: 'linear-gradient(to right, #ffffff, #1f2937)',
-                borderColor: currentTheme === 'system' ? '#14b8a6' : '#d1d5db'
+                borderColor: currentTheme === 'system' ? '#14b8a6' : '#d1d5db',
               }"
             />
           </template>

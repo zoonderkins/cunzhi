@@ -2,17 +2,33 @@
 import type { McpRequest } from '../../types/popup'
 import { invoke } from '@tauri-apps/api/core'
 import { useMessage } from 'naive-ui'
-import { computed, onMounted, ref, watch } from 'vue'
+import { computed, ref, watch } from 'vue'
 
-import MainLayout from '../layout/MainLayout.vue'
 import PopupActions from './PopupActions.vue'
 import PopupContent from './PopupContent.vue'
-import PopupHeader from './PopupHeader.vue'
 import PopupInput from './PopupInput.vue'
+
+interface AppConfig {
+  theme: string
+  window: {
+    alwaysOnTop: boolean
+    width: number
+    height: number
+    fixed: boolean
+  }
+  audio: {
+    enabled: boolean
+    url: string
+  }
+  reply: {
+    enabled: boolean
+    prompt: string
+  }
+}
 
 interface Props {
   request: McpRequest | null
-  currentTheme?: string
+  appConfig: AppConfig
   mockMode?: boolean
   testMode?: boolean
 }
@@ -22,10 +38,16 @@ interface Emits {
   cancel: []
   themeChange: [theme: string]
   openMainLayout: []
+  toggleAlwaysOnTop: []
+  toggleAudioNotification: []
+  updateAudioUrl: [url: string]
+  testAudio: []
+  stopAudio: []
+  testAudioError: [error: any]
+  updateWindowSize: [size: { width: number, height: number, fixed: boolean }]
 }
 
 const props = withDefaults(defineProps<Props>(), {
-  currentTheme: 'dark',
   mockMode: false,
   testMode: false,
 })
@@ -43,13 +65,6 @@ const userInput = ref('')
 const draggedImages = ref<string[]>([])
 const inputRef = ref()
 
-// 继续回复设置
-const continueReplyEnabled = ref(true)
-const continuePrompt = ref('请按照最佳实践继续')
-
-// 显示模式控制
-const showMainLayout = ref(false)
-
 // 计算属性
 const isVisible = computed(() => !!props.request)
 const hasOptions = computed(() => (props.request?.predefined_options?.length ?? 0) > 0)
@@ -65,22 +80,6 @@ const inputStatusText = computed(() => {
   return inputRef.value?.statusText || '等待输入...'
 })
 
-// 加载继续回复设置
-async function loadReplyConfig() {
-  try {
-    const config = await invoke('get_reply_config')
-    const replyConfig = config as { enable_continue_reply: boolean, continue_prompt: string }
-    continueReplyEnabled.value = replyConfig.enable_continue_reply
-    continuePrompt.value = replyConfig.continue_prompt
-  }
-  catch (error) {
-    console.error('加载继续回复配置失败:', error)
-    // 使用默认值
-    continueReplyEnabled.value = true
-    continuePrompt.value = '请按照最佳实践继续'
-  }
-}
-
 // 监听请求变化
 watch(() => props.request, (newRequest) => {
   if (newRequest) {
@@ -91,11 +90,6 @@ watch(() => props.request, (newRequest) => {
     }, 300)
   }
 }, { immediate: true })
-
-// 组件挂载时加载设置
-onMounted(() => {
-  loadReplyConfig()
-})
 
 // 重置表单
 function resetForm() {
@@ -175,17 +169,6 @@ async function handleSubmit() {
   }
 }
 
-// 处理主题切换
-function handleThemeChange() {
-  const newTheme = props.currentTheme === 'light' ? 'dark' : 'light'
-  emit('themeChange', newTheme)
-}
-
-// 处理打开主界面
-function handleOpenMainLayout() {
-  showMainLayout.value = !showMainLayout.value
-}
-
 // 处理输入更新
 function handleInputUpdate(data: { userInput: string, selectedOptions: string[], draggedImages: string[] }) {
   userInput.value = data.userInput
@@ -214,7 +197,7 @@ async function handleContinue() {
   try {
     const response = [{
       type: 'text',
-      text: continuePrompt.value,
+      text: '请按照最佳实践继续',
     }]
 
     if (props.mockMode) {
@@ -241,59 +224,30 @@ async function handleContinue() {
 </script>
 
 <template>
-  <div v-if="isVisible" class="flex flex-col w-full h-screen bg-black text-white select-none">
-    <!-- 头部 - 固定 -->
-    <div class="flex-shrink-0 bg-gray-100 border-b-2 border-gray-200">
-      <PopupHeader
-        :current-theme="currentTheme" :loading="loading" :show-main-layout="showMainLayout"
-        @theme-change="handleThemeChange" @open-main-layout="handleOpenMainLayout"
-      />
-    </div>
-
-    <!-- 主界面模式 -->
-    <div v-if="showMainLayout" class="flex-1 overflow-y-auto">
-      <MainLayout
-        :current-theme="currentTheme"
-        :always-on-top="false"
-        :audio-notification-enabled="false"
-        audio-url=""
-        @theme-change="handleThemeChange"
-        @toggle-always-on-top="() => {}"
-        @toggle-audio-notification="() => {}"
-        @update-audio-url="() => {}"
-        @test-audio="() => {}"
-        @stop-audio="() => {}"
-        @test-audio-error="() => {}"
-        @update-window-size="() => {}"
-      />
-    </div>
-
-    <!-- 弹窗模式 -->
-    <template v-else>
-      <!-- 内容区域 - 可滚动 -->
-      <div class="flex-1 overflow-y-auto">
-        <!-- 消息内容 - 允许选中 -->
-        <div class="mx-2 mt-2 mb-1 px-4 py-3 bg-gray-100 rounded-lg select-text">
-          <PopupContent :request="request" :loading="loading" :current-theme="currentTheme" />
-        </div>
-
-        <!-- 输入和选项 - 允许选中 -->
-        <div class="px-4 pb-3 bg-black select-text">
-          <PopupInput
-            ref="inputRef" :request="request" :loading="loading" :submitting="submitting"
-            @update="handleInputUpdate" @image-add="handleImageAdd" @image-remove="handleImageRemove"
-          />
-        </div>
+  <div v-if="isVisible" class="flex flex-col flex-1">
+    <!-- 内容区域 - 可滚动 -->
+    <div class="flex-1 overflow-y-auto">
+      <!-- 消息内容 - 允许选中 -->
+      <div class="mx-2 mt-2 mb-1 px-4 py-3 bg-gray-100 rounded-lg select-text">
+        <PopupContent :request="request" :loading="loading" :current-theme="props.appConfig.theme" />
       </div>
 
-      <!-- 底部操作栏 - 固定在底部 -->
-      <div class="flex-shrink-0 bg-gray-100 border-t-2 border-gray-200">
-        <PopupActions
-          :request="request" :loading="loading" :submitting="submitting" :can-submit="canSubmit"
-          :continue-reply-enabled="continueReplyEnabled" :input-status-text="inputStatusText"
-          @submit="handleSubmit" @continue="handleContinue"
+      <!-- 输入和选项 - 允许选中 -->
+      <div class="px-4 pb-3 bg-black select-text">
+        <PopupInput
+          ref="inputRef" :request="request" :loading="loading" :submitting="submitting"
+          @update="handleInputUpdate" @image-add="handleImageAdd" @image-remove="handleImageRemove"
         />
       </div>
-    </template>
+    </div>
+
+    <!-- 底部操作栏 - 固定在底部 -->
+    <div class="flex-shrink-0 bg-gray-100 border-t-2 border-gray-200">
+      <PopupActions
+        :request="request" :loading="loading" :submitting="submitting" :can-submit="canSubmit"
+        :continue-reply-enabled="true" :input-status-text="inputStatusText"
+        @submit="handleSubmit" @continue="handleContinue"
+      />
+    </div>
   </div>
 </template>

@@ -7,7 +7,7 @@ export function useKeyboard() {
   // 检测操作系统
   const isMac = computed(() => {
     if (typeof navigator !== 'undefined') {
-      return navigator.platform.toUpperCase().indexOf('MAC') >= 0
+      return navigator.platform.toUpperCase().includes('MAC')
     }
     return false
   })
@@ -31,7 +31,7 @@ export function useKeyboard() {
   // 获取常用快捷键描述
   function getShortcutText(action: 'paste' | 'copy' | 'cut' | 'save' | 'undo' | 'redo'): string {
     const prefix = isMac.value ? '⌘' : 'Ctrl'
-    
+
     switch (action) {
       case 'paste':
         return `${prefix}+V`

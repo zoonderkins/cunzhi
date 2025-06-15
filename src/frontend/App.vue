@@ -2,7 +2,7 @@
 import { invoke } from '@tauri-apps/api/core'
 import { listen } from '@tauri-apps/api/event'
 
-import { onMounted, ref } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import AppContent from './components/AppContent.vue'
 import { useSettings } from './composables/useSettings'
 import { useTheme } from './composables/useTheme'
@@ -13,20 +13,37 @@ const showMcpPopup = ref(false)
 const isInitializing = ref(true)
 
 const { currentTheme, naiveTheme, setTheme, loadTheme, setupSystemThemeListener } = useTheme()
-const {
-  alwaysOnTop,
-  audioNotificationEnabled,
-  audioUrl,
-  setMessageInstance,
-  loadWindowSettings,
-  toggleAlwaysOnTop,
-  toggleAudioNotification,
-  updateAudioUrl,
-  testAudioSound,
-  stopAudioSound,
-  updateWindowSize,
-  loadWindowConfig,
-} = useSettings()
+const settings = useSettings()
+
+// 创建配置对象
+const appConfig = computed(() => ({
+  theme: currentTheme.value,
+  window: {
+    alwaysOnTop: settings.alwaysOnTop.value,
+    width: settings.windowWidth.value,
+    height: settings.windowHeight.value,
+    fixed: settings.fixedWindowSize.value,
+  },
+  audio: {
+    enabled: settings.audioNotificationEnabled.value,
+    url: settings.audioUrl.value,
+  },
+  reply: {
+    enabled: settings.continueReplyEnabled.value,
+    prompt: settings.continuePrompt.value,
+  },
+}))
+
+// 创建设置操作对象
+const settingsActions = {
+  toggleAlwaysOnTop: settings.toggleAlwaysOnTop,
+  toggleAudioNotification: settings.toggleAudioNotification,
+  updateAudioUrl: settings.updateAudioUrl,
+  testAudio: settings.testAudioSound,
+  stopAudio: settings.stopAudioSound,
+  updateWindowSize: settings.updateWindowSize,
+  updateReplyConfig: settings.updateReplyConfig,
+}
 
 // 统一的MCP响应处理
 async function handleMcpResponse(response: any) {
@@ -102,7 +119,7 @@ async function setupMcpEventListener() {
 
 // 处理消息实例就绪
 function handleMessageReady(message: any) {
-  setMessageInstance(message)
+  settings.setMessageInstance(message)
 }
 
 // 处理音频测试错误
@@ -120,8 +137,8 @@ onMounted(async () => {
   const isMcp = await checkMcpMode()
 
   // 无论是否为MCP模式，都加载窗口设置
-  await loadWindowSettings()
-  await loadWindowConfig()
+  await settings.loadWindowSettings()
+  await settings.loadWindowConfig()
 
   // 如果不是MCP模式，设置事件监听器
   if (!isMcp) {
@@ -142,13 +159,21 @@ onMounted(async () => {
       <n-notification-provider>
         <n-dialog-provider>
           <AppContent
-            :mcp-request="mcpRequest" :show-mcp-popup="showMcpPopup" :current-theme="currentTheme"
-            :always-on-top="alwaysOnTop" :audio-notification-enabled="audioNotificationEnabled" :audio-url="audioUrl"
+            :mcp-request="mcpRequest"
+            :show-mcp-popup="showMcpPopup"
+            :app-config="appConfig"
             :is-initializing="isInitializing"
-            @mcp-response="handleMcpResponse" @mcp-cancel="handleMcpCancel" @theme-change="setTheme"
-            @toggle-always-on-top="toggleAlwaysOnTop" @toggle-audio-notification="toggleAudioNotification"
-            @update-audio-url="updateAudioUrl" @test-audio="testAudioSound" @stop-audio="stopAudioSound"
-            @test-audio-error="handleTestAudioError" @update-window-size="updateWindowSize"
+            @mcp-response="handleMcpResponse"
+            @mcp-cancel="handleMcpCancel"
+            @theme-change="setTheme"
+            @toggle-always-on-top="settingsActions.toggleAlwaysOnTop"
+            @toggle-audio-notification="settingsActions.toggleAudioNotification"
+            @update-audio-url="settingsActions.updateAudioUrl"
+            @test-audio="settingsActions.testAudio"
+            @stop-audio="settingsActions.stopAudio"
+            @test-audio-error="handleTestAudioError"
+            @update-window-size="settingsActions.updateWindowSize"
+            @update-reply-config="settingsActions.updateReplyConfig"
             @message-ready="handleMessageReady"
           />
         </n-dialog-provider>
