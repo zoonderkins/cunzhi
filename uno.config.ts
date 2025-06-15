@@ -2,6 +2,7 @@ import {
   defineConfig,
   presetAttributify,
   presetIcons,
+  presetTypography,
   presetWebFonts,
   presetWind3,
 } from 'unocss'
@@ -9,6 +10,7 @@ import { colors, themeVariables } from './src/frontend/theme/colors'
 
 export default defineConfig({
   presets: [
+    presetTypography(),
     presetWind3(),
     presetAttributify(),
     presetIcons({
@@ -80,19 +82,28 @@ export default defineConfig({
     'bg-theme-body',
     'bg-theme-card',
     'text-theme-text',
+    'text-theme-text-secondary',
+    'text-theme-text-muted',
     'border-theme-border',
     // 图标类
     'i-carbon-settings-services',
-    'i-carbon-brain',
     'i-carbon-data-base',
     'i-carbon-color-palette',
     'i-carbon-settings',
     'i-carbon-repeat',
     'i-carbon-document',
     'i-carbon-copy',
+    'i-carbon-checkmark',
     'i-carbon-checkmark-filled',
     'i-carbon-rule',
     'i-carbon-chat',
     'i-carbon-information',
+    'i-carbon-sun',
+    'i-carbon-moon',
+    'i-carbon-play',
+    'i-carbon-close',
+    'i-carbon-send',
+    'i-carbon-warning',
+    'i-carbon-volume-up',
   ],
 })

@@ -46,6 +46,24 @@ export const themeVariables = {
     body: 'var(--body-color)',
     card: 'var(--card-color)',
     text: 'var(--text-color)',
+    'text-secondary': 'var(--text-color-secondary)',
+    'text-muted': 'var(--text-color-muted)',
     border: 'var(--border-color)',
+  },
+}
+
+// 统一的文字颜色配置
+export const textColors = {
+  light: {
+    primary: '#111827',      // 主要文字
+    secondary: '#6b7280',    // 次要文字
+    muted: '#9ca3af',        // 弱化文字
+    disabled: '#d1d5db',     // 禁用文字
+  },
+  dark: {
+    primary: '#e5e7eb',      // 主要文字
+    secondary: '#d1d5db',    // 次要文字
+    muted: '#9ca3af',        // 弱化文字
+    disabled: '#6b7280',     // 禁用文字
   },
 }

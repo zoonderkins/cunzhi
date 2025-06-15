@@ -1,17 +1,21 @@
-/* CSS 变量默认值 */
+/* CSS 变量默认值 - 由主题系统动态设置 */
 :root {
   --primary-color: #14b8a6;
   --body-color: #ffffff;
   --card-color: #ffffff;
   --text-color: #111827;
+  --text-color-secondary: #6b7280;
+  --text-color-muted: #9ca3af;
   --border-color: #e5e7eb;
 }
 
-/* 暗黑模式变量 */
+/* 暗黑模式变量 - 由主题系统动态设置 */
 .dark {
   --body-color: #101014;
   --card-color: #18181c;
-  --text-color: #ffffff;
+  --text-color: #e5e7eb;
+  --text-color-secondary: #d1d5db;
+  --text-color-muted: #9ca3af;
   --border-color: #374151;
 }
 

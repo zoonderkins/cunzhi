@@ -17,94 +17,96 @@ const tabs = [
 </script>
 
 <template>
-  <div class="test-app">
-    <div class="test-header">
-      <h1>🎨 寸止 - 组件样式测试环境</h1>
-      <p class="test-description">
-        独立的测试环境，用于开发和调试组件样式，直接引用真实组件
-      </p>
+  <n-message-provider>
+    <div class="test-app">
+      <div class="test-header">
+        <h1>🎨 寸止 - 组件样式测试环境</h1>
+        <p class="test-description">
+          独立的测试环境，用于开发和调试组件样式，直接引用真实组件
+        </p>
 
-      <!-- 模拟窗口开关 -->
-      <div class="window-toggle">
-        <n-switch v-model:value="useSimulatedWindow" size="small">
-          <template #checked>
-            📱 模拟窗口 (600px)
-          </template>
-          <template #unchecked>
-            🖥️ 全屏模式
-          </template>
-        </n-switch>
-      </div>
-    </div>
-
-    <!-- 模拟窗口容器 -->
-    <div v-if="useSimulatedWindow" class="simulated-window-container">
-      <!-- 测试控制面板 -->
-      <div class="test-controls">
-        <n-card title="测试控制面板" size="small">
-          <n-tabs v-model:value="activeTab" type="segment" size="small">
-            <n-tab-pane
-              v-for="tab in tabs"
-              :key="tab.key"
-              :name="tab.key"
-              :tab="tab.label"
-            />
-          </n-tabs>
-        </n-card>
-      </div>
-
-      <!-- 模拟窗口 -->
-      <div class="simulated-window">
-        <!-- 模拟窗口标题栏 -->
-        <div class="window-titlebar">
-          <div class="window-controls">
-            <div class="window-control close" />
-            <div class="window-control minimize" />
-            <div class="window-control maximize" />
-          </div>
-          <div class="window-title">
-            寸止
-          </div>
-          <div class="window-spacer" />
-        </div>
-
-        <!-- 窗口内容 - 只显示真实的应用内容 -->
-        <div class="window-content">
-          <!-- 主界面内容 -->
-          <div v-if="activeTab === 'main-ui'" class="app-content">
-            <MainLayoutTest :show-controls="false" />
-          </div>
-
-          <!-- MCP弹窗内容 -->
-          <div v-else-if="activeTab === 'mcp-popup'" class="app-content">
-            <McpPopupTest :show-controls="false" />
-          </div>
-
-          <!-- 其他内容 -->
-          <div v-else class="app-content">
-            <component :is="tabs.find(t => t.key === activeTab)?.component" :show-controls="false" />
-          </div>
+        <!-- 模拟窗口开关 -->
+        <div class="window-toggle">
+          <n-switch v-model:value="useSimulatedWindow" size="small">
+            <template #checked>
+              📱 模拟窗口 (600px)
+            </template>
+            <template #unchecked>
+              🖥️ 全屏模式
+            </template>
+          </n-switch>
         </div>
       </div>
-    </div>
 
-    <!-- 全屏模式 -->
-    <div v-else class="fullscreen-mode">
-      <!-- 标签页导航 -->
-      <n-tabs v-model:value="activeTab" type="segment" size="small" justify-content="center">
-        <n-tab-pane
-          v-for="tab in tabs"
-          :key="tab.key"
-          :name="tab.key"
-          :tab="tab.label"
-        >
-          <div class="tab-content">
-            <component :is="tab.component" />
+      <!-- 模拟窗口容器 -->
+      <div v-if="useSimulatedWindow" class="simulated-window-container">
+        <!-- 测试控制面板 -->
+        <div class="test-controls">
+          <n-card title="测试控制面板" size="small">
+            <n-tabs v-model:value="activeTab" type="segment" size="small">
+              <n-tab-pane
+                v-for="tab in tabs"
+                :key="tab.key"
+                :name="tab.key"
+                :tab="tab.label"
+              />
+            </n-tabs>
+          </n-card>
+        </div>
+
+        <!-- 模拟窗口 -->
+        <div class="simulated-window">
+          <!-- 模拟窗口标题栏 -->
+          <div class="window-titlebar">
+            <div class="window-controls">
+              <div class="window-control close" />
+              <div class="window-control minimize" />
+              <div class="window-control maximize" />
+            </div>
+            <div class="window-title">
+              寸止
+            </div>
+            <div class="window-spacer" />
           </div>
-        </n-tab-pane>
-      </n-tabs>
+
+          <!-- 窗口内容 - 只显示真实的应用内容 -->
+          <div class="window-content">
+            <!-- 主界面内容 -->
+            <div v-if="activeTab === 'main-ui'" class="app-content">
+              <MainLayoutTest :show-controls="false" />
+            </div>
+
+            <!-- MCP弹窗内容 -->
+            <div v-else-if="activeTab === 'mcp-popup'" class="app-content">
+              <McpPopupTest :show-controls="false" />
+            </div>
+
+            <!-- 其他内容 -->
+            <div v-else class="app-content">
+              <component :is="tabs.find(t => t.key === activeTab)?.component" :show-controls="false" />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 全屏模式 -->
+      <div v-else class="fullscreen-mode">
+        <!-- 标签页导航 -->
+        <n-tabs v-model:value="activeTab" type="segment" size="small" justify-content="center">
+          <n-tab-pane
+            v-for="tab in tabs"
+            :key="tab.key"
+            :name="tab.key"
+            :tab="tab.label"
+          >
+            <div class="tab-content">
+              <component :is="tab.component" />
+            </div>
+          </n-tab-pane>
+        </n-tabs>
+      </div>
     </div>
-  </div>
+  </n-message-provider>
 </template>
 
 <style scoped>

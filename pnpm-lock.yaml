@@ -48,10 +48,10 @@ importers:
       '@unocss/preset-icons':
         specifier: ^66.2.0
         version: 66.2.0
-      '@unocss/preset-web-fonts':
+      '@unocss/preset-typography':
         specifier: ^66.2.0
         version: 66.2.0
-      '@unocss/preset-wind':
+      '@unocss/preset-web-fonts':
         specifier: ^66.2.0
         version: 66.2.0
       '@vitejs/plugin-vue':

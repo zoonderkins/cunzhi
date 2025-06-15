@@ -1,7 +1,5 @@
 <script setup lang="ts">
 import { computed } from 'vue'
-import moonIcon from '../../../assets/svg/moon-rising-twotone-alt-loop.svg?raw'
-import sunIcon from '../../../assets/svg/moon-to-sunny-outline-loop-transition.svg?raw'
 
 interface Props {
   theme: string
@@ -9,29 +7,14 @@ interface Props {
 
 const props = defineProps<Props>()
 
-const iconSvg = computed(() => {
-  return props.theme === 'light' ? sunIcon : moonIcon
+const iconClass = computed(() => {
+  return props.theme === 'light' ? 'i-carbon-sun' : 'i-carbon-moon'
 })
 </script>
 
 <template>
   <div
-    class="theme-icon"
-    v-html="iconSvg"
+    class="inline-flex items-center justify-center w-4 h-4 transition-transform duration-300 hover:rotate-180"
+    :class="[iconClass]"
   />
 </template>
-
-<style scoped>
-.theme-icon {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 1em;
-  height: 1em;
-}
-
-.theme-icon :deep(svg) {
-  width: 100%;
-  height: 100%;
-}
-</style>

@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue'
-import { useTheme } from '../../hooks/useTheme'
+import { computed, ref } from 'vue'
+import { useTheme } from '../../composables/useTheme'
 import { colors } from '../../theme/colors'
 
 const { currentTheme, setTheme } = useTheme()
@@ -59,15 +59,15 @@ const systemPreference = computed(() => {
       <n-space vertical size="large">
         <!-- 主题切换 -->
         <div class="theme-section">
-          <h3 class="section-title">主题切换</h3>
-          
+          <h3 class="section-title">
+            主题切换
+          </h3>
+
           <n-card size="small">
             <n-space>
               <n-button
-                v-for="theme in themeOptions"
-                :key="theme.value"
-                :type="currentTheme === theme.value ? 'primary' : 'default'"
-                size="small"
+                v-for="theme in themeOptions" :key="theme.value"
+                :type="currentTheme === theme.value ? 'primary' : 'default'" size="small"
                 @click="handleThemeChange(theme.value)"
               >
                 <template #icon>
@@ -76,7 +76,7 @@ const systemPreference = computed(() => {
                 {{ theme.label }}
               </n-button>
             </n-space>
-            
+
             <div class="theme-info">
               <n-space vertical size="small">
                 <div><strong>当前主题:</strong> {{ currentTheme }}</div>
@@ -89,18 +89,19 @@ const systemPreference = computed(() => {
 
         <!-- 颜色调色板 -->
         <div class="theme-section">
-          <h3 class="section-title">颜色调色板 (真实配置)</h3>
-          
+          <h3 class="section-title">
+            颜色调色板 (真实配置)
+          </h3>
+
           <n-space vertical>
             <div v-for="palette in colorPalettes" :key="palette.key" class="color-palette">
-              <h4 class="palette-title">{{ palette.name }}</h4>
+              <h4 class="palette-title">
+                {{ palette.name }}
+              </h4>
               <div class="color-grid">
                 <div
-                  v-for="(color, shade) in palette.colors"
-                  :key="shade"
-                  class="color-item"
-                  :style="{ backgroundColor: color }"
-                  :title="`${palette.name}-${shade}: ${color}`"
+                  v-for="(color, shade) in palette.colors" :key="shade" class="color-item"
+                  :style="{ backgroundColor: color }" :title="`${palette.name}-${shade}: ${color}`"
                   @click="copyColorValue(color)"
                 >
                   <span class="color-label">{{ shade }}</span>
@@ -113,17 +114,24 @@ const systemPreference = computed(() => {
 
         <!-- CSS 变量 -->
         <div class="theme-section">
-          <h3 class="section-title">CSS 变量 (实时值)</h3>
-          
+          <h3 class="section-title">
+            CSS 变量 (实时值)
+          </h3>
+
           <n-card size="small">
             <div class="variables-grid">
               <div v-for="variable in themeVariables" :key="variable.name" class="variable-item">
-                <div class="variable-name">{{ variable.name }}</div>
-                <div class="variable-description">{{ variable.description }}</div>
-                <div class="variable-value">{{ getVariableValue(variable.name) }}</div>
+                <div class="variable-name">
+                  {{ variable.name }}
+                </div>
+                <div class="variable-description">
+                  {{ variable.description }}
+                </div>
+                <div class="variable-value">
+                  {{ getVariableValue(variable.name) }}
+                </div>
                 <div
-                  class="variable-preview"
-                  :style="{ backgroundColor: getVariableValue(variable.name) }"
+                  class="variable-preview" :style="{ backgroundColor: getVariableValue(variable.name) }"
                   @click="copyColorValue(getVariableValue(variable.name))"
                 />
               </div>
@@ -133,19 +141,31 @@ const systemPreference = computed(() => {
 
         <!-- 组件主题预览 -->
         <div class="theme-section">
-          <h3 class="section-title">组件主题预览</h3>
-          
+          <h3 class="section-title">
+            组件主题预览
+          </h3>
+
           <n-card size="small">
             <n-space vertical>
               <!-- 按钮组 -->
               <div class="component-preview">
                 <h4>按钮组件</h4>
                 <n-space>
-                  <n-button size="small">默认</n-button>
-                  <n-button type="primary" size="small">主要</n-button>
-                  <n-button type="success" size="small">成功</n-button>
-                  <n-button type="warning" size="small">警告</n-button>
-                  <n-button type="error" size="small">错误</n-button>
+                  <n-button size="small">
+                    默认
+                  </n-button>
+                  <n-button type="primary" size="small">
+                    主要
+                  </n-button>
+                  <n-button type="success" size="small">
+                    成功
+                  </n-button>
+                  <n-button type="warning" size="small">
+                    警告
+                  </n-button>
+                  <n-button type="error" size="small">
+                    错误
+                  </n-button>
                 </n-space>
               </div>
 
@@ -155,7 +175,9 @@ const systemPreference = computed(() => {
                 <n-space>
                   <n-input size="small" placeholder="普通输入框" style="width: 150px;" />
                   <n-switch size="small" />
-                  <n-checkbox size="small">复选框</n-checkbox>
+                  <n-checkbox size="small">
+                    复选框
+                  </n-checkbox>
                 </n-space>
               </div>
 
@@ -163,11 +185,21 @@ const systemPreference = computed(() => {
               <div class="component-preview">
                 <h4>标签组件</h4>
                 <n-space>
-                  <n-tag size="small">默认</n-tag>
-                  <n-tag type="primary" size="small">主要</n-tag>
-                  <n-tag type="success" size="small">成功</n-tag>
-                  <n-tag type="warning" size="small">警告</n-tag>
-                  <n-tag type="error" size="small">错误</n-tag>
+                  <n-tag size="small">
+                    默认
+                  </n-tag>
+                  <n-tag type="primary" size="small">
+                    主要
+                  </n-tag>
+                  <n-tag type="success" size="small">
+                    成功
+                  </n-tag>
+                  <n-tag type="warning" size="small">
+                    警告
+                  </n-tag>
+                  <n-tag type="error" size="small">
+                    错误
+                  </n-tag>
                 </n-space>
               </div>
 
@@ -177,7 +209,9 @@ const systemPreference = computed(() => {
                 <n-card title="示例卡片" size="small" style="max-width: 300px;">
                   <p>这是一个示例卡片，用于展示当前主题下的卡片样式。</p>
                   <template #footer>
-                    <n-button size="small">操作</n-button>
+                    <n-button size="small">
+                      操作
+                    </n-button>
                   </template>
                 </n-card>
               </div>
@@ -187,15 +221,19 @@ const systemPreference = computed(() => {
 
         <!-- 主题文件信息 -->
         <div class="theme-section">
-          <h3 class="section-title">主题文件信息</h3>
-          
+          <h3 class="section-title">
+            主题文件信息
+          </h3>
+
           <n-card size="small">
             <n-space vertical>
               <div><strong>主题 Hook:</strong> src/frontend/hooks/useTheme.ts</div>
               <div><strong>主题配置:</strong> src/frontend/theme/index.ts</div>
               <div><strong>颜色配置:</strong> src/frontend/theme/colors.ts</div>
               <div><strong>UnoCSS 配置:</strong> uno.config.ts</div>
-              <div><strong>当前使用:</strong> {{ currentTheme === 'system' ? `系统 (${systemPreference})` : currentTheme }}</div>
+              <div>
+                <strong>当前使用:</strong> {{ currentTheme === 'system' ? `系统 (${systemPreference})` : currentTheme }}
+              </div>
             </n-space>
           </n-card>
         </div>

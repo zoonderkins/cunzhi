@@ -30,6 +30,7 @@
     "@iconify-json/tabler": "^1.2.19",
     "@unocss/preset-attributify": "^66.2.0",
     "@unocss/preset-icons": "^66.2.0",
+    "@unocss/preset-typography": "^66.2.0",
     "@unocss/preset-web-fonts": "^66.2.0",
     "@vitejs/plugin-vue": "^5.2.4",
     "eslint": "^9.28.0",

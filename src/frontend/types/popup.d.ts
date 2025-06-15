@@ -51,19 +51,19 @@ export interface PopupConfig {
 export interface IPopupManager {
   state: PopupState
   config: PopupConfig
-  show(request: McpRequest): void
-  hide(): void
-  submit(response: PopupResponse): void
-  cancel(): void
-  toggleTheme(): void
-  openMainLayout(): void
+  show: (request: McpRequest) => void
+  hide: () => void
+  submit: (response: PopupResponse) => void
+  cancel: () => void
+  toggleTheme: () => void
+  openMainLayout: () => void
 }
 
 // 事件类型
-export type PopupEvent = 
-  | { type: 'show'; payload: McpRequest }
-  | { type: 'hide' }
-  | { type: 'submit'; payload: PopupResponse }
-  | { type: 'cancel' }
-  | { type: 'theme-change'; payload: string }
-  | { type: 'open-main-layout' }
+export type PopupEvent
+  = | { type: 'show', payload: McpRequest }
+    | { type: 'hide' }
+    | { type: 'submit', payload: PopupResponse }
+    | { type: 'cancel' }
+    | { type: 'theme-change', payload: string }
+    | { type: 'open-main-layout' }

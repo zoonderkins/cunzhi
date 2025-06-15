@@ -5,11 +5,14 @@ import {
   NCard,
   NCheckbox,
   NConfigProvider,
+  NDialogProvider,
   NGrid,
   NGridItem,
   NInput,
   NInputGroup,
   NInputNumber,
+  NMessageProvider,
+  NNotificationProvider,
   NSpace,
   NSwitch,
   NTab,
@@ -20,7 +23,7 @@ import {
 import { createApp } from 'vue'
 
 // 导入主题
-import { useTheme } from '../hooks/useTheme'
+import { useTheme } from '../composables/useTheme'
 
 import TestApp from './TestApp.vue'
 // 导入样式
@@ -46,6 +49,9 @@ const naive = create({
     NTabPane,
     NTabs,
     NTag,
+    NMessageProvider,
+    NNotificationProvider,
+    NDialogProvider,
   ],
 })
 
@@ -72,8 +78,8 @@ if (!window.__TAURI__) {
           return { continue_prompt: '请按照最佳实践继续' }
         }
         return {}
-      }
-    }
+      },
+    },
   }
 }
 

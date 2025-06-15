@@ -4,14 +4,13 @@ import { listen } from '@tauri-apps/api/event'
 
 import { onMounted, ref } from 'vue'
 import AppContent from './components/AppContent.vue'
-import { useSettings } from './hooks/useSettings'
-import { useTheme } from './hooks/useTheme'
+import { useSettings } from './composables/useSettings'
+import { useTheme } from './composables/useTheme'
 
 // 响应式数据
 const mcpRequest = ref(null)
 const showMcpPopup = ref(false)
 
-// 使用 hooks
 const { currentTheme, naiveTheme, setTheme, loadTheme, setupSystemThemeListener } = useTheme()
 const {
   alwaysOnTop,
@@ -138,22 +137,12 @@ onMounted(async () => {
       <n-notification-provider>
         <n-dialog-provider>
           <AppContent
-            :mcp-request="mcpRequest"
-            :show-mcp-popup="showMcpPopup"
-            :current-theme="currentTheme"
-            :always-on-top="alwaysOnTop"
-            :audio-notification-enabled="audioNotificationEnabled"
-            :audio-url="audioUrl"
-            @mcp-response="handleMcpResponse"
-            @mcp-cancel="handleMcpCancel"
-            @theme-change="setTheme"
-            @toggle-always-on-top="toggleAlwaysOnTop"
-            @toggle-audio-notification="toggleAudioNotification"
-            @update-audio-url="updateAudioUrl"
-            @test-audio="testAudioSound"
-            @stop-audio="stopAudioSound"
-            @test-audio-error="handleTestAudioError"
-            @update-window-size="updateWindowSize"
+            :mcp-request="mcpRequest" :show-mcp-popup="showMcpPopup" :current-theme="currentTheme"
+            :always-on-top="alwaysOnTop" :audio-notification-enabled="audioNotificationEnabled" :audio-url="audioUrl"
+            @mcp-response="handleMcpResponse" @mcp-cancel="handleMcpCancel" @theme-change="setTheme"
+            @toggle-always-on-top="toggleAlwaysOnTop" @toggle-audio-notification="toggleAudioNotification"
+            @update-audio-url="updateAudioUrl" @test-audio="testAudioSound" @stop-audio="stopAudioSound"
+            @test-audio-error="handleTestAudioError" @update-window-size="updateWindowSize"
             @message-ready="handleMessageReady"
           />
         </n-dialog-provider>

@@ -2,7 +2,7 @@
 import { useMessage } from 'naive-ui'
 import { onMounted } from 'vue'
 import MainLayout from './layout/MainLayout.vue'
-import McpPopup from './McpPopup.vue'
+import McpPopup from './popup/McpPopup.vue'
 
 interface Props {
   mcpRequest: any
@@ -23,7 +23,7 @@ interface Emits {
   testAudio: []
   stopAudio: []
   testAudioError: [error: any]
-  updateWindowSize: [size: { width: number; height: number; fixed: boolean }]
+  updateWindowSize: [size: { width: number, height: number, fixed: boolean }]
   messageReady: [message: any]
 }
 
@@ -40,11 +40,14 @@ onMounted(() => {
 </script>
 
 <template>
-  <div id="app" class="min-h-screen" style="background-color: var(--body-color)">
+  <div class="min-h-screen bg-theme-body">
     <!-- MCP弹窗 -->
     <McpPopup
-      v-if="showMcpPopup && mcpRequest" :request="mcpRequest" :current-theme="currentTheme"
-      @response="$emit('mcpResponse', $event)" @cancel="$emit('mcpCancel')"
+      v-if="showMcpPopup && mcpRequest"
+      :request="mcpRequest"
+      :current-theme="currentTheme"
+      @response="$emit('mcpResponse', $event)"
+      @cancel="$emit('mcpCancel')"
       @theme-change="$emit('themeChange', $event)"
     />
 

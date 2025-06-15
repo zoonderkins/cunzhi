@@ -1,6 +1,6 @@
 import type { GlobalTheme } from 'naive-ui'
 import { darkTheme, lightTheme } from 'naive-ui'
-import { colors } from './colors'
+import { colors, textColors } from './colors'
 
 // 使用统一的颜色配置
 export const themeColors = colors
@@ -25,12 +25,12 @@ export const customDarkTheme: GlobalTheme = {
     borderColor: themeColors.gray[700],
     dividerColor: themeColors.gray[700],
 
-    // 文字色
-    textColorBase: '#ffffff',
-    textColor1: '#ffffff',
-    textColor2: '#e5e7eb',
-    textColor3: '#9ca3af',
-    textColorDisabled: '#6b7280',
+    // 文字色 - 使用统一配置
+    textColorBase: textColors.dark.primary,
+    textColor1: textColors.dark.primary,
+    textColor2: textColors.dark.secondary,
+    textColor3: textColors.dark.muted,
+    textColorDisabled: textColors.dark.disabled,
 
     // 输入框
     inputColor: themeColors.dark.accent,
@@ -68,12 +68,12 @@ export const customLightTheme: GlobalTheme = {
     borderColor: themeColors.gray[200],
     dividerColor: themeColors.gray[200],
 
-    // 文字色
-    textColorBase: themeColors.gray[900],
-    textColor1: themeColors.gray[900],
-    textColor2: themeColors.gray[700],
-    textColor3: themeColors.gray[500],
-    textColorDisabled: themeColors.gray[400],
+    // 文字色 - 使用统一配置
+    textColorBase: textColors.light.primary,
+    textColor1: textColors.light.primary,
+    textColor2: textColors.light.secondary,
+    textColor3: textColors.light.muted,
+    textColorDisabled: textColors.light.disabled,
 
     // 输入框
     inputColor: themeColors.light.primary,
@@ -111,6 +111,8 @@ export function applyThemeVariables(themeName: string) {
     root.style.setProperty('--body-color', theme.common.bodyColor)
     root.style.setProperty('--card-color', theme.common.cardColor)
     root.style.setProperty('--text-color', theme.common.textColorBase)
+    root.style.setProperty('--text-color-secondary', theme.common.textColor2)
+    root.style.setProperty('--text-color-muted', theme.common.textColor3)
     root.style.setProperty('--border-color', theme.common.borderColor)
   }
 
