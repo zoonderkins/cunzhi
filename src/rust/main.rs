@@ -1,7 +1,6 @@
 use cunzhi::config::{AppState, load_config_and_apply_window_settings, load_standalone_telegram_config};
 use cunzhi::utils::auto_init_logger;
 use cunzhi::log_important;
-use cunzhi::telegram::handle_telegram_only_mcp_request;
 use anyhow::Result;
 use std::sync::atomic::AtomicBool;
 use std::sync::Arc;
