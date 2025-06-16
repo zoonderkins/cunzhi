@@ -47,14 +47,14 @@ impl AudioAssetManager {
 
     /// 加载内嵌音频资源
     fn load_embedded_audio(&mut self) -> Result<()> {
-        eprintln!("📁 使用文件名约定自动扫描内嵌音频文件...");
+        log::debug!("使用文件名约定自动扫描内嵌音频文件...");
 
         // 动态扫描所有内嵌的音频文件
         for file_path in EmbeddedAudio::iter() {
             let filename = file_path.as_ref();
             if self.is_audio_file(filename) {
                 let asset = self.create_asset_from_filename(filename);
-                eprintln!("  ✅ 发现音频文件: {} -> ID: {}, 名称: {}", filename, asset.id, asset.name);
+                log::debug!("发现音频文件: {} -> ID: {}, 名称: {}", filename, asset.id, asset.name);
                 self.assets.insert(asset.id.clone(), asset);
             }
         }
@@ -145,7 +145,7 @@ impl AudioAssetManager {
                 (id, display_name)
             } else {
                 // 只有左方括号，格式错误，使用整个名称
-                eprintln!("⚠️ 音频文件名格式错误（缺少右方括号）: {}", filename);
+                log::warn!("音频文件名格式错误（缺少右方括号）: {}", filename);
                 let id = name_without_ext.to_lowercase().replace(' ', "_").replace('[', "");
                 (id, name_without_ext.replace('[', ""))
             }
@@ -203,7 +203,7 @@ impl AudioAssetManager {
             std::fs::write(&target_path, embedded_file.data.as_ref())
                 .map_err(|e| anyhow::anyhow!("写入内嵌音频文件失败: {}", e))?;
 
-            eprintln!("✅ 音频文件已从内嵌资源复制: {} -> {:?}", asset.name, target_path);
+            log::debug!("音频文件已从内嵌资源复制: {} -> {:?}", asset.name, target_path);
             return Ok(target_path);
         }
 
@@ -217,7 +217,7 @@ impl AudioAssetManager {
             std::fs::copy(&dev_source_path, &target_path)
                 .map_err(|e| anyhow::anyhow!("复制音频文件失败: {}", e))?;
 
-            eprintln!("✅ 音频文件已从开发环境复制: {} -> {:?}", asset.name, target_path);
+            log::debug!("音频文件已从开发环境复制: {} -> {:?}", asset.name, target_path);
             return Ok(target_path);
         }
 

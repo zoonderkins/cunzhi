@@ -74,9 +74,10 @@ pub async fn set_mcp_tool_enabled(
     // 保存配置
     save_config(&state, &app).await
         .map_err(|e| format!("保存配置失败: {}", e))?;
-    
-    println!("✅ MCP工具 {} 状态已更新为: {}", tool_id, enabled);
-    
+
+    // 使用日志记录状态变更（在 MCP 模式下会自动输出到文件）
+    log::info!("MCP工具 {} 状态已更新为: {}", tool_id, enabled);
+
     Ok(())
 }
 
@@ -101,7 +102,8 @@ pub async fn reset_mcp_tools_config(
     // 保存配置
     save_config(&state, &app).await
         .map_err(|e| format!("保存配置失败: {}", e))?;
-    
-    println!("✅ MCP工具配置已重置为默认值");
+
+    // 使用日志记录配置重置（在 MCP 模式下会自动输出到文件）
+    log::info!("MCP工具配置已重置为默认值");
     Ok(())
 }

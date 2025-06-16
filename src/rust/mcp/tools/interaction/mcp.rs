@@ -1,5 +1,5 @@
 use anyhow::Result;
-use rmcp::{Error as McpError, model::*, tool};
+use rmcp::{Error as McpError, model::*};
 
 use crate::mcp::{ZhiRequest, PopupRequest};
 use crate::mcp::handlers::{create_tauri_popup, parse_mcp_response};
@@ -11,11 +11,9 @@ use crate::mcp::utils::{generate_request_id, popup_error};
 #[derive(Clone)]
 pub struct InteractionTool;
 
-#[tool(tool_box)]
 impl InteractionTool {
-    #[tool(description = "zhi 智能代码审查交互工具，支持预定义选项、自由文本输入和图片上传")]
     pub async fn zhi(
-        #[tool(aggr)] request: ZhiRequest,
+        request: ZhiRequest,
     ) -> Result<CallToolResult, McpError> {
         let popup_request = PopupRequest {
             id: generate_request_id(),

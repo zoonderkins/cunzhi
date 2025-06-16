@@ -20,7 +20,19 @@ _寸止 的现代化弹窗界面，支持 Markdown 渲染、代码高亮、预�
 
 ## 🚀 快速安装
 
-从 [Releases](https://github.com/imhuso/ai-review/releases) 页面下载对应平台的预编译版本：
+### 🍺 Homebrew（推荐）
+
+```bash
+# 添加 tap
+brew tap imhuso/cunzhi
+
+# 安装工具集
+brew install cunzhi
+```
+
+### 📦 预编译版本
+
+从 [Releases](https://github.com/imhuso/cunzhi/releases) 页面下载对应平台的预编译版本：
 
 - **Linux**: `cunzhi-cli-v*-linux-x86_64.tar.gz`
 - **macOS (Intel)**: `cunzhi-cli-v*-macos-x86_64.tar.gz`

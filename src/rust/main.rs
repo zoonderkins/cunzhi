@@ -80,6 +80,8 @@ pub fn run() {
 fn main() -> Result<()> {
     // 初始化日志系统
     if let Err(e) = auto_init_logger() {
+        // 日志系统初始化失败时，只能使用 stderr 输出错误
+        // 这个错误很少发生，且不会影响 MCP 响应（因为日志系统会自动处理 MCP 模式）
         eprintln!("初始化日志系统失败: {}", e);
     }
 

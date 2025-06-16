@@ -1,5 +1,5 @@
 use anyhow::Result;
-use rmcp::{Error as McpError, model::*, tool};
+use rmcp::{Error as McpError, model::*};
 
 use super::{MemoryManager, MemoryCategory};
 use crate::mcp::{JiyiRequest, utils::{validate_project_path, project_path_error}};
@@ -10,11 +10,9 @@ use crate::mcp::{JiyiRequest, utils::{validate_project_path, project_path_error}
 #[derive(Clone)]
 pub struct MemoryTool;
 
-#[tool(tool_box)]
 impl MemoryTool {
-    #[tool(description = "jiyi 全局记忆管理工具，用于存储和管理重要的开发规范、用户偏好和最佳实践")]
     pub async fn jiyi(
-        #[tool(aggr)] request: JiyiRequest,
+        request: JiyiRequest,
     ) -> Result<CallToolResult, McpError> {
         // 检查项目路径是否存在
         if let Err(e) = validate_project_path(&request.project_path) {

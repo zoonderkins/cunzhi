@@ -4,7 +4,6 @@ use rmcp::{
     model::*,
     transport::stdio,
     service::RequestContext,
-    tool,
 };
 use std::collections::HashMap;
 
@@ -153,36 +152,58 @@ impl ServerHandler for ZhiServer {
             next_cursor: None,
         })
     }
-}
 
-// 将工具方法委托给专门的工具结构体
-#[tool(tool_box)]
-impl ZhiServer {
-    #[tool(description = "zhi 智能代码审查交互工具，支持预定义选项、自由文本输入和图片上传")]
-    async fn zhi(
+    async fn call_tool(
         &self,
-        #[tool(aggr)] request: ZhiRequest,
+        request: CallToolRequestParam,
+        _context: RequestContext<RoleServer>,
     ) -> Result<CallToolResult, McpError> {
-        // 寸止工具始终启用（必需工具）
-        InteractionTool::zhi(request).await
-    }
+        log_debug!("收到工具调用请求: {}", request.name);
 
-    #[tool(description = "ji 全局记忆管理工具，用于存储和管理重要的开发规范、用户偏好和最佳实践")]
-    async fn ji(
-        &self,
-        #[tool(aggr)] request: JiyiRequest,
-    ) -> Result<CallToolResult, McpError> {
-        // 检查记忆管理工具是否启用
-        if !self.is_tool_enabled("ji") {
-            return Err(McpError::internal_error(
-                "记忆管理工具已被禁用".to_string(),
-                None
-            ));
+        match request.name.as_ref() {
+            "zhi" => {
+                // 解析请求参数
+                let arguments_value = request.arguments
+                    .map(|args| serde_json::Value::Object(args))
+                    .unwrap_or(serde_json::Value::Object(serde_json::Map::new()));
+
+                let zhi_request: ZhiRequest = serde_json::from_value(arguments_value)
+                    .map_err(|e| McpError::invalid_params(format!("参数解析失败: {}", e), None))?;
+
+                // 调用寸止工具
+                InteractionTool::zhi(zhi_request).await
+            }
+            "ji" => {
+                // 检查记忆管理工具是否启用
+                if !self.is_tool_enabled("ji") {
+                    return Err(McpError::internal_error(
+                        "记忆管理工具已被禁用".to_string(),
+                        None
+                    ));
+                }
+
+                // 解析请求参数
+                let arguments_value = request.arguments
+                    .map(|args| serde_json::Value::Object(args))
+                    .unwrap_or(serde_json::Value::Object(serde_json::Map::new()));
+
+                let ji_request: JiyiRequest = serde_json::from_value(arguments_value)
+                    .map_err(|e| McpError::invalid_params(format!("参数解析失败: {}", e), None))?;
+
+                // 调用记忆工具
+                MemoryTool::jiyi(ji_request).await
+            }
+            _ => {
+                Err(McpError::invalid_request(
+                    format!("未知的工具: {}", request.name),
+                    None
+                ))
+            }
         }
-
-        MemoryTool::jiyi(request).await
     }
 }
+
+
 
 /// 启动MCP服务器
 pub async fn run_server() -> Result<(), Box<dyn std::error::Error>> {

@@ -159,18 +159,32 @@ jobs:
           echo "## 🚀 寸止 ${{ github.ref_name }}"
           echo ""
           echo "### 📦 包含内容"
-          echo "- 寸止 MCP工具：智能代码审查交互"
-          echo "- 等一下 MCP工具：全局记忆管理"
+          echo "- **寸止** - MCP服务器，智能代码审查交互"
+          echo "- **等一下** - 弹窗界面，全局记忆管理"
           echo ""
-          echo "### 💻 支持平台"
-          echo "- Windows (x86_64)"
-          echo "- macOS (Intel & Apple Silicon)"
-          echo "- Linux (x86_64)"
+          echo "### 🍺 Homebrew 安装（推荐）"
+          echo "\`\`\`bash"
+          echo "brew tap imhuso/cunzhi"
+          echo "brew install cunzhi"
+          echo "\`\`\`"
           echo ""
-          echo "### 📖 快速开始"
-          echo "1. 下载对应平台的压缩包并解压"
-          echo "2. 将工具添加到PATH或使用绝对路径"
-          echo "3. 配置MCP客户端使用 \`寸止\` 命令"
+          echo "### 📦 预编译版本"
+          echo "下载对应平台的压缩包："
+          echo "- **Windows (x86_64)**: \`cunzhi-cli-${{ github.ref_name }}-windows-x86_64.zip\`"
+          echo "- **macOS (Intel)**: \`cunzhi-cli-${{ github.ref_name }}-macos-x86_64.tar.gz\`"
+          echo "- **macOS (Apple Silicon)**: \`cunzhi-cli-${{ github.ref_name }}-macos-aarch64.tar.gz\`"
+          echo "- **Linux (x86_64)**: \`cunzhi-cli-${{ github.ref_name }}-linux-x86_64.tar.gz\`"
+          echo ""
+          echo "### 🔧 MCP 客户端配置"
+          echo "\`\`\`json"
+          echo "{"
+          echo "  \"mcpServers\": {"
+          echo "    \"寸止\": {"
+          echo "      \"command\": \"寸止\""
+          echo "    }"
+          echo "  }"
+          echo "}"
+          echo "\`\`\`"
           echo ""
           cat changelog.md
         } > temp_changelog.md
@@ -190,3 +204,34 @@ jobs:
         body_path: changelog.md
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Calculate source archive SHA256 for Homebrew
+      id: sha256
+      run: |
+        DOWNLOAD_URL="https://github.com/imhuso/cunzhi/archive/refs/tags/${{ github.ref_name }}.tar.gz"
+        wget -O source.tar.gz "$DOWNLOAD_URL"
+        SHA256=$(sha256sum source.tar.gz | cut -d' ' -f1)
+        echo "sha256=${SHA256}" >> $GITHUB_OUTPUT
+        echo "download_url=${DOWNLOAD_URL}" >> $GITHUB_OUTPUT
+
+    - name: Update Homebrew Formula
+      run: |
+        VERSION="${{ github.ref_name }}"
+        DOWNLOAD_URL="${{ steps.sha256.outputs.download_url }}"
+        SHA256="${{ steps.sha256.outputs.sha256 }}"
+
+        # 移除版本号前的 'v' 前缀
+        VERSION_NUMBER=${VERSION#v}
+
+        # 更新 Formula 文件
+        sed -i "s|url \".*\"|url \"${DOWNLOAD_URL}\"|g" Formula/cunzhi.rb
+        sed -i "s|sha256 \".*\"|sha256 \"${SHA256}\"|g" Formula/cunzhi.rb
+        sed -i "s|version \".*\"|version \"${VERSION_NUMBER}\"|g" Formula/cunzhi.rb
+
+    - name: Commit and push Formula update
+      run: |
+        git config --local user.email "action@github.com"
+        git config --local user.name "GitHub Action"
+        git add Formula/cunzhi.rb
+        git commit -m "Update Homebrew formula to ${VERSION}" || exit 0
+        git push

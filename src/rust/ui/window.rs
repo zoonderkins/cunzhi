@@ -44,7 +44,7 @@ pub async fn apply_window_constraints(state: State<'_, AppState>, app: tauri::Ap
 
         // 确保置顶状态在应用窗口约束后仍然有效
         if let Err(e) = window.set_always_on_top(always_on_top) {
-            eprintln!("⚠️ 应用窗口约束后重新设置置顶状态失败: {}", e);
+            log::warn!("应用窗口约束后重新设置置顶状态失败: {}", e);
         }
     }
 
@@ -105,7 +105,7 @@ pub async fn update_window_size(size_update: WindowSizeUpdate, state: State<'_, 
                 return Err(format!("设置最大窗口大小失败: {}", e));
             }
 
-            println!("✅ 窗口已设置为固定大小: {}x{}", size_update.width, size_update.height);
+            log::debug!("窗口已设置为固定大小: {}x{}", size_update.width, size_update.height);
         } else {
             // 自由拉伸模式：设置合理的约束范围
             if let Err(e) = window.set_min_size(Some(tauri::LogicalSize::new(600.0, 400.0))) {
@@ -121,14 +121,14 @@ pub async fn update_window_size(size_update: WindowSizeUpdate, state: State<'_, 
                 return Err(format!("设置窗口大小失败: {}", e));
             }
 
-            println!("✅ 窗口已设置为自由拉伸模式，默认大小: {}x{}", size_update.width, size_update.height);
+            log::debug!("窗口已设置为自由拉伸模式，默认大小: {}x{}", size_update.width, size_update.height);
         }
 
         // 重新应用置顶状态，确保窗口大小变更不会影响置顶设置
         if let Err(e) = window.set_always_on_top(always_on_top) {
-            eprintln!("⚠️ 重新应用置顶状态失败: {}", e);
+            log::warn!("重新应用置顶状态失败: {}", e);
         } else {
-            println!("✅ 置顶状态已重新应用: {}", always_on_top);
+            log::debug!("置顶状态已重新应用: {}", always_on_top);
         }
     }
 
