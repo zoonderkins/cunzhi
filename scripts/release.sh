@@ -342,11 +342,11 @@ github_actions_release() {
     echo "1. 打开链接: $actions_url"
     echo "2. 点击绿色的 'Run workflow' 按钮"
     echo "3. 在弹出的表单中："
-    echo "   - 版本类型: 选择 '$version_type'"
+    echo "   - Version type (patch=bugfix, minor=feature, major=breaking): 选择 '$version_type'"
     if [[ "$version_type" == "custom" ]]; then
-        echo "   - 自定义版本号: 输入 '$new_version'"
+        echo "   - Custom version (format: x.y.z, only when custom is selected): 输入 '$new_version'"
     else
-        echo "   - 自定义版本号: 留空（仅 custom 类型需要）"
+        echo "   - Custom version (format: x.y.z, only when custom is selected): 留空（仅 custom 类型需要）"
     fi
     echo "4. 点击 'Run workflow' 开始发版"
     echo "5. 等待 GitHub Actions 完成构建和发布"
