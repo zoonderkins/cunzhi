@@ -2,6 +2,7 @@ use crate::config::{save_config, AppState, TelegramConfig};
 use crate::telegram::{
     handle_callback_query, handle_text_message, test_telegram_connection, TelegramCore,
 };
+use crate::log_important;
 use tauri::{AppHandle, Emitter, State};
 use teloxide::prelude::*;
 
@@ -137,7 +138,7 @@ pub async fn start_telegram_sync(
         .await
         {
             Ok(_) => {}
-            Err(e) => eprintln!("Telegram消息监听出错: {}", e),
+            Err(e) => log_important!(warn, "Telegram消息监听出错: {}", e),
         }
     });
 

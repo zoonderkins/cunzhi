@@ -104,7 +104,7 @@ onMounted(() => {
       <n-space align="center">
         <!-- 图标 -->
         <div class="w-10 h-10 rounded-lg bg-info/10 dark:bg-info/20 flex items-center justify-center">
-          <div class="text-2xl">🤖</div>
+          <div class="i-carbon-chat-bot text-lg text-info-600 dark:text-info-400" />
         </div>
 
         <!-- 标题和副标题 -->

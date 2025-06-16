@@ -1,10 +1,8 @@
-use cunzhi::config::{AppState, load_config_and_apply_window_settings};
+use cunzhi::config::{AppState, load_config_and_apply_window_settings, load_standalone_telegram_config};
 use cunzhi::utils::auto_init_logger;
 use cunzhi::log_important;
+use cunzhi::telegram::handle_telegram_only_mcp_request;
 use anyhow::Result;
-use cunzhi::config::{
-    load_config_and_apply_window_settings, load_standalone_telegram_config, AppState,
-};
 use std::sync::atomic::AtomicBool;
 use std::sync::Arc;
 use tauri::Manager;
@@ -112,7 +110,7 @@ fn main() -> Result<()> {
                         .unwrap()
                         .block_on(handle_telegram_only_mcp_request(request_file))
                     {
-                        eprintln!("处理Telegram请求失败: {}", e);
+                        log_important!(error, "处理Telegram请求失败: {}", e);
                         std::process::exit(1);
                     }
                     return Ok(());
@@ -122,7 +120,7 @@ fn main() -> Result<()> {
                 }
             }
             Err(e) => {
-                eprintln!("加载Telegram配置失败: {}，使用默认GUI模式", e);
+                log_important!(warn, "加载Telegram配置失败: {}，使用默认GUI模式", e);
                 // 配置加载失败时，使用默认行为（启动GUI）
                 run();
             }
@@ -157,210 +155,4 @@ fn print_version() {
     println!("寸止 v{}", env!("CARGO_PKG_VERSION"));
 }
 
-/// 处理纯Telegram模式的MCP请求（不启动GUI）
-async fn handle_telegram_only_mcp_request(request_file: &str) -> Result<()> {
-    use cunzhi::config::load_standalone_config;
-    use cunzhi::mcp::types::{build_continue_response, build_send_response, PopupRequest};
-    use cunzhi::telegram::TelegramCore;
-    use std::fs;
-    use teloxide::prelude::*;
 
-    // 读取MCP请求文件
-    let request_json = fs::read_to_string(request_file)?;
-    let request: PopupRequest = serde_json::from_str(&request_json)?;
-
-    // 加载完整配置
-    let app_config = load_standalone_config()?;
-    let telegram_config = &app_config.telegram_config;
-
-    if !telegram_config.enabled {
-        eprintln!("Telegram未启用，无法处理请求");
-        return Ok(());
-    }
-
-    if telegram_config.bot_token.trim().is_empty() || telegram_config.chat_id.trim().is_empty() {
-        eprintln!("Telegram配置不完整");
-        return Ok(());
-    }
-
-    // 创建Telegram核心实例
-    let core = TelegramCore::new(
-        telegram_config.bot_token.clone(),
-        telegram_config.chat_id.clone(),
-    )?;
-
-    // 发送消息到Telegram
-    let predefined_options = request.predefined_options.unwrap_or_default();
-
-    // 发送选项消息
-    core.send_options_message(&request.message, &predefined_options, request.is_markdown)
-        .await?;
-
-    // 短暂延迟确保消息顺序
-    tokio::time::sleep(tokio::time::Duration::from_millis(500)).await;
-
-    // 发送操作消息（假设启用继续回复）
-    core.send_operation_message(true).await?;
-
-    // 启动简单的消息监听循环
-    let mut offset = 0i32;
-    let mut selected_options: std::collections::HashSet<String> = std::collections::HashSet::new();
-    let mut user_input = String::new();
-    let mut options_message_id: Option<i32> = None;
-
-    // 获取当前最新的消息ID作为基准
-    if let Ok(updates) = core.bot.get_updates().limit(10).await {
-        if let Some(update) = updates.last() {
-            offset = update.id.0 as i32 + 1;
-        }
-    }
-
-    // 监听循环（简化版本，只等待发送或继续操作）
-    loop {
-        match core.bot.get_updates().offset(offset).timeout(10).await {
-            Ok(updates) => {
-                for update in updates {
-                    offset = update.id.0 as i32 + 1;
-
-                    match update.kind {
-                        teloxide::types::UpdateKind::CallbackQuery(callback_query) => {
-                            // 只有当有预定义选项时才处理 callback queries
-                            if !predefined_options.is_empty() {
-                                // 从callback_query中提取消息ID
-                                if let Some(message) = &callback_query.message {
-                                    if options_message_id.is_none() {
-                                        options_message_id = Some(message.id().0);
-                                    }
-                                }
-
-                                use cunzhi::telegram::handle_callback_query;
-                                if let Ok(Some(option)) =
-                                    handle_callback_query(&core.bot, &callback_query, core.chat_id)
-                                        .await
-                                {
-                                    // 切换选项状态
-                                    if selected_options.contains(&option) {
-                                        selected_options.remove(&option);
-                                    } else {
-                                        selected_options.insert(option.clone());
-                                    }
-
-                                    // 更新按钮状态
-                                    if let Some(msg_id) = options_message_id {
-                                        let selected_vec: Vec<String> =
-                                            selected_options.iter().cloned().collect();
-                                        let _ = core
-                                            .update_inline_keyboard(
-                                                msg_id,
-                                                &predefined_options,
-                                                &selected_vec,
-                                            )
-                                            .await;
-                                    }
-                                }
-                            }
-                        }
-                        teloxide::types::UpdateKind::Message(message) => {
-                            // 只有当有预定义选项时才检查 inline keyboard
-                            if !predefined_options.is_empty() {
-                                // 检查是否是包含 inline keyboard 的选项消息
-                                if let Some(inline_keyboard) = message.reply_markup() {
-                                    // 检查是否包含我们的选项按钮
-                                    let mut contains_our_options = false;
-                                    for row in &inline_keyboard.inline_keyboard {
-                                        for button in row {
-                                            if let teloxide::types::InlineKeyboardButtonKind::CallbackData(callback_data) = &button.kind {
-                                                if callback_data.starts_with("toggle:") {
-                                                    contains_our_options = true;
-                                                    break;
-                                                }
-                                            }
-                                        }
-                                        if contains_our_options {
-                                            break;
-                                        }
-                                    }
-
-                                    if contains_our_options {
-                                        options_message_id = Some(message.id.0);
-                                    }
-                                }
-                            }
-
-                            use cunzhi::telegram::handle_text_message;
-                            if let Ok(Some(event)) =
-                                handle_text_message(&message, core.chat_id, None).await
-                            {
-                                match event {
-                                    cunzhi::telegram::TelegramEvent::SendPressed => {
-                                        // 使用统一的响应构建函数
-                                        let selected_list: Vec<String> =
-                                            selected_options.iter().cloned().collect();
-
-                                        let user_input_option = if user_input.is_empty() {
-                                            None
-                                        } else {
-                                            Some(user_input.clone())
-                                        };
-
-                                        let response = build_send_response(
-                                            user_input_option,
-                                            selected_list.clone(),
-                                            vec![], // 无GUI模式下没有图片
-                                            Some(request.id.clone()),
-                                            "telegram",
-                                        );
-
-                                        // 输出JSON响应到stdout
-                                        println!("{}", response);
-
-                                        // 发送确认消息（使用统一的反馈消息生成函数）
-                                        let feedback_message =
-                                            cunzhi::telegram::core::build_feedback_message(
-                                                &selected_list,
-                                                &user_input,
-                                                false, // 不是继续操作
-                                            );
-                                        let _ = core.send_message(&feedback_message).await;
-                                        return Ok(());
-                                    }
-                                    cunzhi::telegram::TelegramEvent::ContinuePressed => {
-                                        // 使用统一的继续响应构建函数
-                                        let response = build_continue_response(
-                                            Some(request.id.clone()),
-                                            "telegram_continue",
-                                        );
-
-                                        // 输出JSON响应到stdout
-                                        println!("{}", response);
-
-                                        // 发送确认消息（使用统一的反馈消息生成函数）
-                                        let feedback_message =
-                                            cunzhi::telegram::core::build_feedback_message(
-                                                &[],  // 继续操作没有选项
-                                                "",   // 继续操作没有用户输入
-                                                true, // 是继续操作
-                                            );
-                                        let _ = core.send_message(&feedback_message).await;
-                                        return Ok(());
-                                    }
-                                    cunzhi::telegram::TelegramEvent::TextUpdated { text } => {
-                                        user_input = text;
-                                    }
-                                    _ => {}
-                                }
-                            }
-                        }
-                        _ => {}
-                    }
-                }
-            }
-            Err(_) => {
-                tokio::time::sleep(tokio::time::Duration::from_secs(5)).await;
-            }
-        }
-
-        // 短暂延迟避免过于频繁的请求
-        tokio::time::sleep(tokio::time::Duration::from_millis(1000)).await;
-    }
-}

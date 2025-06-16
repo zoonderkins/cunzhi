@@ -240,8 +240,9 @@ jobs:
           exit 0
         fi
 
-        # 确保我们在正确的分支上
-        git fetch origin main:main || git fetch origin main
+        # 确保我们在正确的分支上，使用token进行认证
+        git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git
+        git fetch origin main
         git checkout main
 
         # 重新应用 Formula 更新（因为切换分支可能丢失更改）
