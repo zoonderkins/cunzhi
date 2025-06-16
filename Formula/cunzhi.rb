@@ -1,10 +1,10 @@
 class Cunzhi < Formula
   desc "智能代码审查MCP工具集 - 包含寸止MCP服务器和等一下弹窗界面"
   homepage "https://github.com/imhuso/cunzhi"
-  url "https://github.com/imhuso/cunzhi/archive/refs/tags/v1.0.0.tar.gz"
-  sha256 "REPLACE_WITH_ACTUAL_SHA256"
+  url "https://github.com/imhuso/cunzhi/archive/refs/tags/v0.2.0.tar.gz"
+  sha256 "e38818a6f60c752a064f37b586b06d9fb06246b03b511a7b60f29dc205b7524c"
   license "MIT"
-  version "1.0.0"
+  version "0.2.0"
 
   depends_on "rust" => :build
   depends_on "node" => :build
