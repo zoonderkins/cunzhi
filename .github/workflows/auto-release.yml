@@ -13,100 +13,100 @@ jobs:
       contents: write
 
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
-      with:
-        fetch-depth: 0
-        token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
 
-    - name: Setup Git
-      run: |
-        git config user.name "github-actions[bot]"
-        git config user.email "github-actions[bot]@users.noreply.github.com"
+      - name: Setup Git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
 
-    - name: Determine version type from PR
-      id: version_type
-      run: |
-        PR_TITLE="${{ github.event.pull_request.title }}"
-        PR_LABELS="${{ join(github.event.pull_request.labels.*.name, ' ') }}"
-        
-        # 根据 PR 标签或标题确定版本类型
-        if echo "$PR_LABELS" | grep -q "major\|breaking"; then
-          echo "type=major" >> $GITHUB_OUTPUT
-        elif echo "$PR_LABELS" | grep -q "minor\|feature"; then
-          echo "type=minor" >> $GITHUB_OUTPUT
-        else
-          echo "type=patch" >> $GITHUB_OUTPUT
-        fi
+      - name: Determine version type from PR
+        id: version_type
+        run: |
+          PR_TITLE="${{ github.event.pull_request.title }}"
+          PR_LABELS="${{ join(github.event.pull_request.labels.*.name, ' ') }}"
 
-    - name: Get current version
-      id: current_version
-      run: |
-        if [ -f "version.json" ]; then
-          VERSION=$(grep -o '"version"[[:space:]]*:[[:space:]]*"[^"]*"' version.json | cut -d'"' -f4)
-        elif [ -f "Cargo.toml" ]; then
-          VERSION=$(grep '^version = ' Cargo.toml | head -1 | cut -d'"' -f2)
-        else
-          VERSION="0.0.0"
-        fi
-        echo "current=$VERSION" >> $GITHUB_OUTPUT
+          # 根据 PR 标签或标题确定版本类型
+          if echo "$PR_LABELS" | grep -q "major\|breaking"; then
+            echo "type=major" >> $GITHUB_OUTPUT
+          elif echo "$PR_LABELS" | grep -q "minor\|feature"; then
+            echo "type=minor" >> $GITHUB_OUTPUT
+          else
+            echo "type=patch" >> $GITHUB_OUTPUT
+          fi
 
-    - name: Calculate new version
-      id: new_version
-      run: |
-        CURRENT="${{ steps.current_version.outputs.current }}"
-        TYPE="${{ steps.version_type.outputs.type }}"
-        
-        IFS='.' read -r major minor patch <<< "$CURRENT"
-        
-        case $TYPE in
-          "major")
-            major=$((major + 1))
-            minor=0
-            patch=0
-            ;;
-          "minor")
-            minor=$((minor + 1))
-            patch=0
-            ;;
-          "patch")
-            patch=$((patch + 1))
-            ;;
-        esac
-        
-        NEW_VERSION="$major.$minor.$patch"
-        echo "new=$NEW_VERSION" >> $GITHUB_OUTPUT
-        echo "🚀 Auto-releasing version $NEW_VERSION (type: $TYPE)"
+      - name: Get current version
+        id: current_version
+        run: |
+          if [ -f "version.json" ]; then
+            VERSION=$(grep -o '"version"[[:space:]]*:[[:space:]]*"[^"]*"' version.json | cut -d'"' -f4)
+          elif [ -f "Cargo.toml" ]; then
+            VERSION=$(grep '^version = ' Cargo.toml | head -1 | cut -d'"' -f2)
+          else
+            VERSION="0.0.0"
+          fi
+          echo "current=$VERSION" >> $GITHUB_OUTPUT
 
-    - name: Update version files
-      run: |
-        NEW_VERSION="${{ steps.new_version.outputs.new }}"
-        CURRENT_DATE=$(date +"%Y-%m-%d")
-        
-        # 更新版本文件（与手动发版相同的逻辑）
-        if [ -f "version.json" ]; then
-          sed -i "s/\"version\"[[:space:]]*:[[:space:]]*\"[^\"]*\"/\"version\": \"$NEW_VERSION\"/" version.json
-          sed -i "s/\"build_date\"[[:space:]]*:[[:space:]]*\"[^\"]*\"/\"build_date\": \"$CURRENT_DATE\"/" version.json
-        fi
-        
-        if [ -f "Cargo.toml" ]; then
-          sed -i "s/^version = \"[^\"]*\"/version = \"$NEW_VERSION\"/" Cargo.toml
-        fi
-        
-        if [ -f "package.json" ]; then
-          sed -i "s/\"version\"[[:space:]]*:[[:space:]]*\"[^\"]*\"/\"version\": \"$NEW_VERSION\"/" package.json
-        fi
-        
-        if [ -f "tauri.conf.json" ]; then
-          sed -i "s/\"version\"[[:space:]]*:[[:space:]]*\"[^\"]*\"/\"version\": \"$NEW_VERSION\"/" tauri.conf.json
-        fi
+      - name: Calculate new version
+        id: new_version
+        run: |
+          CURRENT="${{ steps.current_version.outputs.current }}"
+          TYPE="${{ steps.version_type.outputs.type }}"
 
-    - name: Commit and create tag
-      run: |
-        NEW_VERSION="${{ steps.new_version.outputs.new }}"
-        
-        git add .
-        git commit -m "release: Release $NEW_VERSION"
-        git tag -a "v$NEW_VERSION" -m "Release $NEW_VERSION"
-        git push origin main
-        git push origin "v$NEW_VERSION"
+          IFS='.' read -r major minor patch <<< "$CURRENT"
+
+          case $TYPE in
+            "major")
+              major=$((major + 1))
+              minor=0
+              patch=0
+              ;;
+            "minor")
+              minor=$((minor + 1))
+              patch=0
+              ;;
+            "patch")
+              patch=$((patch + 1))
+              ;;
+          esac
+
+          NEW_VERSION="$major.$minor.$patch"
+          echo "new=$NEW_VERSION" >> $GITHUB_OUTPUT
+          echo "🚀 Auto-releasing version $NEW_VERSION (type: $TYPE)"
+
+      - name: Update version files
+        run: |
+          NEW_VERSION="${{ steps.new_version.outputs.new }}"
+          CURRENT_DATE=$(date +"%Y-%m-%d")
+
+          # 更新版本文件（与手动发版相同的逻辑）
+          if [ -f "version.json" ]; then
+            sed -i "s/\"version\"[[:space:]]*:[[:space:]]*\"[^\"]*\"/\"version\": \"$NEW_VERSION\"/" version.json
+            sed -i "s/\"build_date\"[[:space:]]*:[[:space:]]*\"[^\"]*\"/\"build_date\": \"$CURRENT_DATE\"/" version.json
+          fi
+
+          if [ -f "Cargo.toml" ]; then
+            sed -i "s/^version = \"[^\"]*\"/version = \"$NEW_VERSION\"/" Cargo.toml
+          fi
+
+          if [ -f "package.json" ]; then
+            sed -i "s/\"version\"[[:space:]]*:[[:space:]]*\"[^\"]*\"/\"version\": \"$NEW_VERSION\"/" package.json
+          fi
+
+          if [ -f "tauri.conf.json" ]; then
+            sed -i "s/\"version\"[[:space:]]*:[[:space:]]*\"[^\"]*\"/\"version\": \"$NEW_VERSION\"/" tauri.conf.json
+          fi
+
+      - name: Commit and create tag
+        run: |
+          NEW_VERSION="${{ steps.new_version.outputs.new }}"
+
+          git add .
+          git commit -m "release: Release $NEW_VERSION"
+          git tag -a "v$NEW_VERSION" -m "Release $NEW_VERSION"
+          git push origin main
+          git push origin "v$NEW_VERSION"

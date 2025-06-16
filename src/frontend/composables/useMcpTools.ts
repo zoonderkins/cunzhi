@@ -1,5 +1,5 @@
-import { ref, computed } from 'vue'
 import { invoke } from '@tauri-apps/api/core'
+import { computed, ref } from 'vue'
 
 // MCP工具配置接口
 export interface MCPToolConfig {
@@ -25,7 +25,7 @@ const enabledTools = computed(() => mcpTools.value.filter(tool => tool.enabled))
 const toolStats = computed(() => ({
   total: mcpTools.value.length,
   enabled: enabledTools.value.length,
-  disabled: mcpTools.value.length - enabledTools.value.length
+  disabled: mcpTools.value.length - enabledTools.value.length,
 }))
 
 // 加载MCP工具配置
@@ -63,13 +63,13 @@ async function toggleTool(toolId: string) {
 
     // 更新本地状态
     tool.enabled = newEnabled
-    
+
     console.log(`✅ 工具 ${toolId} 状态已更新为: ${newEnabled}`)
-    
+
     return {
       toolId,
       enabled: newEnabled,
-      needsReconnect: true
+      needsReconnect: true,
     }
   }
   catch (err) {
@@ -117,11 +117,11 @@ export function useMcpTools() {
     mcpTools: mcpTools.value,
     loading: loading.value,
     error: error.value,
-    
+
     // 计算属性
     enabledTools,
     toolStats,
-    
+
     // 方法
     loadMcpTools,
     toggleTool,
@@ -138,11 +138,11 @@ export function useMcpToolsReactive() {
     mcpTools,
     loading,
     error,
-    
+
     // 计算属性
     enabledTools,
     toolStats,
-    
+
     // 方法
     loadMcpTools,
     toggleTool,

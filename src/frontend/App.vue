@@ -4,9 +4,9 @@ import { listen } from '@tauri-apps/api/event'
 
 import { computed, onMounted, ref } from 'vue'
 import AppContent from './components/AppContent.vue'
+import { initMcpTools } from './composables/useMcpTools'
 import { useSettings } from './composables/useSettings'
 import { useTheme } from './composables/useTheme'
-import { initMcpTools } from './composables/useMcpTools'
 import { useVersionCheck } from './composables/useVersionCheck'
 
 // 响应式数据
@@ -95,7 +95,8 @@ async function showMcpDialog(request: any) {
     mcpRequest.value = request
     showMcpPopup.value = true
     console.log('✅ 显示前端弹窗')
-  } else {
+  }
+  else {
     console.log('🔕 跳过前端弹窗显示，仅使用Telegram交互')
   }
 
@@ -113,7 +114,7 @@ async function showMcpDialog(request: any) {
       await invoke('start_telegram_sync', {
         message: request.message,
         predefinedOptions: request.predefined_options || [],
-        isMarkdown: request.is_markdown || false
+        isMarkdown: request.is_markdown || false,
       })
       console.log('✅ Telegram同步启动成功')
     }
@@ -193,7 +194,7 @@ onMounted(async () => {
   setupSystemThemeListener()
 
   // 静默检查版本更新（非阻塞）
-  silentCheckUpdate().catch(error => {
+  silentCheckUpdate().catch((error) => {
     console.warn('静默版本检查失败:', error)
   })
 
@@ -208,14 +209,16 @@ onMounted(async () => {
       <n-message-provider>
         <n-notification-provider>
           <n-dialog-provider>
-            <AppContent :mcp-request="mcpRequest" :show-mcp-popup="showMcpPopup" :app-config="appConfig"
+            <AppContent
+              :mcp-request="mcpRequest" :show-mcp-popup="showMcpPopup" :app-config="appConfig"
               :is-initializing="isInitializing" @mcp-response="handleMcpResponse" @mcp-cancel="handleMcpCancel"
               @theme-change="setTheme" @toggle-always-on-top="settingsActions.toggleAlwaysOnTop"
               @toggle-audio-notification="settingsActions.toggleAudioNotification"
               @update-audio-url="settingsActions.updateAudioUrl" @test-audio="settingsActions.testAudio"
               @stop-audio="settingsActions.stopAudio" @test-audio-error="handleTestAudioError"
               @update-window-size="settingsActions.updateWindowSize"
-              @update-reply-config="settingsActions.updateReplyConfig" @message-ready="handleMessageReady" />
+              @update-reply-config="settingsActions.updateReplyConfig" @message-ready="handleMessageReady"
+            />
           </n-dialog-provider>
         </n-notification-provider>
       </n-message-provider>

@@ -1,4 +1,5 @@
 import { invoke } from '@tauri-apps/api/core'
+import { listen } from '@tauri-apps/api/event'
 import { ref } from 'vue'
 
 interface VersionInfo {
@@ -9,10 +10,30 @@ interface VersionInfo {
   releaseNotes: string
 }
 
+interface UpdateInfo {
+  available: boolean
+  current_version: string
+  latest_version: string
+  release_notes: string
+  download_url: string
+}
+
+interface UpdateProgress {
+  chunk_length: number
+  content_length?: number
+  downloaded: number
+  percentage: number
+}
+
 // 全局版本检查状态
 const versionInfo = ref<VersionInfo | null>(null)
 const isChecking = ref(false)
 const lastCheckTime = ref<Date | null>(null)
+
+// 更新相关状态
+const isUpdating = ref(false)
+const updateProgress = ref<UpdateProgress | null>(null)
+const updateStatus = ref<'idle' | 'checking' | 'downloading' | 'installing' | 'completed' | 'error'>('idle')
 
 // 比较版本号
 function compareVersions(version1: string, version2: string): number {
@@ -148,16 +169,100 @@ async function openReleasePage(): Promise<void> {
   }
 }
 
+// 使用Tauri Updater检查更新
+async function checkForUpdatesWithTauri(): Promise<UpdateInfo | null> {
+  try {
+    const updateInfo = await invoke('check_for_updates') as UpdateInfo
+    return updateInfo
+  }
+  catch (error) {
+    console.error('Tauri更新检查失败:', error)
+    return null
+  }
+}
+
+// 一键更新功能
+async function performOneClickUpdate(): Promise<void> {
+  if (isUpdating.value) {
+    return
+  }
+
+  try {
+    isUpdating.value = true
+    updateStatus.value = 'checking'
+    updateProgress.value = null
+
+    // 首先检查是否有更新
+    const updateInfo = await checkForUpdatesWithTauri()
+    if (!updateInfo?.available) {
+      throw new Error('没有可用的更新')
+    }
+
+    // 设置事件监听器
+    const unlistenProgress = await listen('update_download_progress', (event) => {
+      updateProgress.value = event.payload as UpdateProgress
+      updateStatus.value = 'downloading'
+    })
+
+    const unlistenInstallStart = await listen('update_install_started', () => {
+      updateStatus.value = 'installing'
+    })
+
+    const unlistenInstallFinish = await listen('update_install_finished', () => {
+      updateStatus.value = 'completed'
+    })
+
+    try {
+      // 开始下载和安装
+      updateStatus.value = 'downloading'
+      await invoke('download_and_install_update')
+
+      // 更新完成
+      updateStatus.value = 'completed'
+    }
+    finally {
+      // 清理事件监听器
+      unlistenProgress()
+      unlistenInstallStart()
+      unlistenInstallFinish()
+    }
+  }
+  catch (error) {
+    updateStatus.value = 'error'
+    throw error
+  }
+  finally {
+    isUpdating.value = false
+  }
+}
+
+// 重启应用
+async function restartApp(): Promise<void> {
+  try {
+    await invoke('restart_app')
+  }
+  catch (error) {
+    console.error('重启应用失败:', error)
+    throw error
+  }
+}
+
 export function useVersionCheck() {
   return {
     versionInfo,
     isChecking,
     lastCheckTime,
+    isUpdating,
+    updateProgress,
+    updateStatus,
     checkLatestVersion,
     silentCheckUpdate,
     getVersionInfo,
     openDownloadPage,
     openReleasePage,
+    checkForUpdatesWithTauri,
+    performOneClickUpdate,
+    restartApp,
     compareVersions,
     safeOpenUrl,
   }

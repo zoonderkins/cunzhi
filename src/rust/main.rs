@@ -16,6 +16,7 @@ pub use cunzhi::ui::*;
 pub fn run() {
     tauri::Builder::default()
         .plugin(tauri_plugin_shell::init())
+        .plugin(tauri_plugin_updater::Builder::new().build())
         .manage(AppState::default())
         .manage(AudioController {
             should_stop: Arc::new(AtomicBool::new(false)),
@@ -60,7 +61,11 @@ pub fn run() {
             start_telegram_sync,
             exit_app,
             build_mcp_send_response,
-            build_mcp_continue_response
+            build_mcp_continue_response,
+            check_for_updates,
+            download_and_install_update,
+            get_current_version,
+            restart_app
         ])
         .setup(|app| {
             let app_handle = app.handle().clone();

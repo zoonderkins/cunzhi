@@ -142,7 +142,7 @@ async function setupTelegramListener() {
 // 处理Telegram事件
 function handleTelegramEvent(event: any) {
   console.log('🎯 [McpPopup] 开始处理事件:', event.type)
-  
+
   switch (event.type) {
     case 'option_toggled':
       console.log('🎯 [McpPopup] 处理选项切换:', event.option)
@@ -171,7 +171,8 @@ function handleOptionToggle(option: string) {
   if (index > -1) {
     // 取消选择
     selectedOptions.value.splice(index, 1)
-  } else {
+  }
+  else {
     // 添加选择
     selectedOptions.value.push(option)
   }
@@ -272,7 +273,7 @@ function handleInputUpdate(data: { userInput: string, selectedOptions: string[],
 }
 
 // 处理图片添加 - 移除重复逻辑，避免双重添加
-function handleImageAdd(image: string) {
+function handleImageAdd(_image: string) {
   // 这个函数现在只是为了保持接口兼容性，实际添加在PopupInput中完成
 }
 

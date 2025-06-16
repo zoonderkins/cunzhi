@@ -7,10 +7,9 @@ import { useMcpToolsReactive } from '../../composables/useMcpTools'
 const {
   mcpTools,
   loading,
-  error,
   loadMcpTools,
   toggleTool: globalToggleTool,
-  toolStats
+  toolStats,
 } = useMcpToolsReactive()
 
 const needsReconnect = ref(false)

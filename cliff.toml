@@ -30,26 +30,26 @@ filter_unconventional = false
 split_commits = false
 # 提交解析器
 commit_parsers = [
-    { message = "^feat", group = "✨ 新功能" },
-    { message = "^fix", group = "🐛 问题修复" },
-    { message = "^docs?", group = "📚 文档" },
-    { message = "^perf", group = "⚡ 性能" },
-    { message = "^refactor", group = "♻️ 重构" },
-    { message = "^style", group = "💄 样式" },
-    { message = "^test", group = "🧪 测试" },
-    { message = "^chore\\(release\\)", skip = true },
-    { message = "^chore\\(deps", skip = true },
-    { message = "^chore|^ci", group = "🔧 工具" },
-    { message = "^revert", group = "⏪ 回滚" },
-    { message = ".*", group = "📝 其他" },
+  { message = "^feat", group = "✨ 新功能" },
+  { message = "^fix", group = "🐛 问题修复" },
+  { message = "^docs?", group = "📚 文档" },
+  { message = "^perf", group = "⚡ 性能" },
+  { message = "^refactor", group = "♻️ 重构" },
+  { message = "^style", group = "💄 样式" },
+  { message = "^test", group = "🧪 测试" },
+  { message = "^chore\\(release\\)", skip = true },
+  { message = "^chore\\(deps", skip = true },
+  { message = "^chore|^ci", group = "🔧 工具" },
+  { message = "^revert", group = "⏪ 回滚" },
+  { message = ".*", group = "📝 其他" },
 ]
 
 # 提交预处理器 - 清理提交信息
 commit_preprocessors = [
-    # 移除 issue 编号
-    { pattern = ' #\d+$', replace = "" },
-    # 移除多余空格
-    { pattern = '\s+', replace = " " },
+  # 移除 issue 编号
+  { pattern = ' #\d+$', replace = "" },
+  # 移除多余空格
+  { pattern = '\s+', replace = " " },
 ]
 
 # 保护分支

@@ -2,7 +2,7 @@ name: Build CLI Tools
 
 on:
   push:
-    tags: [ 'v*' ]
+    tags: ['v*']
   workflow_dispatch:
 
 jobs:
@@ -13,18 +13,18 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - platform: 'macos-latest'
-            args: '--target aarch64-apple-darwin'
-            name: 'macos-aarch64'
-          - platform: 'macos-latest'
-            args: '--target x86_64-apple-darwin'
-            name: 'macos-x86_64'
-          - platform: 'ubuntu-22.04'
+          - platform: macos-latest
+            args: --target aarch64-apple-darwin
+            name: macos-aarch64
+          - platform: macos-latest
+            args: --target x86_64-apple-darwin
+            name: macos-x86_64
+          - platform: ubuntu-22.04
             args: ''
-            name: 'linux-x86_64'
-          - platform: 'windows-latest'
+            name: linux-x86_64
+          - platform: windows-latest
             args: ''
-            name: 'windows-x86_64'
+            name: windows-x86_64
 
     runs-on: ${{ matrix.platform }}
     steps:
@@ -135,142 +135,142 @@ jobs:
     if: startsWith(github.ref, 'refs/tags/v')
 
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
-      with:
-        fetch-depth: 0
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
-    - name: Download all artifacts
-      uses: actions/download-artifact@v4
-      with:
-        path: artifacts
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts
 
-    - name: Install git-cliff
-      uses: taiki-e/install-action@git-cliff
+      - name: Install git-cliff
+        uses: taiki-e/install-action@git-cliff
 
-    - name: Generate changelog
-      id: changelog
-      run: |
-        # 获取上一个版本标签
-        PREVIOUS_TAG=$(git tag --sort=-version:refname | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+$' | head -2 | tail -1)
+      - name: Generate changelog
+        id: changelog
+        run: |
+          # 获取上一个版本标签
+          PREVIOUS_TAG=$(git tag --sort=-version:refname | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+$' | head -2 | tail -1)
 
-        echo "Current tag: ${{ github.ref_name }}"
-        echo "Previous tag: $PREVIOUS_TAG"
+          echo "Current tag: ${{ github.ref_name }}"
+          echo "Previous tag: $PREVIOUS_TAG"
 
-        if [ -z "$PREVIOUS_TAG" ]; then
-          # 如果没有上一个版本，生成所有提交的 changelog
-          git-cliff --tag ${{ github.ref_name }} --output changelog.md
-        else
-          # 只生成从上一个版本到当前版本的 changelog
-          git-cliff $PREVIOUS_TAG..${{ github.ref_name }} --output changelog.md
-        fi
+          if [ -z "$PREVIOUS_TAG" ]; then
+            # 如果没有上一个版本，生成所有提交的 changelog
+            git-cliff --tag ${{ github.ref_name }} --output changelog.md
+          else
+            # 只生成从上一个版本到当前版本的 changelog
+            git-cliff $PREVIOUS_TAG..${{ github.ref_name }} --output changelog.md
+          fi
 
-        # 简化的发布信息
-        {
-          echo "## 寸止 ${{ github.ref_name }}"
-          echo ""
-          cat changelog.md
-        } > temp_changelog.md
+          # 简化的发布信息
+          {
+            echo "## 寸止 ${{ github.ref_name }}"
+            echo ""
+            cat changelog.md
+          } > temp_changelog.md
 
-        mv temp_changelog.md changelog.md
+          mv temp_changelog.md changelog.md
 
-    - name: Create Release
-      uses: softprops/action-gh-release@v1
-      with:
-        files: |
-          artifacts/*/cunzhi-cli-*.tar.gz
-          artifacts/*/cunzhi-cli-*.zip
-        draft: false
-        prerelease: false
-        generate_release_notes: false
-        name: 寸止 ${{ github.ref_name }}
-        body_path: changelog.md
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Create Release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: |
+            artifacts/*/cunzhi-cli-*.tar.gz
+            artifacts/*/cunzhi-cli-*.zip
+          draft: false
+          prerelease: false
+          generate_release_notes: false
+          name: 寸止 ${{ github.ref_name }}
+          body_path: changelog.md
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-    - name: Calculate source archive SHA256 for Homebrew
-      id: sha256
-      run: |
-        DOWNLOAD_URL="https://github.com/imhuso/cunzhi/archive/refs/tags/${{ github.ref_name }}.tar.gz"
-        wget -O source.tar.gz "$DOWNLOAD_URL"
-        SHA256=$(sha256sum source.tar.gz | cut -d' ' -f1)
-        echo "sha256=${SHA256}" >> $GITHUB_OUTPUT
-        echo "download_url=${DOWNLOAD_URL}" >> $GITHUB_OUTPUT
+      - name: Calculate source archive SHA256 for Homebrew
+        id: sha256
+        run: |
+          DOWNLOAD_URL="https://github.com/imhuso/cunzhi/archive/refs/tags/${{ github.ref_name }}.tar.gz"
+          wget -O source.tar.gz "$DOWNLOAD_URL"
+          SHA256=$(sha256sum source.tar.gz | cut -d' ' -f1)
+          echo "sha256=${SHA256}" >> $GITHUB_OUTPUT
+          echo "download_url=${DOWNLOAD_URL}" >> $GITHUB_OUTPUT
 
-    - name: Clone homebrew-cunzhi repository
-      run: |
-        # 克隆 homebrew tap 仓库
-        git clone https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/imhuso/homebrew-cunzhi.git homebrew-tap
-        cd homebrew-tap
-        git config user.email "action@github.com"
-        git config user.name "GitHub Action"
+      - name: Clone homebrew-cunzhi repository
+        run: |
+          # 克隆 homebrew tap 仓库
+          git clone https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/imhuso/homebrew-cunzhi.git homebrew-tap
+          cd homebrew-tap
+          git config user.email "action@github.com"
+          git config user.name "GitHub Action"
 
-    - name: Update Homebrew Formula in tap repository
-      run: |
-        VERSION="${{ github.ref_name }}"
-        VERSION_NUMBER=${VERSION#v}
+      - name: Update Homebrew Formula in tap repository
+        run: |
+          VERSION="${{ github.ref_name }}"
+          VERSION_NUMBER=${VERSION#v}
 
-        echo "Updating Formula with version: ${VERSION_NUMBER}"
+          echo "Updating Formula with version: ${VERSION_NUMBER}"
 
-        # 计算预编译二进制的 SHA256
-        INTEL_URL="https://github.com/imhuso/cunzhi/releases/download/${VERSION}/cunzhi-cli-${VERSION}-macos-x86_64.tar.gz"
-        ARM_URL="https://github.com/imhuso/cunzhi/releases/download/${VERSION}/cunzhi-cli-${VERSION}-macos-aarch64.tar.gz"
+          # 计算预编译二进制的 SHA256
+          INTEL_URL="https://github.com/imhuso/cunzhi/releases/download/${VERSION}/cunzhi-cli-${VERSION}-macos-x86_64.tar.gz"
+          ARM_URL="https://github.com/imhuso/cunzhi/releases/download/${VERSION}/cunzhi-cli-${VERSION}-macos-aarch64.tar.gz"
 
-        # 下载并计算 SHA256
-        curl -L -o /tmp/intel.tar.gz "$INTEL_URL"
-        curl -L -o /tmp/arm.tar.gz "$ARM_URL"
+          # 下载并计算 SHA256
+          curl -L -o /tmp/intel.tar.gz "$INTEL_URL"
+          curl -L -o /tmp/arm.tar.gz "$ARM_URL"
 
-        INTEL_SHA256=$(shasum -a 256 /tmp/intel.tar.gz | cut -d' ' -f1)
-        ARM_SHA256=$(shasum -a 256 /tmp/arm.tar.gz | cut -d' ' -f1)
+          INTEL_SHA256=$(shasum -a 256 /tmp/intel.tar.gz | cut -d' ' -f1)
+          ARM_SHA256=$(shasum -a 256 /tmp/arm.tar.gz | cut -d' ' -f1)
 
-        echo "Intel SHA256: $INTEL_SHA256"
-        echo "ARM SHA256: $ARM_SHA256"
+          echo "Intel SHA256: $INTEL_SHA256"
+          echo "ARM SHA256: $ARM_SHA256"
 
-        # 更新 tap 仓库中的 Formula 文件
-        cd homebrew-tap
+          # 更新 tap 仓库中的 Formula 文件
+          cd homebrew-tap
 
-        # 确保 Formula 文件存在
-        if [[ ! -f "Formula/cunzhi.rb" ]]; then
-          echo "Error: Formula/cunzhi.rb not found in tap repository"
-          exit 1
-        fi
+          # 确保 Formula 文件存在
+          if [[ ! -f "Formula/cunzhi.rb" ]]; then
+            echo "Error: Formula/cunzhi.rb not found in tap repository"
+            exit 1
+          fi
 
-        # 更新版本号
-        sed -i.bak "s|version \".*\"|version \"${VERSION_NUMBER}\"|g" Formula/cunzhi.rb
+          # 更新版本号
+          sed -i.bak "s|version \".*\"|version \"${VERSION_NUMBER}\"|g" Formula/cunzhi.rb
 
-        # 更新 Intel 版本的 URL 和 SHA256
-        sed -i.bak "s|cunzhi-cli-v[0-9.]*-macos-x86_64.tar.gz|cunzhi-cli-${VERSION}-macos-x86_64.tar.gz|g" Formula/cunzhi.rb
-        sed -i.bak "/macos-x86_64.tar.gz/,/sha256/ s|sha256 \".*\"|sha256 \"${INTEL_SHA256}\"|" Formula/cunzhi.rb
+          # 更新 Intel 版本的 URL 和 SHA256
+          sed -i.bak "s|cunzhi-cli-v[0-9.]*-macos-x86_64.tar.gz|cunzhi-cli-${VERSION}-macos-x86_64.tar.gz|g" Formula/cunzhi.rb
+          sed -i.bak "/macos-x86_64.tar.gz/,/sha256/ s|sha256 \".*\"|sha256 \"${INTEL_SHA256}\"|" Formula/cunzhi.rb
 
-        # 更新 ARM 版本的 URL 和 SHA256
-        sed -i.bak "s|cunzhi-cli-v[0-9.]*-macos-aarch64.tar.gz|cunzhi-cli-${VERSION}-macos-aarch64.tar.gz|g" Formula/cunzhi.rb
-        sed -i.bak "/macos-aarch64.tar.gz/,/sha256/ s|sha256 \".*\"|sha256 \"${ARM_SHA256}\"|" Formula/cunzhi.rb
+          # 更新 ARM 版本的 URL 和 SHA256
+          sed -i.bak "s|cunzhi-cli-v[0-9.]*-macos-aarch64.tar.gz|cunzhi-cli-${VERSION}-macos-aarch64.tar.gz|g" Formula/cunzhi.rb
+          sed -i.bak "/macos-aarch64.tar.gz/,/sha256/ s|sha256 \".*\"|sha256 \"${ARM_SHA256}\"|" Formula/cunzhi.rb
 
-        # 清理备份文件和临时文件
-        rm -f Formula/cunzhi.rb.bak /tmp/intel.tar.gz /tmp/arm.tar.gz
+          # 清理备份文件和临时文件
+          rm -f Formula/cunzhi.rb.bak /tmp/intel.tar.gz /tmp/arm.tar.gz
 
-    - name: Commit and push to homebrew-cunzhi repository
-      run: |
-        VERSION="${{ github.ref_name }}"
-        cd homebrew-tap
+      - name: Commit and push to homebrew-cunzhi repository
+        run: |
+          VERSION="${{ github.ref_name }}"
+          cd homebrew-tap
 
-        # 显示更改内容
-        echo "Changes made to Formula:"
-        git diff Formula/cunzhi.rb || true
+          # 显示更改内容
+          echo "Changes made to Formula:"
+          git diff Formula/cunzhi.rb || true
 
-        # 检查是否有更改
-        if git diff --quiet Formula/cunzhi.rb; then
-          echo "No changes to Formula, skipping commit"
-          exit 0
-        fi
+          # 检查是否有更改
+          if git diff --quiet Formula/cunzhi.rb; then
+            echo "No changes to Formula, skipping commit"
+            exit 0
+          fi
 
-        # 提交并推送更改
-        git add Formula/cunzhi.rb
-        git commit -m "chore: update formula to ${VERSION}
+          # 提交并推送更改
+          git add Formula/cunzhi.rb
+          git commit -m "chore: update formula to ${VERSION}
 
-        - Update version to ${VERSION#v}
-        - Update download URL and SHA256
-        - Auto-generated by release workflow"
+          - Update version to ${VERSION#v}
+          - Update download URL and SHA256
+          - Auto-generated by release workflow"
 
-        git push origin main
-        echo "Successfully updated homebrew-cunzhi repository"
+          git push origin main
+          echo "Successfully updated homebrew-cunzhi repository"

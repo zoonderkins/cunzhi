@@ -151,9 +151,11 @@ onMounted(() => {
                 <div class="text-xs opacity-60 mb-3">
                   从 @BotFather 获取的Bot Token，用于验证Bot身份
                 </div>
-                <n-input v-model:value="telegramConfig.bot_token" type="text"
+                <n-input
+                  v-model:value="telegramConfig.bot_token" type="text"
                   placeholder="请输入Bot Token (例如: 123456789:ABCdefGHIjklMNOpqrsTUVwxyz)" size="small"
-                  :disabled="isTesting" @blur="saveTelegramConfig" />
+                  :disabled="isTesting" @blur="saveTelegramConfig"
+                />
               </div>
             </div>
           </div>
@@ -169,9 +171,11 @@ onMounted(() => {
                 <div class="text-xs opacity-60 mb-3">
                   目标聊天的ID，可以是个人聊天或群组聊天的ID
                 </div>
-                <n-input v-model:value="telegramConfig.chat_id" type="text"
+                <n-input
+                  v-model:value="telegramConfig.chat_id" type="text"
                   placeholder="请输入Chat ID (例如: 123456789 或 -123456789)" size="small" :disabled="isTesting"
-                  @blur="saveTelegramConfig" />
+                  @blur="saveTelegramConfig"
+                />
               </div>
             </div>
           </div>
@@ -190,8 +194,10 @@ onMounted(() => {
                   </div>
                 </div>
               </div>
-              <n-switch v-model:value="telegramConfig.hide_frontend_popup" size="small"
-                @update:value="saveTelegramConfig" />
+              <n-switch
+                v-model:value="telegramConfig.hide_frontend_popup" size="small"
+                @update:value="saveTelegramConfig"
+              />
             </div>
           </div>
 
@@ -206,8 +212,10 @@ onMounted(() => {
                 <div class="text-xs opacity-60 mb-3">
                   保存配置并发送测试消息验证连接
                 </div>
-                <n-button type="primary" size="small" :loading="isTesting"
-                  :disabled="!telegramConfig.bot_token.trim() || !telegramConfig.chat_id.trim()" @click="saveAndTest">
+                <n-button
+                  type="primary" size="small" :loading="isTesting"
+                  :disabled="!telegramConfig.bot_token.trim() || !telegramConfig.chat_id.trim()" @click="saveAndTest"
+                >
                   {{ isTesting ? '测试中...' : '测试连接' }}
                 </n-button>
               </div>
