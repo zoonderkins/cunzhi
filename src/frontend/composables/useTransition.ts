@@ -1,5 +1,6 @@
 // 过渡动画组合式API
 import { computed, onMounted, ref } from 'vue'
+import { TRANSITION_DURATIONS, TRANSITION_EASINGS } from '../constants/ui'
 
 export interface TransitionConfig {
   name: string
@@ -12,9 +13,9 @@ export interface TransitionConfig {
 export function useTransition(config: Partial<TransitionConfig> = {}) {
   const defaultConfig: TransitionConfig = {
     name: 'popup',
-    duration: 300,
+    duration: TRANSITION_DURATIONS.normal,
     type: 'fade',
-    easing: 'cubic-bezier(0.25, 0.8, 0.25, 1)',
+    easing: TRANSITION_EASINGS.cubic,
     mode: 'out-in',
   }
 
@@ -85,31 +86,31 @@ export function useTransition(config: Partial<TransitionConfig> = {}) {
   const presets = {
     fade: {
       type: 'fade' as const,
-      duration: 300,
-      easing: 'cubic-bezier(0.25, 0.8, 0.25, 1)',
+      duration: TRANSITION_DURATIONS.normal,
+      easing: TRANSITION_EASINGS.cubic,
     },
     slide: {
       type: 'slide' as const,
       duration: 350,
-      easing: 'cubic-bezier(0.25, 0.8, 0.25, 1)',
+      easing: TRANSITION_EASINGS.cubic,
     },
     scale: {
       type: 'scale' as const,
       duration: 400,
-      easing: 'cubic-bezier(0.34, 1.56, 0.64, 1)',
+      easing: TRANSITION_EASINGS.bounce,
     },
     blur: {
       type: 'blur' as const,
       duration: 450,
-      easing: 'cubic-bezier(0.25, 0.8, 0.25, 1)',
+      easing: TRANSITION_EASINGS.cubic,
     },
     quick: {
-      duration: 200,
-      easing: 'ease-out',
+      duration: TRANSITION_DURATIONS.quick,
+      easing: TRANSITION_EASINGS.easeOut,
     },
     smooth: {
-      duration: 500,
-      easing: 'cubic-bezier(0.4, 0, 0.2, 1)',
+      duration: TRANSITION_DURATIONS.smooth,
+      easing: TRANSITION_EASINGS.easeInOut,
     },
   }
 
@@ -170,7 +171,7 @@ class TransitionManager {
 export const transitionManager = new TransitionManager()
 
 // 预注册常用过渡
-transitionManager.register('popup', { type: 'fade', duration: 300 })
+transitionManager.register('popup', { type: 'fade', duration: TRANSITION_DURATIONS.normal })
 transitionManager.register('main-layout', { type: 'slide', duration: 400 })
 transitionManager.register('content', { type: 'fade', duration: 250 })
-transitionManager.register('skeleton', { type: 'fade', duration: 200 })
+transitionManager.register('skeleton', { type: 'fade', duration: TRANSITION_DURATIONS.quick })

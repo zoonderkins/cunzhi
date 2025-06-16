@@ -66,12 +66,30 @@ async function loadWindowSettingsForMode(fixed: boolean) {
   }
 }
 
-// 最小尺寸限制
-const minWidth = 600
-const minHeight = 400
+// 窗口约束和 UI 常量
+const windowConstraints = ref({
+  min_width: 600,
+  min_height: 400,
+  max_width: 1500,
+  max_height: 1000,
+  resize_step: 50,
+  resize_throttle_ms: 1000,
+  size_update_delay_ms: 500,
+  size_check_delay_ms: 100,
+})
 
-// 步长设置
-const step = 50
+// 加载窗口约束
+async function loadWindowConstraints() {
+  try {
+    const constraints = await invoke('get_window_constraints_cmd')
+    if (constraints) {
+      windowConstraints.value = constraints as any
+    }
+  }
+  catch (error) {
+    console.error('加载窗口约束失败:', error)
+  }
+}
 
 // 切换窗口模式（立即保存）
 async function toggleWindowMode(fixed: boolean) {
@@ -99,7 +117,7 @@ async function toggleWindowMode(fixed: boolean) {
   // 切换模式后刷新当前窗口大小显示
   setTimeout(() => {
     getCurrentWindowSize()
-  }, 500)
+  }, windowConstraints.value.size_update_delay_ms)
 }
 
 // 保存当前模式的尺寸到后端
@@ -109,6 +127,13 @@ async function saveCurrentModeSize() {
     const result = await invoke('get_current_window_size')
     if (result && typeof result === 'object') {
       const { width, height } = result as any
+
+      // 验证尺寸不能低于最小限制
+      if (width < windowConstraints.value.min_width || height < windowConstraints.value.min_height) {
+        console.warn(`窗口尺寸过小 (${width}x${height})，跳过保存`)
+        return
+      }
+
       const settings: any = {}
 
       if (localFixed.value) {
@@ -125,7 +150,14 @@ async function saveCurrentModeSize() {
     }
   }
   catch (error) {
-    console.error('保存当前模式尺寸失败:', error)
+    // 如果是窗口最小化或尺寸过小的错误，静默处理
+    if (error && typeof error === 'string'
+      && (error.includes('窗口已最小化') || error.includes('窗口尺寸过小'))) {
+      console.debug('跳过窗口尺寸保存:', error)
+    }
+    else {
+      console.error('保存当前模式尺寸失败:', error)
+    }
   }
 }
 
@@ -146,10 +178,10 @@ async function getCurrentWindowSize() {
 // 保存窗口尺寸
 async function saveWindowSize() {
   // 确保不小于最小值
-  if (localWidth.value < minWidth)
-    localWidth.value = minWidth
-  if (localHeight.value < minHeight)
-    localHeight.value = minHeight
+  if (localWidth.value < windowConstraints.value.min_width)
+    localWidth.value = windowConstraints.value.min_width
+  if (localHeight.value < windowConstraints.value.min_height)
+    localHeight.value = windowConstraints.value.min_height
 
   // 保存当前模式的尺寸到后端
   await saveCurrentModeSize()
@@ -163,7 +195,7 @@ async function saveWindowSize() {
   // 保存后刷新当前窗口大小显示
   setTimeout(() => {
     getCurrentWindowSize()
-  }, 500)
+  }, windowConstraints.value.size_update_delay_ms)
 }
 
 // 设置窗口大小变化监听器
@@ -181,7 +213,7 @@ async function setupWindowResizeListener() {
       // 延迟获取窗口大小，确保变化已完成
       setTimeout(() => {
         getCurrentWindowSize()
-      }, 100)
+      }, windowConstraints.value.size_check_delay_ms)
     })
 
     console.log('窗口大小变化监听器已设置')
@@ -200,7 +232,8 @@ function removeWindowResizeListener() {
 }
 
 // 组件挂载时获取当前窗口大小并设置监听器
-onMounted(() => {
+onMounted(async () => {
+  await loadWindowConstraints()
   getCurrentWindowSize()
   loadWindowSettingsForMode(localFixed.value)
   setupWindowResizeListener()
@@ -334,9 +367,9 @@ onUnmounted(() => {
                       </div>
                       <n-input-number
                         v-model:value="localWidth"
-                        :min="minWidth"
-                        :max="1500"
-                        :step="step"
+                        :min="windowConstraints.min_width"
+                        :max="windowConstraints.max_width"
+                        :step="windowConstraints.resize_step"
                         size="small"
                         placeholder="宽度"
                         @click.stop
@@ -351,9 +384,9 @@ onUnmounted(() => {
                       </div>
                       <n-input-number
                         v-model:value="localHeight"
-                        :min="minHeight"
-                        :max="1000"
-                        :step="step"
+                        :min="windowConstraints.min_height"
+                        :max="windowConstraints.max_height"
+                        :step="windowConstraints.resize_step"
                         size="small"
                         placeholder="高度"
                         @click.stop
@@ -383,7 +416,7 @@ onUnmounted(() => {
                 （{{ localFixed ? '固定大小' : '自由拉伸' }}）
               </div>
               <div class="text-xs opacity-50 text-gray-500 dark:text-gray-500">
-                尺寸限制：宽度 600-1500px，高度 400-1000px
+                尺寸限制：宽度 {{ windowConstraints.min_width }}-{{ windowConstraints.max_width }}px，高度 {{ windowConstraints.min_height }}-{{ windowConstraints.max_height }}px
               </div>
             </div>
           </div>

@@ -1,5 +1,6 @@
 use tauri::{State, Manager};
 use crate::config::{AppState, save_config};
+use crate::constants::window;
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -72,11 +73,11 @@ pub async fn update_window_size(size_update: WindowSizeUpdate, state: State<'_, 
             config.ui_config.window_config.auto_resize = false;
         } else {
             // 自由拉伸模式：设置合理的最小值和限制的最大值
-            config.ui_config.window_config.min_width = 600.0;
-            config.ui_config.window_config.min_height = 400.0;
-            config.ui_config.window_config.max_width = 1500.0;
-            config.ui_config.window_config.max_height = 1000.0;
-            config.ui_config.window_config.auto_resize = true;
+            config.ui_config.window_config.min_width = window::MIN_WIDTH;
+            config.ui_config.window_config.min_height = window::MIN_HEIGHT;
+            config.ui_config.window_config.max_width = window::MAX_WIDTH;
+            config.ui_config.window_config.max_height = window::MAX_HEIGHT;
+            config.ui_config.window_config.auto_resize = window::DEFAULT_AUTO_RESIZE;
         }
     }
 
@@ -108,11 +109,11 @@ pub async fn update_window_size(size_update: WindowSizeUpdate, state: State<'_, 
             log::debug!("窗口已设置为固定大小: {}x{}", size_update.width, size_update.height);
         } else {
             // 自由拉伸模式：设置合理的约束范围
-            if let Err(e) = window.set_min_size(Some(tauri::LogicalSize::new(600.0, 400.0))) {
+            if let Err(e) = window.set_min_size(Some(tauri::LogicalSize::new(window::MIN_WIDTH, window::MIN_HEIGHT))) {
                 return Err(format!("设置最小窗口大小失败: {}", e));
             }
 
-            if let Err(e) = window.set_max_size(Some(tauri::LogicalSize::new(1500.0, 1000.0))) {
+            if let Err(e) = window.set_max_size(Some(tauri::LogicalSize::new(window::MAX_WIDTH, window::MAX_HEIGHT))) {
                 return Err(format!("设置最大窗口大小失败: {}", e));
             }
 

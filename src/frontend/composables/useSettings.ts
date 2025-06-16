@@ -21,6 +21,18 @@ export function useSettings() {
   const continueReplyEnabled = ref(true)
   const continuePrompt = ref('请按照最佳实践继续')
 
+  // 窗口约束和 UI 常量
+  const windowConstraints = ref({
+    min_width: 600,
+    min_height: 400,
+    max_width: 1500,
+    max_height: 1000,
+    resize_step: 50,
+    resize_throttle_ms: 1000,
+    size_update_delay_ms: 500,
+    size_check_delay_ms: 100,
+  })
+
   // Naive UI 消息实例
   let message: any = null
 
@@ -34,9 +46,25 @@ export function useSettings() {
     message = messageInstance
   }
 
+  // 加载窗口约束
+  async function loadWindowConstraints() {
+    try {
+      const constraints = await invoke('get_window_constraints_cmd')
+      if (constraints) {
+        windowConstraints.value = constraints as any
+      }
+    }
+    catch (error) {
+      console.error('加载窗口约束失败:', error)
+    }
+  }
+
   // 加载窗口设置
   async function loadWindowSettings() {
     try {
+      // 首先加载窗口约束
+      await loadWindowConstraints()
+
       const enabled = await invoke('get_always_on_top')
       alwaysOnTop.value = enabled as boolean
 
@@ -200,6 +228,12 @@ export function useSettings() {
           if (result && typeof result === 'object') {
             const { width, height } = result as any
 
+            // 验证尺寸不能低于最小限制
+            if (width < windowConstraints.value.min_width || height < windowConstraints.value.min_height) {
+              console.warn(`窗口尺寸过小 (${width}x${height})，跳过保存`)
+              return
+            }
+
             await invoke('set_window_settings', {
               windowSettings: {
                 free_width: width,
@@ -217,9 +251,16 @@ export function useSettings() {
         }
       }
       catch (error) {
-        console.error('保存窗口尺寸失败:', error)
+        // 如果是窗口最小化或尺寸过小的错误，静默处理
+        if (error && typeof error === 'string'
+          && (error.includes('窗口已最小化') || error.includes('窗口尺寸过小'))) {
+          console.debug('跳过窗口尺寸保存:', error)
+        }
+        else {
+          console.error('保存窗口尺寸失败:', error)
+        }
       }
-    }, 1000) // 1秒节流
+    }, windowConstraints.value.resize_throttle_ms) // 使用配置的节流时间
   }
 
   // 设置窗口大小变化监听器
@@ -301,12 +342,14 @@ export function useSettings() {
     windowWidth,
     windowHeight,
     fixedWindowSize,
+    windowConstraints,
     continueReplyEnabled,
     continuePrompt,
 
     // 方法
     setMessageInstance,
     loadWindowSettings,
+    loadWindowConstraints,
     toggleAlwaysOnTop,
     toggleAudioNotification,
     updateAudioUrl,

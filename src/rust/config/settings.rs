@@ -1,6 +1,7 @@
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::sync::Mutex;
+use crate::constants::{window, theme, audio, mcp, telegram};
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct AppConfig {
@@ -157,41 +158,41 @@ pub fn default_telegram_config() -> TelegramConfig {
 }
 
 pub fn default_always_on_top() -> bool {
-    true // 默认启用置顶
+    window::DEFAULT_ALWAYS_ON_TOP
 }
 
 pub fn default_audio_notification_enabled() -> bool {
-    false // 默认关闭音频通知
+    audio::DEFAULT_NOTIFICATION_ENABLED
 }
 
 pub fn default_theme() -> String {
-    "dark".to_string() // 默认深色主题
+    theme::DEFAULT.to_string()
 }
 
 pub fn default_audio_url() -> String {
-    "".to_string() // 默认为空，使用内置音效
+    audio::DEFAULT_URL.to_string()
 }
 
 pub fn default_window_config() -> WindowConfig {
     WindowConfig {
-        auto_resize: true,
-        max_width: 1500.0,
-        max_height: 1000.0,
-        min_width: 600.0,
-        min_height: 400.0,
-        fixed: false,
-        fixed_width: 600.0,
-        fixed_height: 900.0,
-        free_width: 600.0,
-        free_height: 900.0,
+        auto_resize: window::DEFAULT_AUTO_RESIZE,
+        max_width: window::MAX_WIDTH,
+        max_height: window::MAX_HEIGHT,
+        min_width: window::MIN_WIDTH,
+        min_height: window::MIN_HEIGHT,
+        fixed: window::DEFAULT_FIXED_MODE,
+        fixed_width: window::DEFAULT_WIDTH,
+        fixed_height: window::DEFAULT_HEIGHT,
+        free_width: window::DEFAULT_WIDTH,
+        free_height: window::DEFAULT_HEIGHT,
     }
 }
 
 pub fn default_reply_config() -> ReplyConfig {
     ReplyConfig {
-        enable_continue_reply: true,
-        auto_continue_threshold: 1000,
-        continue_prompt: "请按照最佳实践继续".to_string(),
+        enable_continue_reply: mcp::DEFAULT_CONTINUE_REPLY_ENABLED,
+        auto_continue_threshold: mcp::DEFAULT_AUTO_CONTINUE_THRESHOLD,
+        continue_prompt: mcp::DEFAULT_CONTINUE_PROMPT.to_string(),
     }
 }
 
@@ -200,82 +201,82 @@ pub fn default_auto_resize() -> bool {
 }
 
 pub fn default_max_width() -> f64 {
-    1500.0
+    window::MAX_WIDTH
 }
 
 pub fn default_max_height() -> f64 {
-    1000.0
+    window::MAX_HEIGHT
 }
 
 pub fn default_min_width() -> f64 {
-    600.0
+    window::MIN_WIDTH
 }
 
 pub fn default_min_height() -> f64 {
-    400.0
+    window::MIN_HEIGHT
 }
 
 pub fn default_enable_continue_reply() -> bool {
-    true
+    mcp::DEFAULT_CONTINUE_REPLY_ENABLED
 }
 
 pub fn default_auto_continue_threshold() -> u32 {
-    1000
+    mcp::DEFAULT_AUTO_CONTINUE_THRESHOLD
 }
 
 pub fn default_continue_prompt() -> String {
-    "请按照最佳实践继续".to_string()
+    mcp::DEFAULT_CONTINUE_PROMPT.to_string()
 }
 
 pub fn default_mcp_tools() -> HashMap<String, bool> {
     let mut tools = HashMap::new();
-    tools.insert("zhi".to_string(), true); // 寸止工具默认启用
-    tools.insert("ji".to_string(), true); // 记忆管理工具默认启用
+    tools.insert(mcp::TOOL_ZHI.to_string(), true); // 寸止工具默认启用
+    tools.insert(mcp::TOOL_JI.to_string(), true); // 记忆管理工具默认启用
     tools
 }
 
 pub fn default_window_width() -> f64 {
-    600.0
+    window::DEFAULT_WIDTH
 }
 
 pub fn default_window_height() -> f64 {
-    900.0
+    window::DEFAULT_HEIGHT
 }
 
 pub fn default_window_fixed() -> bool {
-    false
+    window::DEFAULT_FIXED_MODE
 }
 
 pub fn default_fixed_width() -> f64 {
-    600.0
+    window::DEFAULT_WIDTH
 }
 
 pub fn default_fixed_height() -> f64 {
-    900.0
+    window::DEFAULT_HEIGHT
 }
 
 pub fn default_free_width() -> f64 {
-    600.0
+    window::DEFAULT_WIDTH
 }
 
 pub fn default_free_height() -> f64 {
-    900.0
+    window::DEFAULT_HEIGHT
 }
 
 pub fn default_telegram_enabled() -> bool {
-    false // 默认关闭Telegram Bot
+    telegram::DEFAULT_ENABLED
 }
 
 pub fn default_telegram_bot_token() -> String {
-    "".to_string() // 默认为空
+    telegram::DEFAULT_BOT_TOKEN.to_string()
 }
 
 pub fn default_telegram_chat_id() -> String {
-    "".to_string() // 默认为空
+    telegram::DEFAULT_CHAT_ID.to_string()
 }
 
 pub fn default_telegram_hide_frontend_popup() -> bool {
-    false // 默认不隐藏前端弹窗，保持现有行为
+    telegram::DEFAULT_HIDE_FRONTEND_POPUP
 }
 
 impl WindowConfig {

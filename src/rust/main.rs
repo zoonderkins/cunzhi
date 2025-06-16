@@ -6,11 +6,11 @@ use std::sync::atomic::AtomicBool;
 use std::sync::Arc;
 use tauri::Manager;
 
-// 重新导出所有命令函数
-pub use cunzhi::config::mcp_commands::*;
-pub use cunzhi::config::telegram_commands::*;
-pub use cunzhi::telegram::*;
-pub use cunzhi::ui::*;
+// 重新导出所有命令函数，避免重名冲突
+pub use cunzhi::mcp::commands::*;
+pub use cunzhi::telegram::commands::*;
+pub use cunzhi::telegram::handle_telegram_only_mcp_request;
+pub use cunzhi::ui::{commands::*, window::*, audio::*, audio_assets::*, updater::*};
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
@@ -44,6 +44,7 @@ pub fn run() {
             get_window_settings,
             set_window_settings,
             get_window_settings_for_mode,
+            get_window_constraints_cmd,
             get_current_window_size,
             apply_window_constraints,
             update_window_size,
@@ -59,6 +60,7 @@ pub fn run() {
             set_telegram_config,
             test_telegram_connection_cmd,
             start_telegram_sync,
+            open_external_url,
             exit_app,
             build_mcp_send_response,
             build_mcp_continue_response,

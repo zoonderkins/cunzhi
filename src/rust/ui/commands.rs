@@ -1,4 +1,5 @@
 use crate::config::{save_config, AppState, ReplyConfig, WindowConfig};
+use crate::constants::{window, ui, validation};
 use crate::mcp::types::{build_continue_response, build_send_response, ImageAttachment};
 use tauri::{AppHandle, Manager, State};
 
@@ -221,8 +222,30 @@ pub async fn get_window_settings_for_mode(
 }
 
 #[tauri::command]
+pub async fn get_window_constraints_cmd() -> Result<serde_json::Value, String> {
+    let constraints = window::get_default_constraints();
+    let ui_timings = ui::get_default_ui_timings();
+
+    let mut result = constraints.to_json();
+    if let serde_json::Value::Object(ref mut map) = result {
+        if let serde_json::Value::Object(ui_map) = ui_timings.to_json() {
+            map.extend(ui_map);
+        }
+    }
+
+    Ok(result)
+}
+
+#[tauri::command]
 pub async fn get_current_window_size(app: tauri::AppHandle) -> Result<serde_json::Value, String> {
     if let Some(window) = app.get_webview_window("main") {
+        // 检查窗口是否最小化
+        if let Ok(is_minimized) = window.is_minimized() {
+            if is_minimized {
+                return Err("窗口已最小化，跳过尺寸获取".to_string());
+            }
+        }
+
         // 获取逻辑尺寸而不是物理尺寸
         if let Ok(logical_size) = window.inner_size().map(|physical_size| {
             // 获取缩放因子
@@ -234,9 +257,17 @@ pub async fn get_current_window_size(app: tauri::AppHandle) -> Result<serde_json
 
             tauri::LogicalSize::new(logical_width, logical_height)
         }) {
+            let width = logical_size.width.round() as u32;
+            let height = logical_size.height.round() as u32;
+
+            // 验证尺寸是否有效
+            if !validation::is_valid_window_size(width as f64, height as f64) {
+                return Err(format!("窗口尺寸无效 ({}x{})，跳过保存", width, height));
+            }
+
             let window_size = serde_json::json!({
-                "width": logical_size.width.round() as u32,
-                "height": logical_size.height.round() as u32
+                "width": width,
+                "height": height
             });
             return Ok(window_size);
         }
@@ -262,31 +293,49 @@ pub async fn set_window_settings(
             config.ui_config.window_config.fixed = fixed;
         }
 
-        // 更新固定模式尺寸
+        // 更新固定模式尺寸（添加尺寸验证）
         if let Some(width) = window_settings.get("fixed_width").and_then(|v| v.as_f64()) {
-            config.ui_config.window_config.fixed_width = width;
-        }
-        if let Some(height) = window_settings.get("fixed_height").and_then(|v| v.as_f64()) {
-            config.ui_config.window_config.fixed_height = height;
+            if let Some(height) = window_settings.get("fixed_height").and_then(|v| v.as_f64()) {
+                if validation::is_valid_window_size(width, height) {
+                    config.ui_config.window_config.fixed_width = width;
+                    config.ui_config.window_config.fixed_height = height;
+                }
+            } else if width >= window::MIN_WIDTH {
+                config.ui_config.window_config.fixed_width = width;
+            }
+        } else if let Some(height) = window_settings.get("fixed_height").and_then(|v| v.as_f64()) {
+            if height >= window::MIN_HEIGHT {
+                config.ui_config.window_config.fixed_height = height;
+            }
         }
 
-        // 更新自由拉伸模式尺寸
+        // 更新自由拉伸模式尺寸（添加尺寸验证）
         if let Some(width) = window_settings.get("free_width").and_then(|v| v.as_f64()) {
-            config.ui_config.window_config.free_width = width;
-        }
-        if let Some(height) = window_settings.get("free_height").and_then(|v| v.as_f64()) {
-            config.ui_config.window_config.free_height = height;
+            if let Some(height) = window_settings.get("free_height").and_then(|v| v.as_f64()) {
+                if validation::is_valid_window_size(width, height) {
+                    config.ui_config.window_config.free_width = width;
+                    config.ui_config.window_config.free_height = height;
+                }
+            } else if width >= window::MIN_WIDTH {
+                config.ui_config.window_config.free_width = width;
+            }
+        } else if let Some(height) = window_settings.get("free_height").and_then(|v| v.as_f64()) {
+            if height >= window::MIN_HEIGHT {
+                config.ui_config.window_config.free_height = height;
+            }
         }
 
-        // 兼容旧的width/height参数，更新当前模式的尺寸
+        // 兼容旧的width/height参数，更新当前模式的尺寸（添加尺寸验证）
         if let (Some(width), Some(height)) = (
             window_settings.get("width").and_then(|v| v.as_f64()),
             window_settings.get("height").and_then(|v| v.as_f64()),
         ) {
-            config
-                .ui_config
-                .window_config
-                .update_current_size(width, height);
+            if validation::is_valid_window_size(width, height) {
+                config
+                    .ui_config
+                    .window_config
+                    .update_current_size(width, height);
+            }
         }
     }
 
