@@ -89,6 +89,16 @@ increment_version() {
     echo "$major.$minor.$patch"
 }
 
+# 显示发版方式选择菜单
+show_release_method_menu() {
+    echo >&2
+    echo "请选择发版方式:" >&2
+    echo "1) 本地发版 (当前方式)" >&2
+    echo "2) GitHub Actions 发版 (推荐)" >&2
+    echo "3) 取消" >&2
+    echo >&2
+}
+
 # 显示版本选择菜单
 show_version_menu() {
     local current_version=$1
@@ -314,31 +324,115 @@ perform_release() {
     print_info "查看构建状态: https://github.com/$(git config --get remote.origin.url | sed 's/.*github.com[:/]\([^/]*\/[^/]*\).*/\1/' | sed 's/\.git$//')/actions"
 }
 
+# GitHub Actions 发版
+github_actions_release() {
+    local current_version=$1
+    local new_version=$2
+    local version_type=$3
+
+    print_info "使用 GitHub Actions 发版..."
+    print_info "打开 GitHub Actions 页面进行手动触发"
+
+    # 构建 GitHub Actions URL
+    local repo_url=$(git config --get remote.origin.url | sed 's/.*github.com[:/]\([^/]*\/[^/]*\).*/\1/' | sed 's/\.git$//')
+    local actions_url="https://github.com/$repo_url/actions/workflows/manual-release.yml"
+
+    echo
+    print_info "请按以下步骤操作："
+    echo "1. 打开链接: $actions_url"
+    echo "2. 点击绿色的 'Run workflow' 按钮"
+    echo "3. 在弹出的表单中："
+    echo "   - 版本类型: 选择 '$version_type'"
+    if [[ "$version_type" == "custom" ]]; then
+        echo "   - 自定义版本号: 输入 '$new_version'"
+    else
+        echo "   - 自定义版本号: 留空（仅 custom 类型需要）"
+    fi
+    echo "4. 点击 'Run workflow' 开始发版"
+    echo "5. 等待 GitHub Actions 完成构建和发布"
+    echo
+
+    # 尝试自动打开浏览器（macOS）
+    if command -v open >/dev/null 2>&1; then
+        read -p "是否自动打开浏览器? (Y/n) [默认: Y]: " open_browser
+        if [[ -z "$open_browser" || $open_browser =~ ^[Yy]$ ]]; then
+            open "$actions_url"
+        fi
+    fi
+
+    print_success "GitHub Actions 发版流程已启动！"
+}
+
 # 主函数
 main() {
     echo "寸止 MCP 工具发布脚本"
     echo "=========================="
-    
+
     # 检查环境
     check_git_repo
     check_clean_working_dir
-    
+
     # 获取当前版本
     current_version=$(get_current_version)
-    
-    # 获取新版本
-    new_version=$(get_new_version $current_version)
 
-    # 检查是否取消
-    if [[ "$new_version" == "CANCEL" ]]; then
-        exit 0
-    fi
+    # 选择发版方式
+    while true; do
+        show_release_method_menu
+        read -p "请选择 (1-3) [默认: 2]: " method_choice
 
-    # 确认发布
-    confirm_release $new_version
-    
-    # 执行发布
-    perform_release $new_version
+        if [[ -z "$method_choice" ]]; then
+            method_choice=2
+        fi
+
+        case $method_choice in
+            1)
+                # 本地发版
+                new_version=$(get_new_version $current_version)
+                if [[ "$new_version" == "CANCEL" ]]; then
+                    exit 0
+                fi
+                confirm_release $new_version
+                perform_release $new_version
+                break
+                ;;
+            2)
+                # GitHub Actions 发版
+                new_version=$(get_new_version $current_version)
+                if [[ "$new_version" == "CANCEL" ]]; then
+                    exit 0
+                fi
+
+                # 确定版本类型
+                local version_type="patch"
+                local current_major=$(echo $current_version | cut -d. -f1)
+                local current_minor=$(echo $current_version | cut -d. -f2)
+                local current_patch=$(echo $current_version | cut -d. -f3)
+                local new_major=$(echo $new_version | cut -d. -f1)
+                local new_minor=$(echo $new_version | cut -d. -f2)
+                local new_patch=$(echo $new_version | cut -d. -f3)
+
+                if [[ $new_major -gt $current_major ]]; then
+                    version_type="major"
+                elif [[ $new_minor -gt $current_minor ]]; then
+                    version_type="minor"
+                elif [[ $new_patch -gt $current_patch ]]; then
+                    version_type="patch"
+                else
+                    version_type="custom"
+                fi
+
+                github_actions_release $current_version $new_version $version_type
+                break
+                ;;
+            3)
+                print_warning "取消发布"
+                exit 0
+                ;;
+            *)
+                echo "无效选择，请重新选择" >&2
+                ;;
+        esac
+    done
 }
 
 # 运行主函数（仅在直接执行脚本时运行）

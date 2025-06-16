@@ -151,40 +151,23 @@ jobs:
     - name: Generate changelog
       id: changelog
       run: |
-        # 生成 changelog
-        git-cliff --tag ${{ github.ref_name }} --output changelog.md
+        # 获取上一个版本标签
+        PREVIOUS_TAG=$(git tag --sort=-version:refname | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+$' | head -2 | tail -1)
 
-        # 添加发布信息到 changelog 开头
+        echo "Current tag: ${{ github.ref_name }}"
+        echo "Previous tag: $PREVIOUS_TAG"
+
+        if [ -z "$PREVIOUS_TAG" ]; then
+          # 如果没有上一个版本，生成所有提交的 changelog
+          git-cliff --tag ${{ github.ref_name }} --output changelog.md
+        else
+          # 只生成从上一个版本到当前版本的 changelog
+          git-cliff $PREVIOUS_TAG..${{ github.ref_name }} --output changelog.md
+        fi
+
+        # 简化的发布信息
         {
-          echo "## 🚀 寸止 ${{ github.ref_name }}"
-          echo ""
-          echo "### 📦 包含内容"
-          echo "- **寸止** - MCP服务器，智能代码审查交互"
-          echo "- **等一下** - 弹窗界面，全局记忆管理"
-          echo ""
-          echo "### 🍺 Homebrew 安装（推荐）"
-          echo "\`\`\`bash"
-          echo "brew tap imhuso/cunzhi"
-          echo "brew install cunzhi"
-          echo "\`\`\`"
-          echo ""
-          echo "### 📦 预编译版本"
-          echo "下载对应平台的压缩包："
-          echo "- **Windows (x86_64)**: \`cunzhi-cli-${{ github.ref_name }}-windows-x86_64.zip\`"
-          echo "- **macOS (Intel)**: \`cunzhi-cli-${{ github.ref_name }}-macos-x86_64.tar.gz\`"
-          echo "- **macOS (Apple Silicon)**: \`cunzhi-cli-${{ github.ref_name }}-macos-aarch64.tar.gz\`"
-          echo "- **Linux (x86_64)**: \`cunzhi-cli-${{ github.ref_name }}-linux-x86_64.tar.gz\`"
-          echo ""
-          echo "### 🔧 MCP 客户端配置"
-          echo "\`\`\`json"
-          echo "{"
-          echo "  \"mcpServers\": {"
-          echo "    \"寸止\": {"
-          echo "      \"command\": \"寸止\""
-          echo "    }"
-          echo "  }"
-          echo "}"
-          echo "\`\`\`"
+          echo "## 寸止 ${{ github.ref_name }}"
           echo ""
           cat changelog.md
         } > temp_changelog.md

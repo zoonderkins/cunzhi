@@ -3,34 +3,20 @@
 
 [changelog]
 # changelog 头部
-header = """
-# 📋 更新日志
-
-本文档记录了项目的所有重要变更。
-
-"""
+header = ""
 
 # changelog 主体模板
 body = """
-{% if version -%}
-    ## 🚀 {{ version | trim_start_matches(pat="v") }} - {{ timestamp | date(format="%Y-%m-%d") }}
-{% else -%}
-    ## 🚀 [未发布]
-{% endif -%}
-
 {% for group, commits in commits | group_by(attribute="group") %}
-    ### {{ group | upper_first }}
-    {% for commit in commits %}
-        - {{ commit.message | upper_first | trim }}
-    {% endfor %}
+### {{ group }}
+{% for commit in commits -%}
+- {{ commit.message | split(pat=":") | last | trim | upper_first }}
+{% endfor %}
 {% endfor -%}
-
 """
 
 # changelog 尾部
-footer = """
-<!-- 由 git-cliff 自动生成 -->
-"""
+footer = ""
 
 # 去除多余空行
 trim = true
@@ -46,19 +32,16 @@ split_commits = false
 commit_parsers = [
     { message = "^feat", group = "✨ 新功能" },
     { message = "^fix", group = "🐛 问题修复" },
-    { message = "^doc", group = "📚 文档更新" },
-    { message = "^perf", group = "⚡ 性能优化" },
-    { message = "^refactor", group = "♻️ 代码重构" },
-    { message = "^style", group = "💄 样式更新" },
-    { message = "^test", group = "🧪 测试相关" },
-    { message = "^chore\\(release\\): prepare for", skip = true },
-    { message = "^chore\\(deps.*\\)", skip = true },
-    { message = "^chore\\(pr\\)", skip = true },
-    { message = "^chore\\(pull\\)", skip = true },
-    { message = "^chore|^ci", group = "🔧 构建/工具" },
+    { message = "^docs?", group = "📚 文档" },
+    { message = "^perf", group = "⚡ 性能" },
+    { message = "^refactor", group = "♻️ 重构" },
+    { message = "^style", group = "💄 样式" },
+    { message = "^test", group = "🧪 测试" },
+    { message = "^chore\\(release\\)", skip = true },
+    { message = "^chore\\(deps", skip = true },
+    { message = "^chore|^ci", group = "🔧 工具" },
     { message = "^revert", group = "⏪ 回滚" },
-    # 捕获所有其他提交
-    { message = ".*", group = "📝 其他更新" },
+    { message = ".*", group = "📝 其他" },
 ]
 
 # 提交预处理器 - 清理提交信息
