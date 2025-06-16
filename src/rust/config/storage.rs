@@ -86,25 +86,9 @@ pub async fn load_config_and_apply_window_settings(state: &State<'_, AppState>, 
             (window_config.free_width, window_config.free_height)
         };
 
-        // 应用窗口大小
-        println!("🔍 应用窗口大小调试信息:");
-        println!("   目标逻辑尺寸: {}x{}", target_width, target_height);
-
-        if let Err(e) = window.set_size(LogicalSize::new(target_width, target_height)) {
-            eprintln!("⚠️ 设置窗口大小失败: {}", e);
-        } else {
-            let mode = if window_config.fixed { "固定" } else { "自由拉伸" };
-            println!("✅ 窗口大小已设置为{}模式: {}x{}", mode, target_width, target_height);
-
-            // 验证设置是否生效
-            if let Ok(actual_size) = window.inner_size() {
-                if let Ok(scale_factor) = window.scale_factor() {
-                    let actual_logical_width = actual_size.width as f64 / scale_factor;
-                    let actual_logical_height = actual_size.height as f64 / scale_factor;
-                    println!("   实际物理尺寸: {}x{}", actual_size.width, actual_size.height);
-                    println!("   实际逻辑尺寸: {}x{}", actual_logical_width.round(), actual_logical_height.round());
-                }
-            }
+        // 应用窗口大小（移除调试信息）
+        if let Err(_e) = window.set_size(LogicalSize::new(target_width, target_height)) {
+            // 静默处理窗口大小设置失败
         }
     }
 

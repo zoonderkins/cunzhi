@@ -1,0 +1,89 @@
+# git-cliff 配置文件
+# 用于生成结构化的 changelog
+
+[changelog]
+# changelog 头部
+header = """
+# 📋 更新日志
+
+本文档记录了项目的所有重要变更。
+
+"""
+
+# changelog 主体模板
+body = """
+{% if version -%}
+    ## 🚀 {{ version | trim_start_matches(pat="v") }} - {{ timestamp | date(format="%Y-%m-%d") }}
+{% else -%}
+    ## 🚀 [未发布]
+{% endif -%}
+
+{% for group, commits in commits | group_by(attribute="group") %}
+    ### {{ group | upper_first }}
+    {% for commit in commits %}
+        - {{ commit.message | upper_first | trim }}
+    {% endfor %}
+{% endfor -%}
+
+"""
+
+# changelog 尾部
+footer = """
+<!-- 由 git-cliff 自动生成 -->
+"""
+
+# 去除多余空行
+trim = true
+
+[git]
+# 解析常规提交格式
+conventional_commits = true
+# 过滤非常规提交
+filter_unconventional = false
+# 分割提交信息
+split_commits = false
+# 提交解析器
+commit_parsers = [
+    { message = "^feat", group = "✨ 新功能" },
+    { message = "^fix", group = "🐛 问题修复" },
+    { message = "^doc", group = "📚 文档更新" },
+    { message = "^perf", group = "⚡ 性能优化" },
+    { message = "^refactor", group = "♻️ 代码重构" },
+    { message = "^style", group = "💄 样式更新" },
+    { message = "^test", group = "🧪 测试相关" },
+    { message = "^chore\\(release\\): prepare for", skip = true },
+    { message = "^chore\\(deps.*\\)", skip = true },
+    { message = "^chore\\(pr\\)", skip = true },
+    { message = "^chore\\(pull\\)", skip = true },
+    { message = "^chore|^ci", group = "🔧 构建/工具" },
+    { message = "^revert", group = "⏪ 回滚" },
+    # 捕获所有其他提交
+    { message = ".*", group = "📝 其他更新" },
+]
+
+# 提交预处理器 - 清理提交信息
+commit_preprocessors = [
+    # 移除 issue 编号
+    { pattern = ' #\d+$', replace = "" },
+    # 移除多余空格
+    { pattern = '\s+', replace = " " },
+]
+
+# 保护分支
+protect_breaking_commits = false
+# 过滤提交
+filter_commits = false
+# 标签模式
+tag_pattern = "v[0-9].*"
+# 跳过标签
+skip_tags = "v0.1.0-beta.1"
+# 忽略标签
+ignore_tags = ""
+# 排序方式
+topo_order = false
+# 排序提交
+sort_commits = "oldest"
+
+[remote.github]
+owner = "imhuso"
+repo = "cunzhi"

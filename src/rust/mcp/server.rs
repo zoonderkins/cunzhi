@@ -11,6 +11,7 @@ use std::collections::HashMap;
 use super::tools::{InteractionTool, MemoryTool};
 use super::types::{ZhiRequest, JiyiRequest};
 use crate::config::load_standalone_config;
+use crate::{log_important, log_debug};
 
 #[derive(Clone)]
 pub struct ZhiServer {
@@ -22,13 +23,11 @@ impl ZhiServer {
         // 尝试加载配置，如果失败则使用默认配置
         let enabled_tools = match load_standalone_config() {
             Ok(config) => config.mcp_config.tools,
-            Err(_) => {
-                eprintln!("⚠️ 无法加载配置文件，使用默认工具配置");
+            Err(e) => {
+                log_important!(warn, "无法加载配置文件，使用默认工具配置: {}", e);
                 crate::config::default_mcp_tools()
             }
         };
-
-        eprintln!("🔧 MCP工具配置: {:?}", enabled_tools);
 
         Self { enabled_tools }
     }
@@ -39,11 +38,11 @@ impl ZhiServer {
         match load_standalone_config() {
             Ok(config) => {
                 let enabled = config.mcp_config.tools.get(tool_name).copied().unwrap_or(true);
-                eprintln!("🔧 工具 {} 当前状态: {}", tool_name, enabled);
+                log_debug!("工具 {} 当前状态: {}", tool_name, enabled);
                 enabled
             }
             Err(e) => {
-                eprintln!("⚠️ 读取配置失败，使用缓存状态: {}", e);
+                log_important!(warn, "读取配置失败，使用缓存状态: {}", e);
                 // 如果读取失败，使用缓存的配置
                 self.enabled_tools.get(tool_name).copied().unwrap_or(true)
             }
@@ -147,7 +146,7 @@ impl ServerHandler for ZhiServer {
             }
         }
 
-        eprintln!("🔧 返回给客户端的工具列表: {:?}", tools.iter().map(|t| &t.name).collect::<Vec<_>>());
+        log_debug!("返回给客户端的工具列表: {:?}", tools.iter().map(|t| &t.name).collect::<Vec<_>>());
 
         Ok(ListToolsResult {
             tools,
@@ -192,7 +191,7 @@ pub async fn run_server() -> Result<(), Box<dyn std::error::Error>> {
         .serve(stdio())
         .await
         .inspect_err(|e| {
-            eprintln!("启动服务器失败: {}", e);
+            log_important!(error, "启动服务器失败: {}", e);
         })?;
 
     // 等待服务器关闭

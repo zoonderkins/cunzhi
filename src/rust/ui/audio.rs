@@ -7,6 +7,7 @@ use tauri::{AppHandle, State, Manager};
 use rodio::{Decoder, OutputStream, Sink};
 
 use crate::config::{AppState, save_config};
+use crate::log_important;
 use super::audio_assets::{get_audio_asset_manager, AudioSource};
 
 // 音频播放控制器 - 只存储控制信号，不存储音频流
@@ -72,7 +73,7 @@ pub async fn play_notification_sound(state: State<'_, AppState>, app: tauri::App
     // 异步播放音频，避免阻塞主线程
     tokio::spawn(async move {
         if let Err(e) = play_audio_file(&app, &audio_url).await {
-            eprintln!("播放音频失败: {}", e);
+            log_important!(warn, "播放音频失败: {}", e);
         }
     });
 
@@ -99,7 +100,6 @@ pub async fn stop_audio_sound(app: tauri::AppHandle) -> Result<(), String> {
     // 设置停止信号
     if let Some(audio_controller) = app.try_state::<AudioController>() {
         audio_controller.should_stop.store(true, Ordering::Relaxed);
-        eprintln!("✅ 已发送停止音效信号");
     }
     Ok(())
 }
@@ -194,7 +194,6 @@ fn play_audio_from_bytes_with_controller(bytes: Vec<u8>, app: &AppHandle) -> Res
         while !sink.empty() {
             if audio_controller.should_stop.load(Ordering::Relaxed) {
                 sink.stop();
-                eprintln!("✅ 音效播放已停止");
                 break;
             }
             std::thread::sleep(std::time::Duration::from_millis(10));
@@ -231,11 +230,9 @@ fn play_audio_sync_with_controller(audio_path: &PathBuf, app: &AppHandle) -> Res
 
     // 检查停止信号并播放
     if let Some(audio_controller) = app.try_state::<AudioController>() {
-        eprintln!("✅ 音效开始播放");
         while !sink.empty() {
             if audio_controller.should_stop.load(Ordering::Relaxed) {
                 sink.stop();
-                eprintln!("✅ 音效播放已停止");
                 break;
             }
             std::thread::sleep(std::time::Duration::from_millis(10));

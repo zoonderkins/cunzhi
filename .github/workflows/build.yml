@@ -145,95 +145,37 @@ jobs:
       with:
         path: artifacts
 
+    - name: Install git-cliff
+      uses: taiki-e/install-action@git-cliff
+
     - name: Generate changelog
       id: changelog
       run: |
-        # 获取上一个tag
-        PREVIOUS_TAG=$(git tag --sort=-version:refname | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+' | head -2 | tail -1)
-        CURRENT_TAG=${{ github.ref_name }}
+        # 生成 changelog
+        git-cliff --tag ${{ github.ref_name }} --output changelog.md
 
-        echo "previous_tag=$PREVIOUS_TAG" >> $GITHUB_OUTPUT
-        echo "current_tag=$CURRENT_TAG" >> $GITHUB_OUTPUT
+        # 添加发布信息到 changelog 开头
+        {
+          echo "## 🚀 寸止 ${{ github.ref_name }}"
+          echo ""
+          echo "### 📦 包含内容"
+          echo "- 寸止 MCP工具：智能代码审查交互"
+          echo "- 等一下 MCP工具：全局记忆管理"
+          echo ""
+          echo "### 💻 支持平台"
+          echo "- Windows (x86_64)"
+          echo "- macOS (Intel & Apple Silicon)"
+          echo "- Linux (x86_64)"
+          echo ""
+          echo "### 📖 快速开始"
+          echo "1. 下载对应平台的压缩包并解压"
+          echo "2. 将工具添加到PATH或使用绝对路径"
+          echo "3. 配置MCP客户端使用 \`寸止\` 命令"
+          echo ""
+          cat changelog.md
+        } > temp_changelog.md
 
-        # 如果没有上一个tag，使用第一个commit
-        if [ -z "$PREVIOUS_TAG" ]; then
-          PREVIOUS_TAG=$(git rev-list --max-parents=0 HEAD)
-        fi
-
-        # 生成changelog
-        echo "## 📋 更新日志" > changelog.md
-        echo "" >> changelog.md
-
-        # 获取commits并分类
-        FEAT_COMMITS=$(git log --pretty=format:"- %s" ${PREVIOUS_TAG}..HEAD | grep -E "^- (feat|feature)" || true)
-        FIX_COMMITS=$(git log --pretty=format:"- %s" ${PREVIOUS_TAG}..HEAD | grep -E "^- (fix|bugfix)" || true)
-        PERF_COMMITS=$(git log --pretty=format:"- %s" ${PREVIOUS_TAG}..HEAD | grep -E "^- (perf|performance)" || true)
-        DOCS_COMMITS=$(git log --pretty=format:"- %s" ${PREVIOUS_TAG}..HEAD | grep -E "^- (docs|doc)" || true)
-        STYLE_COMMITS=$(git log --pretty=format:"- %s" ${PREVIOUS_TAG}..HEAD | grep -E "^- (style|ui)" || true)
-        REFACTOR_COMMITS=$(git log --pretty=format:"- %s" ${PREVIOUS_TAG}..HEAD | grep -E "^- (refactor|refact)" || true)
-        CHORE_COMMITS=$(git log --pretty=format:"- %s" ${PREVIOUS_TAG}..HEAD | grep -E "^- (chore|build|ci)" || true)
-        OTHER_COMMITS=$(git log --pretty=format:"- %s" ${PREVIOUS_TAG}..HEAD | grep -vE "^- (feat|feature|fix|bugfix|perf|performance|docs|doc|style|ui|refactor|refact|chore|build|ci)" || true)
-
-        # 添加新功能
-        if [ ! -z "$FEAT_COMMITS" ]; then
-          echo "### ✨ 新功能" >> changelog.md
-          echo "$FEAT_COMMITS" | sed 's/^- (feat|feature)[(:]/- /' >> changelog.md
-          echo "" >> changelog.md
-        fi
-
-        # 添加修复
-        if [ ! -z "$FIX_COMMITS" ]; then
-          echo "### 🐛 问题修复" >> changelog.md
-          echo "$FIX_COMMITS" | sed 's/^- (fix|bugfix)[(:]/- /' >> changelog.md
-          echo "" >> changelog.md
-        fi
-
-        # 添加性能优化
-        if [ ! -z "$PERF_COMMITS" ]; then
-          echo "### ⚡ 性能优化" >> changelog.md
-          echo "$PERF_COMMITS" | sed 's/^- (perf|performance)[(:]/- /' >> changelog.md
-          echo "" >> changelog.md
-        fi
-
-        # 添加重构
-        if [ ! -z "$REFACTOR_COMMITS" ]; then
-          echo "### ♻️ 代码重构" >> changelog.md
-          echo "$REFACTOR_COMMITS" | sed 's/^- (refactor|refact)[(:]/- /' >> changelog.md
-          echo "" >> changelog.md
-        fi
-
-        # 添加文档更新
-        if [ ! -z "$DOCS_COMMITS" ]; then
-          echo "### 📚 文档更新" >> changelog.md
-          echo "$DOCS_COMMITS" | sed 's/^- (docs|doc)[(:]/- /' >> changelog.md
-          echo "" >> changelog.md
-        fi
-
-        # 添加样式更新
-        if [ ! -z "$STYLE_COMMITS" ]; then
-          echo "### 💄 样式更新" >> changelog.md
-          echo "$STYLE_COMMITS" | sed 's/^- (style|ui)[(:]/- /' >> changelog.md
-          echo "" >> changelog.md
-        fi
-
-        # 添加构建/工具更新
-        if [ ! -z "$CHORE_COMMITS" ]; then
-          echo "### 🔧 构建/工具" >> changelog.md
-          echo "$CHORE_COMMITS" | sed 's/^- (chore|build|ci)[(:]/- /' >> changelog.md
-          echo "" >> changelog.md
-        fi
-
-        # 添加其他更新
-        if [ ! -z "$OTHER_COMMITS" ]; then
-          echo "### 📝 其他更新" >> changelog.md
-          echo "$OTHER_COMMITS" >> changelog.md
-          echo "" >> changelog.md
-        fi
-
-        # 如果没有任何commits，添加默认信息
-        if [ -z "$FEAT_COMMITS" ] && [ -z "$FIX_COMMITS" ] && [ -z "$PERF_COMMITS" ] && [ -z "$DOCS_COMMITS" ] && [ -z "$STYLE_COMMITS" ] && [ -z "$REFACTOR_COMMITS" ] && [ -z "$CHORE_COMMITS" ] && [ -z "$OTHER_COMMITS" ]; then
-          echo "- 版本发布" >> changelog.md
-        fi
+        mv temp_changelog.md changelog.md
 
     - name: Create Release
       uses: softprops/action-gh-release@v1
@@ -245,29 +187,6 @@ jobs:
         prerelease: false
         generate_release_notes: false
         name: 寸止 ${{ github.ref_name }}
-        body: |
-          ## 🚀 CLI工具发布 ${{ github.ref_name }}
-
-          **📦 包含内容：**
-          - 寸止 MCP工具：智能代码审查交互工具
-          - 等一下 MCP工具：全局记忆管理工具
-          - 完整前端资源嵌入，支持直接运行UI界面
-
-          $(cat changelog.md)
-
-          **💻 支持平台：**
-          - Windows (x86_64)
-          - macOS (Intel & Apple Silicon)
-          - Linux (x86_64)
-
-          **📖 使用方法：**
-          1. 下载对应平台的压缩包
-          2. 解压到任意目录
-          3. 直接运行 `寸止` 或 `等一下` 命令
-          4. CLI工具会自动打开UI界面
-
-          **🔗 相关链接：**
-          - [项目文档](https://github.com/imhuso/cunzhi)
-          - [问题反馈](https://github.com/imhuso/cunzhi/issues)
+        body_path: changelog.md
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

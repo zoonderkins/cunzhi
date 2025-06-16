@@ -154,17 +154,9 @@ pub async fn get_current_window_size(app: tauri::AppHandle) -> Result<serde_json
             // 获取缩放因子
             let scale_factor = window.scale_factor().unwrap_or(1.0);
 
-            // 调试信息：输出物理尺寸、缩放因子和逻辑尺寸
-            println!("🔍 窗口尺寸调试信息:");
-            println!("   物理尺寸: {}x{}", physical_size.width, physical_size.height);
-            println!("   缩放因子: {}", scale_factor);
-
             // 转换为逻辑尺寸
             let logical_width = physical_size.width as f64 / scale_factor;
             let logical_height = physical_size.height as f64 / scale_factor;
-
-            println!("   逻辑尺寸: {}x{}", logical_width, logical_height);
-            println!("   四舍五入: {}x{}", logical_width.round(), logical_height.round());
 
             tauri::LogicalSize::new(logical_width, logical_height)
         }) {
@@ -299,7 +291,7 @@ pub async fn select_image_files() -> Result<Vec<String>, String> {
 pub async fn open_external_url(url: String) -> Result<(), String> {
     use std::process::Command;
 
-    println!("尝试打开外部链接: {}", url);
+    // 移除不重要的调试信息
 
     // 根据操作系统选择合适的命令
     let result = if cfg!(target_os = "windows") {
@@ -318,14 +310,8 @@ pub async fn open_external_url(url: String) -> Result<(), String> {
     };
 
     match result {
-        Ok(_) => {
-            println!("成功启动外部程序打开链接: {}", url);
-            Ok(())
-        }
-        Err(e) => {
-            eprintln!("打开外部链接失败: {}", e);
-            Err(format!("无法打开链接: {}", e))
-        }
+        Ok(_) => Ok(()),
+        Err(e) => Err(format!("无法打开链接: {}", e))
     }
 }
 

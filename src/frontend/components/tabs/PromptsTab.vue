@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { computed, ref, onMounted } from 'vue'
-import { generateFullPrompt } from '../../constants/prompts'
+import { computed, onMounted, ref } from 'vue'
 import { useMcpToolsReactive } from '../../composables/useMcpTools'
+import { generateFullPrompt } from '../../constants/prompts'
 
 // 使用全局MCP工具状态
 const { mcpTools, loading: mcpLoading, loadMcpTools, enabledTools } = useMcpToolsReactive()
@@ -58,12 +58,18 @@ onMounted(async () => {
 
 <template>
   <div class="max-w-3xl mx-auto tab-content">
-    <n-space vertical size="medium">
+    <n-space
+      vertical
+      size="medium"
+    >
       <!-- 参考提示词卡片 -->
       <n-card size="small">
         <!-- 卡片头部 -->
         <template #header>
-          <n-space align="center" justify="space-between">
+          <n-space
+            align="center"
+            justify="space-between"
+          >
             <n-space align="center">
               <!-- 图标 -->
               <div class="w-10 h-10 rounded-lg bg-orange-100 dark:bg-orange-900 flex items-center justify-center">
@@ -82,7 +88,11 @@ onMounted(async () => {
             </n-space>
 
             <!-- 复制按钮 -->
-            <n-button type="primary" size="small" @click="copyPromptContent">
+            <n-button
+              type="primary"
+              size="small"
+              @click="copyPromptContent"
+            >
               <template #icon>
                 <div class="i-carbon-copy text-sm" />
               </template>
@@ -122,20 +132,30 @@ onMounted(async () => {
               :bordered="false"
             >
               <template #icon>
-                <div :class="tool.icon" class="text-xs" />
+                <div
+                  :class="tool.icon"
+                  class="text-xs"
+                />
               </template>
               {{ tool.name }}
             </n-tag>
           </n-space>
-          <div v-else-if="!mcpLoading && enabledTools.length === 0" class="text-sm opacity-60">
+          <div
+            v-else-if="!mcpLoading && enabledTools.length === 0"
+            class="text-sm opacity-60"
+          >
             暂无启用的工具
           </div>
-          <n-skeleton v-else text :repeat="2" />
+          <n-skeleton
+            v-else
+            text
+            :repeat="2"
+          />
         </div>
 
         <!-- 内容区域 -->
         <n-card embedded>
-          <div class="text-sm font-mono leading-relaxed max-h-96 overflow-y-auto">
+          <div class="text-sm font-mono leading-relaxed">
             <pre class="whitespace-pre-wrap my-0 opacity-90">{{ promptContent }}</pre>
           </div>
         </n-card>
@@ -162,7 +182,10 @@ onMounted(async () => {
           </n-space>
         </template>
 
-        <n-space vertical size="small">
+        <n-space
+          vertical
+          size="small"
+        >
           <div class="flex items-center text-sm leading-relaxed">
             <div class="w-1.5 h-1.5 bg-green-500 rounded-full mr-3 flex-shrink-0" />
             <span class="opacity-90">将此提示词添加到您的AI助手系统提示中，以获得最佳的交互体验</span>

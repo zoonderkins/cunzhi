@@ -15,15 +15,50 @@ NC='\033[0m' # No Color
 # 项目根目录
 PROJECT_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
-# 默认构建类型
+# 默认构建类型和CLI类型
 BUILD_TYPE="release"
+CLI_TYPE="local"  # local 或 global
 CLI_PATH="$PROJECT_ROOT/target/$BUILD_TYPE"
 
 echo -e "${BLUE}🎯 寸止弹窗测试脚本${NC}"
 echo -e "${BLUE}================================${NC}"
 
-# 选择构建类型
+# 选择CLI类型
+select_cli_type() {
+    echo -e "${YELLOW}🔧 选择CLI类型:${NC}"
+    echo -e "  ${GREEN}1.${NC} 本地编译版本 (从项目target目录)"
+    echo -e "  ${GREEN}2.${NC} 全局安装版本 (系统PATH中)"
+    echo ""
+
+    while true; do
+        read -p "请选择CLI类型 (1-2): " cli_choice
+        case $cli_choice in
+            1)
+                CLI_TYPE="local"
+                echo -e "${GREEN}✅ 已选择本地编译版本${NC}"
+                select_build_type
+                break
+                ;;
+            2)
+                CLI_TYPE="global"
+                echo -e "${GREEN}✅ 已选择全局安装版本${NC}"
+                check_global_cli
+                break
+                ;;
+            *)
+                echo -e "${RED}❌ 无效选项，请选择 1 或 2${NC}"
+                ;;
+        esac
+    done
+    echo ""
+}
+
+# 选择构建类型（仅在使用本地CLI时）
 select_build_type() {
+    if [[ "$CLI_TYPE" != "local" ]]; then
+        return
+    fi
+
     echo -e "${YELLOW}🔧 选择构建类型:${NC}"
     echo -e "  ${GREEN}1.${NC} Release (推荐，性能最佳)"
     echo -e "  ${GREEN}2.${NC} Debug (包含调试信息)"
@@ -52,8 +87,60 @@ select_build_type() {
     echo ""
 }
 
+# 检查全局CLI
+check_global_cli() {
+    echo -e "${YELLOW}🔍 检查全局CLI工具...${NC}"
+
+    local cunzhi_found=false
+    local dengxiaxia_found=false
+
+    # 检查寸止
+    if command -v 寸止 &> /dev/null; then
+        echo -e "${GREEN}✅ 找到全局 寸止 CLI: $(which 寸止)${NC}"
+        cunzhi_found=true
+    else
+        echo -e "${RED}❌ 未找到全局 寸止 CLI${NC}"
+    fi
+
+    # 检查等一下
+    if command -v 等一下 &> /dev/null; then
+        echo -e "${GREEN}✅ 找到全局 等一下 CLI: $(which 等一下)${NC}"
+        dengxiaxia_found=true
+    else
+        echo -e "${RED}❌ 未找到全局 等一下 CLI${NC}"
+    fi
+
+    if [[ "$cunzhi_found" == false || "$dengxiaxia_found" == false ]]; then
+        echo -e "${YELLOW}💡 全局CLI工具未完全安装，安装方法:${NC}"
+        echo -e "${BLUE}   cargo install --path . --bins${NC}"
+        echo -e "${YELLOW}   或者选择使用本地编译版本${NC}"
+        echo ""
+
+        echo -e "${BLUE}🔄 是否切换到本地编译版本？ (y/n)${NC}"
+        read -p "请选择: " switch_choice
+        if [[ "$switch_choice" =~ ^[Yy]$ ]]; then
+            CLI_TYPE="local"
+            select_build_type
+            return
+        else
+            echo -e "${RED}❌ 无法继续，请先安装全局CLI工具${NC}"
+            exit 1
+        fi
+    fi
+
+    # 设置全局CLI路径
+    CLI_PATH=""  # 全局CLI不需要路径前缀
+    echo -e "${GREEN}✅ 全局CLI工具检查完成${NC}"
+    echo ""
+}
+
 # 编译项目
 compile_project() {
+    if [[ "$CLI_TYPE" == "global" ]]; then
+        echo -e "${YELLOW}⚠️  使用全局CLI，跳过编译步骤${NC}"
+        return
+    fi
+
     echo -e "${YELLOW}🔨 开始编译项目...${NC}"
 
     # 检查Cargo.toml是否存在
@@ -93,7 +180,13 @@ compile_project() {
 
 # 检查CLI工具是否存在
 check_cli_tools() {
-    echo -e "${YELLOW}📋 检查CLI工具 (${BUILD_TYPE})...${NC}"
+    if [[ "$CLI_TYPE" == "global" ]]; then
+        echo -e "${YELLOW}📋 检查全局CLI工具...${NC}"
+        check_global_cli
+        return
+    fi
+
+    echo -e "${YELLOW}📋 检查本地CLI工具 (${BUILD_TYPE})...${NC}"
 
     if [[ ! -f "$CLI_PATH/寸止" ]]; then
         echo -e "${RED}❌ 未找到 寸止 CLI工具${NC}"
@@ -142,7 +235,7 @@ check_cli_tools() {
         chmod +x "$CLI_PATH/等一下"
     fi
 
-    echo -e "${GREEN}✅ CLI工具检查完成 (${BUILD_TYPE})${NC}"
+    echo -e "${GREEN}✅ 本地CLI工具检查完成 (${BUILD_TYPE})${NC}"
     echo -e "   构建类型: ${BUILD_TYPE}"
     echo -e "   寸止: $CLI_PATH/寸止"
     echo -e "   等一下: $CLI_PATH/等一下"
@@ -168,15 +261,19 @@ check_test_files() {
 # 显示测试选项
 show_test_options() {
     echo -e "${BLUE}🎨 可用的测试选项:${NC}"
-    echo -e "${YELLOW}当前构建类型: ${BUILD_TYPE}${NC}"
+    if [[ "$CLI_TYPE" == "global" ]]; then
+        echo -e "${YELLOW}当前CLI类型: 全局安装版本${NC}"
+    else
+        echo -e "${YELLOW}当前CLI类型: 本地编译版本 (${BUILD_TYPE})${NC}"
+    fi
     echo ""
     echo -e "  ${GREEN}1.${NC} 测试简单弹窗 (test_simple_popup.json)"
     echo -e "  ${GREEN}2.${NC} 测试Markdown弹窗 (test_markdown_popup.json)"
     echo -e "  ${GREEN}3.${NC} 测试自定义弹窗"
     echo -e "  ${GREEN}4.${NC} 启动前端测试环境"
     echo -e "  ${GREEN}5.${NC} 查看CLI工具帮助"
-    echo -e "  ${GREEN}6.${NC} 切换构建类型 (当前: ${BUILD_TYPE})"
-    echo -e "  ${GREEN}7.${NC} 重新编译项目"
+    echo -e "  ${GREEN}6.${NC} 切换CLI类型"
+    echo -e "  ${GREEN}7.${NC} 安装/重新编译"
     echo -e "  ${GREEN}q.${NC} 退出"
     echo ""
 }
@@ -192,6 +289,16 @@ show_json_content() {
     fi
 }
 
+# 获取CLI命令
+get_cli_command() {
+    local cli_name="$1"
+    if [[ "$CLI_TYPE" == "global" ]]; then
+        echo "$cli_name"
+    else
+        echo "$CLI_PATH/$cli_name"
+    fi
+}
+
 # 测试简单弹窗
 test_simple_popup() {
     echo -e "${YELLOW}🚀 启动简单弹窗测试...${NC}"
@@ -203,8 +310,10 @@ test_simple_popup() {
     echo ""
 
     # 启动弹窗
+    local cli_cmd=$(get_cli_command "等一下")
     echo -e "${GREEN}🎯 启动弹窗...${NC}"
-    if "$CLI_PATH/等一下" --mcp-request "$PROJECT_ROOT/test_simple_popup.json"; then
+    echo -e "${BLUE}执行命令: $cli_cmd --mcp-request test_simple_popup.json${NC}"
+    if $cli_cmd --mcp-request "$PROJECT_ROOT/test_simple_popup.json"; then
         echo -e "${GREEN}✅ 弹窗测试完成${NC}"
     else
         echo -e "${RED}❌ 弹窗测试失败${NC}"
@@ -223,8 +332,10 @@ test_markdown_popup() {
     echo ""
 
     # 启动弹窗
+    local cli_cmd=$(get_cli_command "等一下")
     echo -e "${GREEN}🎯 启动弹窗...${NC}"
-    if "$CLI_PATH/等一下" --mcp-request "$PROJECT_ROOT/test_markdown_popup.json"; then
+    echo -e "${BLUE}执行命令: $cli_cmd --mcp-request test_markdown_popup.json${NC}"
+    if $cli_cmd --mcp-request "$PROJECT_ROOT/test_markdown_popup.json"; then
         echo -e "${GREEN}✅ Markdown弹窗测试完成${NC}"
     else
         echo -e "${RED}❌ Markdown弹窗测试失败${NC}"
@@ -261,8 +372,10 @@ EOF
     echo ""
     
     # 启动弹窗
+    local cli_cmd=$(get_cli_command "等一下")
     echo -e "${GREEN}🎯 启动自定义弹窗...${NC}"
-    if "$CLI_PATH/等一下" --mcp-request "$TEMP_FILE"; then
+    echo -e "${BLUE}执行命令: $cli_cmd --mcp-request $TEMP_FILE${NC}"
+    if $cli_cmd --mcp-request "$TEMP_FILE"; then
         echo -e "${GREEN}✅ 自定义弹窗测试完成${NC}"
     else
         echo -e "${RED}❌ 自定义弹窗测试失败${NC}"
@@ -302,67 +415,82 @@ show_cli_help() {
     echo -e "${YELLOW}📖 CLI工具帮助信息:${NC}"
     echo ""
 
+    local cunzhi_cmd=$(get_cli_command "寸止")
+    local dengxiaxia_cmd=$(get_cli_command "等一下")
+
     echo -e "${BLUE}寸止 CLI:${NC}"
-    if "$CLI_PATH/寸止" --help 2>/dev/null; then
+    echo -e "${BLUE}命令: $cunzhi_cmd${NC}"
+    if $cunzhi_cmd --help 2>/dev/null; then
         echo -e "${GREEN}✅ 帮助信息显示完成${NC}"
     else
         echo -e "${YELLOW}⚠️  寸止 CLI 无帮助信息或不支持 --help 参数${NC}"
-        echo -e "${BLUE}尝试直接运行:${NC} $CLI_PATH/寸止"
+        echo -e "${BLUE}尝试直接运行:${NC} $cunzhi_cmd"
     fi
     echo ""
 
     echo -e "${BLUE}等一下 CLI:${NC}"
-    if "$CLI_PATH/等一下" --help 2>/dev/null; then
+    echo -e "${BLUE}命令: $dengxiaxia_cmd${NC}"
+    if $dengxiaxia_cmd --help 2>/dev/null; then
         echo -e "${GREEN}✅ 帮助信息显示完成${NC}"
     else
         echo -e "${YELLOW}⚠️  等一下 CLI 无帮助信息或不支持 --help 参数${NC}"
-        echo -e "${BLUE}尝试直接运行:${NC} $CLI_PATH/等一下"
-        echo -e "${BLUE}MCP请求参数:${NC} $CLI_PATH/等一下 --mcp-request <json_file>"
+        echo -e "${BLUE}尝试直接运行:${NC} $dengxiaxia_cmd"
+        echo -e "${BLUE}MCP请求参数:${NC} $dengxiaxia_cmd --mcp-request <json_file>"
     fi
 }
 
-# 切换构建类型
-switch_build_type() {
-    echo -e "${YELLOW}🔄 切换构建类型${NC}"
-    echo -e "当前构建类型: ${BUILD_TYPE}"
-    echo ""
-
-    if [[ "$BUILD_TYPE" == "release" ]]; then
-        BUILD_TYPE="debug"
-        echo -e "${GREEN}✅ 已切换到 Debug 构建${NC}"
+# 切换CLI类型
+switch_cli_type() {
+    echo -e "${YELLOW}🔄 切换CLI类型${NC}"
+    if [[ "$CLI_TYPE" == "global" ]]; then
+        echo -e "当前CLI类型: 全局安装版本"
     else
-        BUILD_TYPE="release"
-        echo -e "${GREEN}✅ 已切换到 Release 构建${NC}"
+        echo -e "当前CLI类型: 本地编译版本 (${BUILD_TYPE})"
     fi
-
-    CLI_PATH="$PROJECT_ROOT/target/$BUILD_TYPE"
-    echo -e "新的CLI路径: $CLI_PATH"
     echo ""
 
-    # 重新检查CLI工具
-    check_cli_tools
+    if [[ "$CLI_TYPE" == "global" ]]; then
+        CLI_TYPE="local"
+        echo -e "${GREEN}✅ 已切换到本地编译版本${NC}"
+        select_build_type
+    else
+        CLI_TYPE="global"
+        echo -e "${GREEN}✅ 已切换到全局安装版本${NC}"
+        check_global_cli
+    fi
+    echo ""
 }
 
-# 重新编译项目
-recompile_project() {
-    echo -e "${YELLOW}🔨 重新编译项目 (${BUILD_TYPE})...${NC}"
-    compile_project
+# 安装/重新编译
+install_or_compile() {
+    if [[ "$CLI_TYPE" == "global" ]]; then
+        echo -e "${YELLOW}🔨 安装全局CLI工具...${NC}"
+        echo -e "${BLUE}执行命令: cargo install --path . --bins${NC}"
 
-    # 重新检查CLI工具
-    check_cli_tools
+        if cargo install --path . --bins; then
+            echo -e "${GREEN}✅ 全局CLI工具安装完成${NC}"
+            check_global_cli
+        else
+            echo -e "${RED}❌ 全局CLI工具安装失败${NC}"
+        fi
+    else
+        echo -e "${YELLOW}🔨 重新编译本地项目 (${BUILD_TYPE})...${NC}"
+        compile_project
+        check_cli_tools
+    fi
 }
 
 # 主函数
 main() {
-    # 选择构建类型
-    select_build_type
+    # 选择CLI类型
+    select_cli_type
 
     # 检查依赖
     check_cli_tools
     check_test_files
 
     echo ""
-    
+
     # 主循环
     while true; do
         show_test_options
@@ -386,10 +514,10 @@ main() {
                 show_cli_help
                 ;;
             6)
-                switch_build_type
+                switch_cli_type
                 ;;
             7)
-                recompile_project
+                install_or_compile
                 ;;
             q|Q)
                 echo -e "${GREEN}👋 测试结束，再见！${NC}"
@@ -399,7 +527,7 @@ main() {
                 echo -e "${RED}❌ 无效选项，请重新选择${NC}"
                 ;;
         esac
-        
+
         echo ""
         echo -e "${YELLOW}按回车键继续...${NC}"
         read

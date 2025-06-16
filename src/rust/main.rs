@@ -1,4 +1,6 @@
 use cunzhi::config::{AppState, load_config_and_apply_window_settings};
+use cunzhi::utils::auto_init_logger;
+use cunzhi::log_important;
 use anyhow::Result;
 use tauri::Manager;
 use std::sync::Arc;
@@ -60,12 +62,12 @@ pub fn run() {
             tauri::async_runtime::block_on(async {
                 let state = app.state::<AppState>();
                 if let Err(e) = load_config_and_apply_window_settings(&state, &app_handle).await {
-                    eprintln!("加载配置失败: {}", e);
+                    log_important!(warn, "加载配置失败: {}", e);
                 }
 
                 // 初始化音频资源管理器
                 if let Err(e) = initialize_audio_asset_manager(&app_handle) {
-                    eprintln!("初始化音频资源管理器失败: {}", e);
+                    log_important!(warn, "初始化音频资源管理器失败: {}", e);
                 }
             });
 
@@ -76,6 +78,11 @@ pub fn run() {
 }
 
 fn main() -> Result<()> {
+    // 初始化日志系统
+    if let Err(e) = auto_init_logger() {
+        eprintln!("初始化日志系统失败: {}", e);
+    }
+
     // 检查程序是如何被调用的
     let args: Vec<String> = std::env::args().collect();
 
