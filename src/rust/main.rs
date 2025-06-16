@@ -59,6 +59,7 @@ pub fn run() {
             get_telegram_config,
             set_telegram_config,
             test_telegram_connection_cmd,
+            auto_get_chat_id,
             start_telegram_sync,
             open_external_url,
             exit_app,

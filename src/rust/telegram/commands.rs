@@ -50,6 +50,74 @@ pub async fn test_telegram_connection_cmd(
         .map_err(|e| e.to_string())
 }
 
+/// 自动获取Chat ID（通过监听Bot消息）
+#[tauri::command]
+pub async fn auto_get_chat_id(
+    bot_token: String,
+    app_handle: AppHandle,
+) -> Result<(), String> {
+    let bot = Bot::new(bot_token);
+
+    // 发送事件通知前端开始监听
+    if let Err(e) = app_handle.emit("chat-id-detection-started", ()) {
+        log_important!(warn, "发送Chat ID检测开始事件失败: {}", e);
+    }
+
+    // 启动临时监听器来获取Chat ID
+    let app_handle_clone = app_handle.clone();
+    tokio::spawn(async move {
+        let mut timeout_count = 0;
+        const MAX_TIMEOUT_COUNT: u32 = 30; // 30秒超时
+
+        loop {
+            match bot.get_updates().send().await {
+                Ok(updates) => {
+                    for update in updates {
+                        if let teloxide::types::UpdateKind::Message(message) = update.kind {
+                            let chat_id = message.chat.id.0.to_string();
+                            let chat_title = message.chat.title().unwrap_or("私聊").to_string();
+                            let username = message.from.as_ref()
+                                .and_then(|u| u.username.as_ref())
+                                .map(|s| s.as_str())
+                                .unwrap_or("未知用户");
+
+                            // 发送检测到的Chat ID到前端
+                            let chat_info = serde_json::json!({
+                                "chat_id": chat_id,
+                                "chat_title": chat_title,
+                                "username": username,
+                                "message_text": message.text().unwrap_or(""),
+                            });
+
+                            if let Err(e) = app_handle_clone.emit("chat-id-detected", chat_info) {
+                                log_important!(warn, "发送Chat ID检测事件失败: {}", e);
+                            }
+
+                            return; // 检测到第一个消息后退出
+                        }
+                    }
+                }
+                Err(e) => {
+                    log_important!(warn, "获取Telegram更新失败: {}", e);
+                }
+            }
+
+            // 超时检查
+            timeout_count += 1;
+            if timeout_count >= MAX_TIMEOUT_COUNT {
+                if let Err(e) = app_handle_clone.emit("chat-id-detection-timeout", ()) {
+                    log_important!(warn, "发送Chat ID检测超时事件失败: {}", e);
+                }
+                break;
+            }
+
+            tokio::time::sleep(tokio::time::Duration::from_secs(1)).await;
+        }
+    });
+
+    Ok(())
+}
+
 /// 发送Telegram消息（供其他模块调用）
 pub async fn send_telegram_message(
     bot_token: &str,

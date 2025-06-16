@@ -260,14 +260,18 @@ pub async fn get_current_window_size(app: tauri::AppHandle) -> Result<serde_json
             let width = logical_size.width.round() as u32;
             let height = logical_size.height.round() as u32;
 
-            // 验证尺寸是否有效
-            if !validation::is_valid_window_size(width as f64, height as f64) {
-                return Err(format!("窗口尺寸无效 ({}x{})，跳过保存", width, height));
+            // 验证并调整尺寸到有效范围
+            let (clamped_width, clamped_height) = crate::constants::window::clamp_window_size(width as f64, height as f64);
+            let final_width = clamped_width as u32;
+            let final_height = clamped_height as u32;
+
+            if final_width != width || final_height != height {
+                log::info!("窗口尺寸已调整: {}x{} -> {}x{}", width, height, final_width, final_height);
             }
 
             let window_size = serde_json::json!({
-                "width": width,
-                "height": height
+                "width": final_width,
+                "height": final_height
             });
             return Ok(window_size);
         }

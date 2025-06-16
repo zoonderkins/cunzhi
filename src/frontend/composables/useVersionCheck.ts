@@ -57,12 +57,15 @@ function compareVersions(version1: string, version2: string): number {
 async function getCurrentVersion(): Promise<string> {
   try {
     const appInfo = await invoke('get_app_info') as string
+    console.log('获取到的应用信息:', appInfo) // 调试日志
     const match = appInfo.match(/v(\d+\.\d+\.\d+)/)
-    return match ? match[1] : '0.1.3'
+    const version = match ? match[1] : '0.2.0' // 更新默认版本
+    console.log('解析到的版本:', version) // 调试日志
+    return version
   }
   catch (error) {
     console.error('获取当前版本失败:', error)
-    return '0.1.3'
+    return '0.2.0' // 更新默认版本
   }
 }
 

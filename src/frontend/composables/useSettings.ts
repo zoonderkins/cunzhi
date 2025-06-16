@@ -228,25 +228,37 @@ export function useSettings() {
           if (result && typeof result === 'object') {
             const { width, height } = result as any
 
-            // 验证尺寸不能低于最小限制
-            if (width < windowConstraints.value.min_width || height < windowConstraints.value.min_height) {
-              console.warn(`窗口尺寸过小 (${width}x${height})，跳过保存`)
-              return
+            // 验证尺寸，如果小于最小限制则调整为最小尺寸
+            let adjustedWidth = width
+            let adjustedHeight = height
+            let wasAdjusted = false
+
+            if (width < windowConstraints.value.min_width) {
+              adjustedWidth = windowConstraints.value.min_width
+              wasAdjusted = true
+            }
+            if (height < windowConstraints.value.min_height) {
+              adjustedHeight = windowConstraints.value.min_height
+              wasAdjusted = true
+            }
+
+            if (wasAdjusted) {
+              console.log(`窗口尺寸已调整: ${width}x${height} -> ${adjustedWidth}x${adjustedHeight}`)
             }
 
             await invoke('set_window_settings', {
               windowSettings: {
-                free_width: width,
-                free_height: height,
+                free_width: adjustedWidth,
+                free_height: adjustedHeight,
                 fixed: false,
               },
             })
 
             // 更新本地状态
-            windowWidth.value = width
-            windowHeight.value = height
+            windowWidth.value = adjustedWidth
+            windowHeight.value = adjustedHeight
 
-            console.log(`窗口尺寸已保存: ${width}x${height}`)
+            console.log(`窗口尺寸已保存: ${adjustedWidth}x${adjustedHeight}`)
           }
         }
       }

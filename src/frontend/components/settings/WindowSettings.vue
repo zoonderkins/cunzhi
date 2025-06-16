@@ -128,25 +128,37 @@ async function saveCurrentModeSize() {
     if (result && typeof result === 'object') {
       const { width, height } = result as any
 
-      // 验证尺寸不能低于最小限制
-      if (width < windowConstraints.value.min_width || height < windowConstraints.value.min_height) {
-        console.warn(`窗口尺寸过小 (${width}x${height})，跳过保存`)
-        return
+      // 验证尺寸，如果小于最小限制则调整为最小尺寸
+      let adjustedWidth = width
+      let adjustedHeight = height
+      let wasAdjusted = false
+
+      if (width < windowConstraints.value.min_width) {
+        adjustedWidth = windowConstraints.value.min_width
+        wasAdjusted = true
+      }
+      if (height < windowConstraints.value.min_height) {
+        adjustedHeight = windowConstraints.value.min_height
+        wasAdjusted = true
+      }
+
+      if (wasAdjusted) {
+        console.log(`窗口尺寸已调整: ${width}x${height} -> ${adjustedWidth}x${adjustedHeight}`)
       }
 
       const settings: any = {}
 
       if (localFixed.value) {
-        settings.fixed_width = width
-        settings.fixed_height = height
+        settings.fixed_width = adjustedWidth
+        settings.fixed_height = adjustedHeight
       }
       else {
-        settings.free_width = width
-        settings.free_height = height
+        settings.free_width = adjustedWidth
+        settings.free_height = adjustedHeight
       }
 
       await invoke('set_window_settings', { windowSettings: settings })
-      console.log(`保存${localFixed.value ? '固定' : '自由'}模式尺寸: ${width}x${height}`)
+      console.log(`保存${localFixed.value ? '固定' : '自由'}模式尺寸: ${adjustedWidth}x${adjustedHeight}`)
     }
   }
   catch (error) {

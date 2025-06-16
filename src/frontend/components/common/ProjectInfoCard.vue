@@ -1,10 +1,10 @@
 <script setup lang="ts">
 import { useMessage } from 'naive-ui'
-import { computed } from 'vue'
+import { computed, onMounted } from 'vue'
 import { useVersionCheck } from '../../composables/useVersionCheck'
 
 const message = useMessage()
-const { checkLatestVersion, safeOpenUrl, lastCheckTime, isChecking } = useVersionCheck()
+const { versionInfo, checkLatestVersion, safeOpenUrl, lastCheckTime, isChecking, getVersionInfo } = useVersionCheck()
 
 // 格式化最后检查时间
 const formattedLastCheckTime = computed(() => {
@@ -61,6 +61,16 @@ async function checkVersion() {
     message.error('检查版本失败，请稍后重试')
   }
 }
+
+// 组件挂载时初始化版本信息
+onMounted(async () => {
+  try {
+    await getVersionInfo()
+  }
+  catch (error) {
+    console.error('初始化版本信息失败:', error)
+  }
+})
 </script>
 
 <template>
@@ -77,7 +87,7 @@ async function checkVersion() {
         </div>
         <div>
           <h3 class="font-semibold text-gray-900 dark:text-white text-sm">
-            寸止 v0.1.3
+            寸止 {{ versionInfo ? `v${versionInfo.current}` : 'v0.2.0' }}
           </h3>
           <p class="text-xs text-gray-500 dark:text-gray-400">
             智能代码审查工具，支持MCP协议集成
