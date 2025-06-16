@@ -20,7 +20,7 @@ const tabs = [
   <n-message-provider>
     <div class="test-app">
       <div class="test-header">
-        <h1>🎨 寸止 - 组件样式测试环境</h1>
+        <h1>寸止 - 组件样式测试环境</h1>
         <p class="test-description">
           独立的测试环境，用于开发和调试组件样式，直接引用真实组件
         </p>
@@ -29,10 +29,10 @@ const tabs = [
         <div class="window-toggle">
           <n-switch v-model:value="useSimulatedWindow" size="small">
             <template #checked>
-              📱 模拟窗口 (600px)
+              模拟窗口 (600px)
             </template>
             <template #unchecked>
-              🖥️ 全屏模式
+              全屏模式
             </template>
           </n-switch>
         </div>

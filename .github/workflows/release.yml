@@ -230,8 +230,30 @@ jobs:
 
     - name: Commit and push Formula update
       run: |
+        VERSION="${{ github.ref_name }}"
         git config --local user.email "action@github.com"
         git config --local user.name "GitHub Action"
+
+        # 检查是否有更改
+        if git diff --quiet Formula/cunzhi.rb; then
+          echo "No changes to Formula, skipping commit"
+          exit 0
+        fi
+
+        # 确保我们在正确的分支上，使用token进行认证
+        git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git
+        git fetch origin main
+        git checkout main
+
+        # 重新应用 Formula 更新（因为切换分支可能丢失更改）
+        DOWNLOAD_URL="https://github.com/imhuso/cunzhi/archive/refs/tags/${VERSION}.tar.gz"
+        SHA256=$(wget -qO- "$DOWNLOAD_URL" | sha256sum | cut -d' ' -f1)
+        VERSION_NUMBER=${VERSION#v}
+
+        sed -i "s|url \".*\"|url \"${DOWNLOAD_URL}\"|g" Formula/cunzhi.rb
+        sed -i "s|sha256 \".*\"|sha256 \"${SHA256}\"|g" Formula/cunzhi.rb
+        sed -i "s|version \".*\"|version \"${VERSION_NUMBER}\"|g" Formula/cunzhi.rb
+
         git add Formula/cunzhi.rb
-        git commit -m "Update Homebrew formula to ${VERSION}" || exit 0
-        git push
+        git commit -m "Update Homebrew formula to ${VERSION}"
+        git push origin main

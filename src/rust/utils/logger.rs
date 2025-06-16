@@ -117,13 +117,13 @@ pub fn auto_init_logger() -> Result<(), Box<dyn std::error::Error>> {
 #[macro_export]
 macro_rules! log_important {
     (error, $($arg:tt)*) => {
-        log::error!($($arg)*);
+        log::error!($($arg)*)
     };
     (warn, $($arg:tt)*) => {
-        log::warn!($($arg)*);
+        log::warn!($($arg)*)
     };
     (info, $($arg:tt)*) => {
-        log::info!($($arg)*);
+        log::info!($($arg)*)
     };
 }
 
@@ -131,7 +131,7 @@ macro_rules! log_important {
 #[macro_export]
 macro_rules! log_debug {
     ($($arg:tt)*) => {
-        log::debug!($($arg)*);
+        log::debug!($($arg)*)
     };
 }
 
@@ -139,7 +139,7 @@ macro_rules! log_debug {
 #[macro_export]
 macro_rules! log_trace {
     ($($arg:tt)*) => {
-        log::trace!($($arg)*);
+        log::trace!($($arg)*)
     };
 }
 

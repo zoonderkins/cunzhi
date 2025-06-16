@@ -1,14 +1,16 @@
-use cunzhi::config::{AppState, load_config_and_apply_window_settings};
+use cunzhi::config::{AppState, load_config_and_apply_window_settings, load_standalone_telegram_config};
 use cunzhi::utils::auto_init_logger;
 use cunzhi::log_important;
 use anyhow::Result;
-use tauri::Manager;
-use std::sync::Arc;
 use std::sync::atomic::AtomicBool;
+use std::sync::Arc;
+use tauri::Manager;
 
 // 重新导出所有命令函数
-pub use cunzhi::ui::*;
 pub use cunzhi::config::mcp_commands::*;
+pub use cunzhi::config::telegram_commands::*;
+pub use cunzhi::telegram::*;
+pub use cunzhi::ui::*;
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
@@ -52,8 +54,13 @@ pub fn run() {
             get_cli_args,
             read_mcp_request,
             select_image_files,
-            open_external_url,
-            exit_app
+            get_telegram_config,
+            set_telegram_config,
+            test_telegram_connection_cmd,
+            start_telegram_sync,
+            exit_app,
+            build_mcp_send_response,
+            build_mcp_continue_response
         ])
         .setup(|app| {
             let app_handle = app.handle().clone();
@@ -90,8 +97,33 @@ fn main() -> Result<()> {
 
     // 处理命令行参数
     if args.len() >= 3 && args[1] == "--mcp-request" {
-        // MCP 请求模式：启动 GUI 处理弹窗
-        run();
+        // MCP 请求模式：检查是否需要启动GUI
+        let request_file = &args[2];
+
+        // 检查Telegram配置，决定是否启用纯Telegram模式
+        match load_standalone_telegram_config() {
+            Ok(telegram_config) => {
+                if telegram_config.enabled && telegram_config.hide_frontend_popup {
+                    // 纯Telegram模式：不启动GUI，直接处理
+                    if let Err(e) = tokio::runtime::Runtime::new()
+                        .unwrap()
+                        .block_on(handle_telegram_only_mcp_request(request_file))
+                    {
+                        log_important!(error, "处理Telegram请求失败: {}", e);
+                        std::process::exit(1);
+                    }
+                    return Ok(());
+                } else {
+                    // 正常模式：启动GUI处理弹窗
+                    run();
+                }
+            }
+            Err(e) => {
+                log_important!(warn, "加载Telegram配置失败: {}，使用默认GUI模式", e);
+                // 配置加载失败时，使用默认行为（启动GUI）
+                run();
+            }
+        }
     } else if args.len() >= 2 && (args[1] == "--help" || args[1] == "-h") {
         // 显示帮助信息
         print_help();
@@ -121,3 +153,5 @@ fn print_help() {
 fn print_version() {
     println!("寸止 v{}", env!("CARGO_PKG_VERSION"));
 }
+
+
