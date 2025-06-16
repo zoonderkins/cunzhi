@@ -128,6 +128,12 @@ export default defineConfig({
     'text-info',
     // 动画
     'animate-pulse',
+    // 滚动条样式类
+    'scrollbar-thin',
+    'scrollbar-primary',
+    'scrollbar-hidden',
+    'scrollbar-thick',
+    'scrollbar-code',
     // 图标类
     'i-carbon-settings-services',
     'i-carbon-data-base',
@@ -149,5 +155,11 @@ export default defineConfig({
     'i-carbon-warning',
     'i-carbon-volume-up',
     'i-carbon-arrow-left',
+    'i-carbon-favorite',
+    'i-carbon-logo-github',
+    'i-carbon-star',
+    'i-carbon-upgrade',
+    'i-carbon-renew',
+    'i-carbon-download',
   ],
 })

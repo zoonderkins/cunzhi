@@ -50,7 +50,8 @@
             "core:window:allow-set-always-on-top",
             "core:webview:allow-set-webview-focus",
             "core:webview:allow-webview-position",
-            "core:webview:allow-webview-size"
+            "core:webview:allow-webview-size",
+            "shell:allow-open"
           ]
         }
       ]

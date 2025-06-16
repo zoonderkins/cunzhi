@@ -153,11 +153,20 @@ pub async fn get_current_window_size(app: tauri::AppHandle) -> Result<serde_json
         if let Ok(logical_size) = window.inner_size().map(|physical_size| {
             // 获取缩放因子
             let scale_factor = window.scale_factor().unwrap_or(1.0);
+
+            // 调试信息：输出物理尺寸、缩放因子和逻辑尺寸
+            println!("🔍 窗口尺寸调试信息:");
+            println!("   物理尺寸: {}x{}", physical_size.width, physical_size.height);
+            println!("   缩放因子: {}", scale_factor);
+
             // 转换为逻辑尺寸
-            tauri::LogicalSize::new(
-                physical_size.width as f64 / scale_factor,
-                physical_size.height as f64 / scale_factor
-            )
+            let logical_width = physical_size.width as f64 / scale_factor;
+            let logical_height = physical_size.height as f64 / scale_factor;
+
+            println!("   逻辑尺寸: {}x{}", logical_width, logical_height);
+            println!("   四舍五入: {}x{}", logical_width.round(), logical_height.round());
+
+            tauri::LogicalSize::new(logical_width, logical_height)
         }) {
             let window_size = serde_json::json!({
                 "width": logical_size.width.round() as u32,
@@ -284,6 +293,40 @@ pub async fn select_image_files() -> Result<Vec<String>, String> {
     let test_image_base64 = "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KICA8cmVjdCB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgZmlsbD0iIzMzNzNkYyIvPgogIDx0ZXh0IHg9IjUwIiB5PSI1NSIgZm9udC1mYW1pbHk9IkFyaWFsIiBmb250LXNpemU9IjE0IiBmaWxsPSJ3aGl0ZSIgdGV4dC1hbmNob3I9Im1pZGRsZSI+VGF1cmk8L3RleHQ+Cjwvc3ZnPg==";
 
     Ok(vec![test_image_base64.to_string()])
+}
+
+#[tauri::command]
+pub async fn open_external_url(url: String) -> Result<(), String> {
+    use std::process::Command;
+
+    println!("尝试打开外部链接: {}", url);
+
+    // 根据操作系统选择合适的命令
+    let result = if cfg!(target_os = "windows") {
+        Command::new("cmd")
+            .args(["/C", "start", &url])
+            .spawn()
+    } else if cfg!(target_os = "macos") {
+        Command::new("open")
+            .arg(&url)
+            .spawn()
+    } else {
+        // Linux 和其他 Unix 系统
+        Command::new("xdg-open")
+            .arg(&url)
+            .spawn()
+    };
+
+    match result {
+        Ok(_) => {
+            println!("成功启动外部程序打开链接: {}", url);
+            Ok(())
+        }
+        Err(e) => {
+            eprintln!("打开外部链接失败: {}", e);
+            Err(format!("无法打开链接: {}", e))
+        }
+    }
 }
 
 #[tauri::command]

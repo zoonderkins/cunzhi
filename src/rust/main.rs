@@ -50,6 +50,7 @@ pub fn run() {
             get_cli_args,
             read_mcp_request,
             select_image_files,
+            open_external_url,
             exit_app
         ])
         .setup(|app| {

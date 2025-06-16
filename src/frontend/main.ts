@@ -29,7 +29,8 @@ import {
 import { createApp } from 'vue'
 import App from './App.vue'
 import 'virtual:uno.css'
-import '../assets/css/style.css'
+import './assets/styles/style.css'
+import './assets/styles/scrollbar.css'
 
 const naive = create({
   components: [

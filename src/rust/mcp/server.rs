@@ -33,13 +33,24 @@ impl ZhiServer {
         Self { enabled_tools }
     }
 
-    /// 检查工具是否启用
+    /// 检查工具是否启用 - 动态读取最新配置
     fn is_tool_enabled(&self, tool_name: &str) -> bool {
-        self.enabled_tools.get(tool_name).copied().unwrap_or(true)
+        // 每次都重新读取配置，确保获取最新状态
+        match load_standalone_config() {
+            Ok(config) => {
+                let enabled = config.mcp_config.tools.get(tool_name).copied().unwrap_or(true);
+                eprintln!("🔧 工具 {} 当前状态: {}", tool_name, enabled);
+                enabled
+            }
+            Err(e) => {
+                eprintln!("⚠️ 读取配置失败，使用缓存状态: {}", e);
+                // 如果读取失败，使用缓存的配置
+                self.enabled_tools.get(tool_name).copied().unwrap_or(true)
+            }
+        }
     }
 }
 
-#[tool(tool_box)]
 impl ServerHandler for ZhiServer {
     fn get_info(&self) -> ServerInfo {
         ServerInfo {
@@ -59,6 +70,89 @@ impl ServerHandler for ZhiServer {
         _context: RequestContext<RoleServer>,
     ) -> Result<ServerInfo, McpError> {
         Ok(self.get_info())
+    }
+
+    async fn list_tools(
+        &self,
+        _request: Option<PaginatedRequestParam>,
+        _context: RequestContext<RoleServer>,
+    ) -> Result<ListToolsResult, McpError> {
+        use std::sync::Arc;
+        use std::borrow::Cow;
+
+        let mut tools = Vec::new();
+
+        // 寸止工具始终可用（必需工具）
+        let zhi_schema = serde_json::json!({
+            "type": "object",
+            "properties": {
+                "message": {
+                    "type": "string",
+                    "description": "要显示给用户的消息"
+                },
+                "predefined_options": {
+                    "type": "array",
+                    "items": {"type": "string"},
+                    "description": "预定义的选项列表（可选）"
+                },
+                "is_markdown": {
+                    "type": "boolean",
+                    "description": "消息是否为Markdown格式，默认为true"
+                }
+            },
+            "required": ["message"]
+        });
+
+        if let serde_json::Value::Object(schema_map) = zhi_schema {
+            tools.push(Tool {
+                name: Cow::Borrowed("zhi"),
+                description: Some(Cow::Borrowed("智能代码审查交互工具，支持预定义选项、自由文本输入和图片上传")),
+                input_schema: Arc::new(schema_map),
+                annotations: None,
+            });
+        }
+
+        // 记忆管理工具 - 仅在启用时添加
+        if self.is_tool_enabled("ji") {
+            let ji_schema = serde_json::json!({
+                "type": "object",
+                "properties": {
+                    "action": {
+                        "type": "string",
+                        "description": "操作类型：记忆(添加记忆), 回忆(获取项目信息)"
+                    },
+                    "project_path": {
+                        "type": "string",
+                        "description": "项目路径（必需）"
+                    },
+                    "content": {
+                        "type": "string",
+                        "description": "记忆内容（记忆操作时必需）"
+                    },
+                    "category": {
+                        "type": "string",
+                        "description": "记忆分类：rule(规范规则), preference(用户偏好), pattern(最佳实践), context(项目上下文)"
+                    }
+                },
+                "required": ["action", "project_path"]
+            });
+
+            if let serde_json::Value::Object(schema_map) = ji_schema {
+                tools.push(Tool {
+                    name: Cow::Borrowed("ji"),
+                    description: Some(Cow::Borrowed("全局记忆管理工具，用于存储和管理重要的开发规范、用户偏好和最佳实践")),
+                    input_schema: Arc::new(schema_map),
+                    annotations: None,
+                });
+            }
+        }
+
+        eprintln!("🔧 返回给客户端的工具列表: {:?}", tools.iter().map(|t| &t.name).collect::<Vec<_>>());
+
+        Ok(ListToolsResult {
+            tools,
+            next_cursor: None,
+        })
     }
 }
 

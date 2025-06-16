@@ -8,7 +8,7 @@ use rust_embed::RustEmbed;
 
 /// 内嵌音效资源 - 自动包含整个sounds目录
 #[derive(RustEmbed)]
-#[folder = "src/assets/sounds/"]
+#[folder = "src/rust/assets/resources/"]
 struct EmbeddedAudio;
 
 /// 音频资源信息
@@ -18,10 +18,6 @@ pub struct AudioAsset {
     pub name: String,
     pub filename: String,
 }
-
-
-
-
 
 /// 音频资源管理器
 pub struct AudioAssetManager {
@@ -64,7 +60,7 @@ impl AudioAssetManager {
         }
 
         if self.assets.is_empty() {
-            return Err(anyhow::anyhow!("没有找到任何内嵌音频资源。请确保 src/assets/sounds/ 目录中包含音频文件。"));
+            return Err(anyhow::anyhow!("没有找到任何内嵌音频资源。请确保 src/rust/assets/resources/ 目录中包含音频文件。"));
         }
 
         Ok(())
@@ -77,7 +73,7 @@ impl AudioAssetManager {
         // 仅在开发环境扫描文件系统
         let sounds_dir = std::env::current_dir()
             .unwrap_or_default()
-            .join("src/assets/sounds");
+            .join("src/rust/assets/resources");
 
         if !sounds_dir.exists() {
             return Err(anyhow::anyhow!("开发环境音频目录不存在: {:?}", sounds_dir));
@@ -214,7 +210,7 @@ impl AudioAssetManager {
         // 回退到文件系统复制（仅开发环境）
         let dev_source_path = std::env::current_dir()
             .unwrap_or_default()
-            .join("src/assets/sounds")
+            .join("src/rust/assets/resources")
             .join(&asset.filename);
 
         if dev_source_path.exists() {
@@ -227,7 +223,7 @@ impl AudioAssetManager {
 
         // 如果内嵌资源和文件系统都没有找到，返回错误
         Err(anyhow::anyhow!(
-            "音频资源 '{}' 不存在。请确保音频文件已正确内嵌到二进制中，或在开发环境中存在于 src/assets/sounds/ 目录。",
+            "音频资源 '{}' 不存在。请确保音频文件已正确内嵌到二进制中，或在开发环境中存在于 src/rust/assets/resources/ 目录。",
             asset_id
         ))
     }

@@ -11,9 +11,9 @@ pub struct WindowSizeUpdate {
 
 #[tauri::command]
 pub async fn apply_window_constraints(state: State<'_, AppState>, app: tauri::AppHandle) -> Result<(), String> {
-    let window_config = {
+    let (window_config, always_on_top) = {
         let config = state.config.lock().map_err(|e| format!("获取配置失败: {}", e))?;
-        config.ui_config.window_config.clone()
+        (config.ui_config.window_config.clone(), config.ui_config.always_on_top)
     };
 
     if let Some(window) = app.get_webview_window("main") {
@@ -40,6 +40,11 @@ pub async fn apply_window_constraints(state: State<'_, AppState>, app: tauri::Ap
             if let Err(e) = window.set_size(tauri::LogicalSize::new(initial_width, initial_height)) {
                 return Err(format!("设置窗口大小失败: {}", e));
             }
+        }
+
+        // 确保置顶状态在应用窗口约束后仍然有效
+        if let Err(e) = window.set_always_on_top(always_on_top) {
+            eprintln!("⚠️ 应用窗口约束后重新设置置顶状态失败: {}", e);
         }
     }
 
@@ -78,6 +83,12 @@ pub async fn update_window_size(size_update: WindowSizeUpdate, state: State<'_, 
     // 保存配置
     save_config(&state, &app).await.map_err(|e| format!("保存配置失败: {}", e))?;
 
+    // 获取置顶状态
+    let always_on_top = {
+        let config = state.config.lock().map_err(|e| format!("获取配置失败: {}", e))?;
+        config.ui_config.always_on_top
+    };
+
     // 应用到当前窗口
     if let Some(window) = app.get_webview_window("main") {
         if size_update.fixed {
@@ -111,6 +122,13 @@ pub async fn update_window_size(size_update: WindowSizeUpdate, state: State<'_, 
             }
 
             println!("✅ 窗口已设置为自由拉伸模式，默认大小: {}x{}", size_update.width, size_update.height);
+        }
+
+        // 重新应用置顶状态，确保窗口大小变更不会影响置顶设置
+        if let Err(e) = window.set_always_on_top(always_on_top) {
+            eprintln!("⚠️ 重新应用置顶状态失败: {}", e);
+        } else {
+            println!("✅ 置顶状态已重新应用: {}", always_on_top);
         }
     }
 

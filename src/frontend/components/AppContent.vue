@@ -81,7 +81,7 @@ onMounted(() => {
       </div>
 
       <!-- 设置界面 -->
-      <div v-if="showPopupSettings" class="flex-1 overflow-y-auto">
+      <div v-if="showPopupSettings" class="flex-1 overflow-y-auto scrollbar-thin">
         <MainLayout
           :current-theme="props.appConfig.theme"
           :always-on-top="props.appConfig.window.alwaysOnTop"

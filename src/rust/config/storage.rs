@@ -56,24 +56,55 @@ pub async fn load_config_and_apply_window_settings(state: &State<'_, AppState>, 
     // 应用到窗口
     if let Some(window) = app.get_webview_window("main") {
         // 应用置顶设置
-        let _ = window.set_always_on_top(always_on_top);
+        if let Err(e) = window.set_always_on_top(always_on_top) {
+            eprintln!("⚠️ 设置窗口置顶失败: {}", e);
+        } else {
+            println!("✅ 窗口置顶状态已设置为: {}", always_on_top);
+        }
 
         // 应用窗口大小约束
-        let _ = window.set_min_size(Some(LogicalSize::new(
+        if let Err(e) = window.set_min_size(Some(LogicalSize::new(
             window_config.min_width,
             window_config.min_height,
-        )));
+        ))) {
+            eprintln!("⚠️ 设置最小窗口大小失败: {}", e);
+        }
 
-        let _ = window.set_max_size(Some(LogicalSize::new(
+        if let Err(e) = window.set_max_size(Some(LogicalSize::new(
             window_config.max_width,
             window_config.max_height,
-        )));
+        ))) {
+            eprintln!("⚠️ 设置最大窗口大小失败: {}", e);
+        }
 
-        // 如果启用了自动调整大小，设置为合适的初始大小
-        if window_config.auto_resize {
-            let initial_width = window_config.min_width;
-            let initial_height = (window_config.min_height + window_config.max_height) / 2.0;
-            let _ = window.set_size(LogicalSize::new(initial_width, initial_height));
+        // 根据当前模式设置窗口大小
+        let (target_width, target_height) = if window_config.fixed {
+            // 固定模式：使用固定尺寸
+            (window_config.fixed_width, window_config.fixed_height)
+        } else {
+            // 自由拉伸模式：使用自由拉伸尺寸
+            (window_config.free_width, window_config.free_height)
+        };
+
+        // 应用窗口大小
+        println!("🔍 应用窗口大小调试信息:");
+        println!("   目标逻辑尺寸: {}x{}", target_width, target_height);
+
+        if let Err(e) = window.set_size(LogicalSize::new(target_width, target_height)) {
+            eprintln!("⚠️ 设置窗口大小失败: {}", e);
+        } else {
+            let mode = if window_config.fixed { "固定" } else { "自由拉伸" };
+            println!("✅ 窗口大小已设置为{}模式: {}x{}", mode, target_width, target_height);
+
+            // 验证设置是否生效
+            if let Ok(actual_size) = window.inner_size() {
+                if let Ok(scale_factor) = window.scale_factor() {
+                    let actual_logical_width = actual_size.width as f64 / scale_factor;
+                    let actual_logical_height = actual_size.height as f64 / scale_factor;
+                    println!("   实际物理尺寸: {}x{}", actual_size.width, actual_size.height);
+                    println!("   实际逻辑尺寸: {}x{}", actual_logical_width.round(), actual_logical_height.round());
+                }
+            }
         }
     }
 

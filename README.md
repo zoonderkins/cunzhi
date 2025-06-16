@@ -236,7 +236,16 @@ cunzhi/
 │   │   ├── stores/              # 状态管理
 │   │   └── utils/               # 前端工具函数
 │   └── assets/                  # 静态资源
-│       └── sounds/              # 音频资源
+│   ├── frontend/                # 前端代码
+│   │   ├── assets/              # 前端资源
+│   │   │   └── styles/          # CSS样式文件
+│   │   ├── components/          # Vue组件
+│   │   ├── composables/         # Vue组合式函数
+│   │   └── ...                  # 其他前端文件
+│   └── rust/                    # Rust后端代码
+│       ├── assets/              # 后端资源
+│       │   ├── resources/       # 音频等资源文件
+│       │   └── data/            # 数据文件
 ├── .github/workflows/
 │   └── build.yml                # 跨平台自动构建
 ├── scripts/                     # 构建和发布脚本

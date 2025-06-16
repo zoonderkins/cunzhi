@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import FeatureCard from '../common/FeatureCard.vue'
+import ProjectInfoCard from '../common/ProjectInfoCard.vue'
 
 const features = [
   {
@@ -59,6 +60,11 @@ const features = [
 
 <template>
   <div class="tab-content">
+    <!-- 项目信息卡片 -->
+    <div class="mb-5">
+      <ProjectInfoCard />
+    </div>
+
     <!-- 功能卡片 -->
     <n-grid :cols="2" :x-gap="20" :y-gap="20" responsive="screen">
       <n-grid-item

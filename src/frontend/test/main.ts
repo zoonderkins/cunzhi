@@ -31,7 +31,7 @@ import TestApp from './TestApp.vue'
 // 导入样式
 import 'virtual:uno.css'
 
-import '../../assets/css/style.css'
+import '../assets/styles/style.css'
 
 // 创建 Naive UI 实例
 const naive = create({

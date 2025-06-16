@@ -60,6 +60,40 @@ const md = new MarkdownIt({
   },
 })
 
+// 自定义链接渲染器 - 移除外链的点击功能，保持视觉样式
+md.renderer.rules.link_open = function (tokens, idx, options, env, renderer) {
+  const token = tokens[idx]
+  const href = token.attrGet('href')
+
+  // 检查是否是外部链接
+  if (href && (href.startsWith('http://') || href.startsWith('https://'))) {
+    // 移除href属性，保持其他属性
+    token.attrSet('href', '#')
+    token.attrSet('onclick', 'return false;')
+    token.attrSet('style', 'cursor: default; text-decoration: none;')
+    token.attrSet('title', `外部链接已禁用: ${href}`)
+  }
+
+  return renderer.renderToken(tokens, idx, options)
+}
+
+// 自定义自动链接渲染器 - 处理linkify生成的链接
+md.renderer.rules.autolink_open = function (tokens, idx, options, env, renderer) {
+  const token = tokens[idx]
+  const href = token.attrGet('href')
+
+  // 检查是否是外部链接
+  if (href && (href.startsWith('http://') || href.startsWith('https://'))) {
+    // 移除href属性，保持其他属性
+    token.attrSet('href', '#')
+    token.attrSet('onclick', 'return false;')
+    token.attrSet('style', 'cursor: default; text-decoration: none;')
+    token.attrSet('title', `外部链接已禁用: ${href}`)
+  }
+
+  return renderer.renderToken(tokens, idx, options)
+}
+
 // Markdown 渲染函数
 function renderMarkdown(content: string) {
   try {
@@ -273,11 +307,13 @@ onUpdated(() => {
           'prose-blockquote:border-l-4 prose-blockquote:border-primary-500',
           currentTheme === 'light' ? 'prose-blockquote:text-gray-600' : 'prose-blockquote:text-gray-300 prose-blockquote:opacity-90',
           // 代码样式 - 主题适配
-          'prose-pre:relative prose-pre:border prose-pre:rounded-lg prose-pre:p-4 prose-pre:my-3 prose-pre:overflow-x-auto',
+          'prose-pre:relative prose-pre:border prose-pre:rounded-lg prose-pre:p-4 prose-pre:my-3 prose-pre:overflow-x-auto scrollbar-code',
           currentTheme === 'light' ? 'prose-pre:bg-gray-50 prose-pre:border-gray-200' : 'prose-pre:bg-black prose-pre:border-gray-700',
           'prose-code:px-1 prose-code:py-0.5 prose-code:text-xs prose-code:cursor-pointer prose-code:font-mono',
-          // 链接和强调样式
-          'prose-a:text-primary-500 prose-a:no-underline hover:prose-a:underline hover:prose-a:text-primary-400',
+          // 链接和强调样式 - 禁用外链的点击效果
+          'prose-a:text-primary-500 prose-a:no-underline prose-a:cursor-default',
+          // 为禁用的外链添加特殊样式
+          '[&_a[onclick=\'return false;\']]:opacity-60 [&_a[onclick=\'return false;\']]:cursor-not-allowed',
           currentTheme === 'light' ? 'prose-strong:text-gray-900 prose-strong:font-semibold' : 'prose-strong:text-white prose-strong:font-semibold',
           currentTheme === 'light' ? 'prose-em:text-gray-600 prose-em:italic' : 'prose-em:text-gray-300 prose-em:italic'
         ]"

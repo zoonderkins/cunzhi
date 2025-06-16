@@ -6,6 +6,8 @@ import { computed, onMounted, ref } from 'vue'
 import AppContent from './components/AppContent.vue'
 import { useSettings } from './composables/useSettings'
 import { useTheme } from './composables/useTheme'
+import { initMcpTools } from './composables/useMcpTools'
+import { useVersionCheck } from './composables/useVersionCheck'
 
 // 响应式数据
 const mcpRequest = ref(null)
@@ -14,6 +16,7 @@ const isInitializing = ref(true)
 
 const { currentTheme, naiveTheme, setTheme, loadTheme, setupSystemThemeListener } = useTheme()
 const settings = useSettings()
+const { silentCheckUpdate } = useVersionCheck()
 
 // 创建配置对象
 const appConfig = computed(() => ({
@@ -140,13 +143,19 @@ onMounted(async () => {
   await settings.loadWindowSettings()
   await settings.loadWindowConfig()
 
-  // 如果不是MCP模式，设置事件监听器
+  // 初始化MCP工具配置（在非MCP模式下）
   if (!isMcp) {
+    await initMcpTools()
     await setupMcpEventListener()
   }
 
   // 监听系统主题变化
   setupSystemThemeListener()
+
+  // 静默检查版本更新（非阻塞）
+  silentCheckUpdate().catch(error => {
+    console.warn('静默版本检查失败:', error)
+  })
 
   // 结束初始化状态
   isInitializing.value = false

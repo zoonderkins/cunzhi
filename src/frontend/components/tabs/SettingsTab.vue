@@ -2,6 +2,7 @@
 import AudioSettings from '../settings/AudioSettings.vue'
 import ReplySettings from '../settings/ReplySettings.vue'
 import ThemeSettings from '../settings/ThemeSettings.vue'
+import VersionChecker from '../settings/VersionChecker.vue'
 import WindowSettings from '../settings/WindowSettings.vue'
 
 interface Props {
@@ -63,6 +64,9 @@ function handleWindowSizeUpdate(size: { width: number, height: number, fixed: bo
         @stop-audio="$emit('stopAudio')"
         @test-audio-error="$emit('testAudioError', $event)"
       />
+
+      <!-- 版本检查组件 -->
+      <VersionChecker />
     </n-space>
   </div>
 </template>

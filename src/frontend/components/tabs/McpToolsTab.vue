@@ -1,80 +1,55 @@
 <script setup lang="ts">
-import { invoke } from '@tauri-apps/api/core'
 import { useMessage } from 'naive-ui'
 import { onMounted, ref } from 'vue'
+import { useMcpToolsReactive } from '../../composables/useMcpTools'
 
-// MCP工具配置接口
-interface MCPToolConfig {
-  id: string
-  name: string
-  description: string
-  enabled: boolean
-  can_disable: boolean
-  icon: string
-  icon_bg: string
-  dark_icon_bg: string
-}
+// 使用全局MCP工具状态
+const {
+  mcpTools,
+  loading,
+  error,
+  loadMcpTools,
+  toggleTool: globalToggleTool,
+  toolStats
+} = useMcpToolsReactive()
 
-// MCP工具配置状态
-const mcpTools = ref<MCPToolConfig[]>([])
-const loading = ref(true)
 const needsReconnect = ref(false)
 
 // Naive UI 消息实例
 const message = useMessage()
 
-// 加载MCP工具配置
-async function loadMcpTools() {
-  try {
-    loading.value = true
-    const tools = await invoke('get_mcp_tools_config') as MCPToolConfig[]
-    mcpTools.value = tools
-  }
-  catch (error) {
-    console.error('加载MCP工具配置失败:', error)
-    if (message) {
-      message.error(`加载MCP工具配置失败: ${error}`)
-    }
-  }
-  finally {
-    loading.value = false
-  }
-}
-
-// 切换工具启用状态
+// 切换工具启用状态（包装全局方法）
 async function toggleTool(toolId: string) {
-  const tool = mcpTools.value.find(t => t.id === toolId)
-  if (!tool || !tool.can_disable) {
-    return
-  }
-
   try {
-    const newEnabled = !tool.enabled
-    await invoke('set_mcp_tool_enabled', {
-      toolId,
-      enabled: newEnabled,
-    })
-
-    // 更新本地状态
-    tool.enabled = newEnabled
+    const result = await globalToggleTool(toolId)
 
     // 显示重连提示
-    needsReconnect.value = true
+    if (result.needsReconnect) {
+      needsReconnect.value = true
+    }
 
     if (message) {
       message.warning('MCP工具配置已更新，请在MCP客户端中重连服务')
     }
   }
-  catch (error) {
-    console.error('更新MCP工具状态失败:', error)
+  catch (err) {
+    console.error('更新MCP工具状态失败:', err)
     if (message) {
-      message.error(`更新MCP工具状态失败: ${error}`)
+      message.error(`更新MCP工具状态失败: ${err}`)
     }
   }
 }
 
-onMounted(() => {
-  loadMcpTools()
+onMounted(async () => {
+  try {
+    await loadMcpTools()
+  }
+  catch (err) {
+    console.error('加载MCP工具配置失败:', err)
+    if (message) {
+      message.error(`加载MCP工具配置失败: ${err}`)
+    }
+  }
 })
 </script>
 
@@ -200,7 +175,7 @@ onMounted(() => {
       <!-- 底部统计 - 增强可见性 -->
       <div class="text-center py-2">
         <span class="text-sm text-gray-500 dark:text-gray-400 font-medium">
-          {{ mcpTools.filter(t => t.enabled).length }} / {{ mcpTools.length }} 个工具已启用
+          {{ toolStats.enabled }} / {{ toolStats.total }} 个工具已启用
         </span>
       </div>
     </n-space>
