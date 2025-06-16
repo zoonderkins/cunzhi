@@ -121,8 +121,7 @@ async function getVersionInfo(): Promise<VersionInfo | null> {
 // 简化的安全打开链接函数
 async function safeOpenUrl(url: string): Promise<void> {
   try {
-    // 尝试使用Tauri自定义命令打开链接
-    const { invoke } = await import('@tauri-apps/api/core')
+    // 使用已导入的invoke函数
     await invoke('open_external_url', { url })
   }
   catch {
