@@ -40,10 +40,13 @@ jobs:
       - name: Get current version
         id: current_version
         run: |
-          if [ -f "version.json" ]; then
-            VERSION=$(grep -o '"version"[[:space:]]*:[[:space:]]*"[^"]*"' version.json | cut -d'"' -f4)
-          elif [ -f "Cargo.toml" ]; then
+          # 优先从 Cargo.toml 获取版本（主要版本文件）
+          if [ -f "Cargo.toml" ]; then
             VERSION=$(grep '^version = ' Cargo.toml | head -1 | cut -d'"' -f2)
+          elif [ -f "version.json" ]; then
+            VERSION=$(grep -o '"version"[[:space:]]*:[[:space:]]*"[^"]*"' version.json | cut -d'"' -f4)
+          elif [ -f "package.json" ]; then
+            VERSION=$(grep -o '"version"[[:space:]]*:[[:space:]]*"[^"]*"' package.json | cut -d'"' -f4)
           else
             VERSION="0.0.0"
           fi
@@ -94,29 +97,29 @@ jobs:
 
           echo "Updating version to $NEW_VERSION..."
 
-          # Update version.json
-          if [ -f "version.json" ]; then
-            sed -i "s/\"version\"[[:space:]]*:[[:space:]]*\"[^\"]*\"/\"version\": \"$NEW_VERSION\"/" version.json
-            sed -i "s/\"build_date\"[[:space:]]*:[[:space:]]*\"[^\"]*\"/\"build_date\": \"$CURRENT_DATE\"/" version.json
-            echo "Updated version.json"
-          fi
-
-          # Update Cargo.toml
+          # Update Cargo.toml (主要版本文件)
           if [ -f "Cargo.toml" ]; then
-            sed -i "s/^version = \"[^\"]*\"/version = \"$NEW_VERSION\"/" Cargo.toml
+            sed -i.bak "s/^version = \"[^\"]*\"/version = \"$NEW_VERSION\"/" Cargo.toml && rm Cargo.toml.bak
             echo "Updated Cargo.toml"
           fi
 
           # Update package.json
           if [ -f "package.json" ]; then
-            sed -i "s/\"version\"[[:space:]]*:[[:space:]]*\"[^\"]*\"/\"version\": \"$NEW_VERSION\"/" package.json
+            sed -i.bak "s/\"version\"[[:space:]]*:[[:space:]]*\"[^\"]*\"/\"version\": \"$NEW_VERSION\"/" package.json && rm package.json.bak
             echo "Updated package.json"
           fi
 
           # Update tauri.conf.json
           if [ -f "tauri.conf.json" ]; then
-            sed -i "s/\"version\"[[:space:]]*:[[:space:]]*\"[^\"]*\"/\"version\": \"$NEW_VERSION\"/" tauri.conf.json
+            sed -i.bak "s/\"version\"[[:space:]]*:[[:space:]]*\"[^\"]*\"/\"version\": \"$NEW_VERSION\"/" tauri.conf.json && rm tauri.conf.json.bak
             echo "Updated tauri.conf.json"
+          fi
+
+          # Update version.json (如果存在)
+          if [ -f "version.json" ]; then
+            sed -i.bak "s/\"version\"[[:space:]]*:[[:space:]]*\"[^\"]*\"/\"version\": \"$NEW_VERSION\"/" version.json && rm version.json.bak
+            sed -i.bak "s/\"build_date\"[[:space:]]*:[[:space:]]*\"[^\"]*\"/\"build_date\": \"$CURRENT_DATE\"/" version.json && rm version.json.bak
+            echo "Updated version.json"
           fi
 
       - name: Commit and create tag

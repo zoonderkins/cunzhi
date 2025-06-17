@@ -128,13 +128,13 @@ jobs:
           # 更新版本号
           sed -i "s|version \".*\"|version \"${VERSION_NUMBER}\"|g" Formula/cunzhi.rb
 
-          # 更新 Intel 版本的 URL 和 SHA256
+          # 更新 Intel 版本的 URL 和 SHA256（适配新的 on_intel 语法）
           sed -i "s|https://github.com/imhuso/cunzhi/releases/download/v[0-9.]*/cunzhi-cli-v[0-9.]*-macos-x86_64.tar.gz|${INTEL_URL}|g" Formula/cunzhi.rb
-          sed -i "/Hardware::CPU.intel?/,/elsif/ { /sha256/ s|sha256 \".*\"|sha256 \"${INTEL_SHA256}\"|; }" Formula/cunzhi.rb
+          sed -i "/on_intel do/,/end/ { /sha256/ s|sha256[[:space:]]*\".*\"|sha256  \"${INTEL_SHA256}\"|; }" Formula/cunzhi.rb
 
-          # 更新 ARM 版本的 URL 和 SHA256
+          # 更新 ARM 版本的 URL 和 SHA256（适配新的 on_arm 语法）
           sed -i "s|https://github.com/imhuso/cunzhi/releases/download/v[0-9.]*/cunzhi-cli-v[0-9.]*-macos-aarch64.tar.gz|${ARM_URL}|g" Formula/cunzhi.rb
-          sed -i "/Hardware::CPU.arm?/,/end/ { /sha256/ s|sha256 \".*\"|sha256 \"${ARM_SHA256}\"|; }" Formula/cunzhi.rb
+          sed -i "/on_arm do/,/end/ { /sha256/ s|sha256[[:space:]]*\".*\"|sha256  \"${ARM_SHA256}\"|; }" Formula/cunzhi.rb
 
       - name: Verify Formula changes
         run: |
