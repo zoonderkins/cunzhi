@@ -200,7 +200,7 @@ jobs:
       - name: Clone homebrew-cunzhi repository
         run: |
           # 克隆 homebrew tap 仓库
-          git clone https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/imhuso/homebrew-cunzhi.git homebrew-tap
+          git clone https://x-access-token:${{ secrets.PERSONAL_ACCESS_TOKEN }}@github.com/imhuso/homebrew-cunzhi.git homebrew-tap
           cd homebrew-tap
           git config user.email "action@github.com"
           git config user.name "GitHub Action"
