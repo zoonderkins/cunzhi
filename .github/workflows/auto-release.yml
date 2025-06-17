@@ -4,18 +4,35 @@ on:
   pull_request:
     types: [closed]
     branches: [main]
+  workflow_dispatch:
+    inputs:
+      version_type:
+        description: 'Version type (patch=bugfix, minor=feature, major=breaking)'
+        required: true
+        default: patch
+        type: choice
+        options:
+          - patch
+          - minor
+          - major
+          - custom
+          - cancel
+      custom_version:
+        description: 'Custom version (format: x.y.z, only when custom is selected)'
+        required: false
+        type: string
+      pr_number:
+        description: 'PR number (auto-filled for auto releases)'
+        required: false
+        type: string
 
 jobs:
   prepare-release:
-    if: github.event.pull_request.merged == true && contains(github.event.pull_request.labels.*.name, 'release')
+    if: github.event_name == 'pull_request' && github.event.pull_request.merged == true && contains(github.event.pull_request.labels.*.name, 'release')
     runs-on: ubuntu-latest
+    environment: release-approval
     permissions:
       contents: write
-    environment: release-approval
-
-    outputs:
-      new_version: ${{ steps.new_version.outputs.new }}
-      version_type: ${{ steps.version_type.outputs.type }}
 
     steps:
       - name: Checkout code
@@ -23,26 +40,6 @@ jobs:
         with:
           fetch-depth: 0
           token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
-
-      - name: Setup Git
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-
-      - name: Determine version type from PR
-        id: version_type
-        run: |
-          PR_TITLE="${{ github.event.pull_request.title }}"
-          PR_LABELS="${{ join(github.event.pull_request.labels.*.name, ' ') }}"
-
-          # Determine version type based on PR labels or title
-          if echo "$PR_LABELS" | grep -q "major\|breaking"; then
-            echo "type=major" >> $GITHUB_OUTPUT
-          elif echo "$PR_LABELS" | grep -q "minor\|feature"; then
-            echo "type=minor" >> $GITHUB_OUTPUT
-          else
-            echo "type=patch" >> $GITHUB_OUTPUT
-          fi
 
       - name: Get current version
         id: current_version
@@ -55,71 +52,171 @@ jobs:
             VERSION="0.0.0"
           fi
           echo "current=$VERSION" >> $GITHUB_OUTPUT
+          echo "Current version: $VERSION"
 
-      - name: Calculate new version
-        id: new_version
+      - name: Calculate suggested versions
+        id: suggested_versions
         run: |
           CURRENT="${{ steps.current_version.outputs.current }}"
-          TYPE="${{ steps.version_type.outputs.type }}"
-
           IFS='.' read -r major minor patch <<< "$CURRENT"
 
-          case $TYPE in
-            "major")
-              major=$((major + 1))
-              minor=0
-              patch=0
-              ;;
-            "minor")
-              minor=$((minor + 1))
-              patch=0
-              ;;
-            "patch")
-              patch=$((patch + 1))
-              ;;
-          esac
+          PATCH_VERSION="$major.$minor.$((patch + 1))"
+          MINOR_VERSION="$major.$((minor + 1)).0"
+          MAJOR_VERSION="$((major + 1)).0.0"
 
-          NEW_VERSION="$major.$minor.$patch"
-          echo "new=$NEW_VERSION" >> $GITHUB_OUTPUT
-          echo "🚀 Preparing to release version $NEW_VERSION (type: $TYPE)"
+          echo "patch=$PATCH_VERSION" >> $GITHUB_OUTPUT
+          echo "minor=$MINOR_VERSION" >> $GITHUB_OUTPUT
+          echo "major=$MAJOR_VERSION" >> $GITHUB_OUTPUT
 
-      - name: Display release information
+      - name: Display release information and wait for approval
         run: |
-          echo "## 📋 Release Information" >> $GITHUB_STEP_SUMMARY
+          echo "## 🚀 Release Ready - Approval Required" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "**Current Version:** ${{ steps.current_version.outputs.current }}" >> $GITHUB_STEP_SUMMARY
-          echo "**New Version:** ${{ steps.new_version.outputs.new }}" >> $GITHUB_STEP_SUMMARY
-          echo "**Version Type:** ${{ steps.version_type.outputs.type }}" >> $GITHUB_STEP_SUMMARY
-          echo "**PR Title:** ${{ github.event.pull_request.title }}" >> $GITHUB_STEP_SUMMARY
+          echo "**PR:** #${{ github.event.pull_request.number }} - ${{ github.event.pull_request.title }}" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "⚠️ **Please review the version information above before approving this deployment.**" >> $GITHUB_STEP_SUMMARY
+          echo "## 📋 Available Version Options" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "After approval, the following will happen:" >> $GITHUB_STEP_SUMMARY
-          echo "1. Version files will be updated" >> $GITHUB_STEP_SUMMARY
-          echo "2. Git tag v${{ steps.new_version.outputs.new }} will be created" >> $GITHUB_STEP_SUMMARY
-          echo "3. Release workflow will be triggered automatically" >> $GITHUB_STEP_SUMMARY
+          echo "- **patch**: ${{ steps.suggested_versions.outputs.patch }} (Bug fixes)" >> $GITHUB_STEP_SUMMARY
+          echo "- **minor**: ${{ steps.suggested_versions.outputs.minor }} (New features)" >> $GITHUB_STEP_SUMMARY
+          echo "- **major**: ${{ steps.suggested_versions.outputs.major }} (Breaking changes)" >> $GITHUB_STEP_SUMMARY
+          echo "- **custom**: Specify exact version (e.g., 1.2.3)" >> $GITHUB_STEP_SUMMARY
+          echo "- **cancel**: Cancel this release" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "## 🎯 Next Steps" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "1. **Approve** this deployment above to proceed to version selection" >> $GITHUB_STEP_SUMMARY
+          echo "2. **Reject** this deployment to cancel the release" >> $GITHUB_STEP_SUMMARY
+          echo "3. After approval, you'll be redirected to select version type" >> $GITHUB_STEP_SUMMARY
+
+      - name: Trigger version selection workflow
+        run: |
+          echo "✅ Release approved! Opening version selection interface..."
+          echo "## 🎯 Version Selection Required" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "The workflow will now pause and wait for you to select the version type." >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Available options:**" >> $GITHUB_STEP_SUMMARY
+          echo "- patch: ${{ steps.suggested_versions.outputs.patch }} (Bug fixes)" >> $GITHUB_STEP_SUMMARY
+          echo "- minor: ${{ steps.suggested_versions.outputs.minor }} (New features)" >> $GITHUB_STEP_SUMMARY
+          echo "- major: ${{ steps.suggested_versions.outputs.major }} (Breaking changes)" >> $GITHUB_STEP_SUMMARY
+          echo "- custom: Specify exact version" >> $GITHUB_STEP_SUMMARY
+          echo "- cancel: Cancel this release" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Next:** A version selection dialog will appear automatically." >> $GITHUB_STEP_SUMMARY
+
+      - name: Wait for version selection
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+          script: |
+            // 触发 workflow_dispatch 事件，让用户选择版本
+            const response = await github.rest.actions.createWorkflowDispatch({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              workflow_id: 'auto-release.yml',
+              ref: 'main',
+              inputs: {
+                pr_number: '${{ github.event.pull_request.number }}'
+              }
+            });
+
+            console.log('Version selection workflow triggered');
+
+            // 等待用户输入（这里会暂停当前工作流）
+            core.info('Please select version type in the triggered workflow');
+
+            // 设置输出，让后续步骤知道需要等待
+            core.setOutput('workflow_triggered', 'true');
 
   execute-release:
-    needs: prepare-release
+    if: github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
     permissions:
       contents: write
 
     steps:
+      - name: Check if cancelled
+        if: github.event.inputs.version_type == 'cancel'
+        run: |
+          echo "🛑 Release cancelled by user"
+          echo "## 🛑 Release Cancelled" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "The release process has been cancelled as requested." >> $GITHUB_STEP_SUMMARY
+          exit 0
+
       - name: Checkout code
+        if: github.event.inputs.version_type != 'cancel'
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
           token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
 
       - name: Setup Git
+        if: github.event.inputs.version_type != 'cancel'
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
 
-      - name: Update version files
+      - name: Get current version
+        if: github.event.inputs.version_type != 'cancel'
+        id: current_version
         run: |
-          NEW_VERSION="${{ needs.prepare-release.outputs.new_version }}"
+          if [ -f "version.json" ]; then
+            VERSION=$(grep -o '"version"[[:space:]]*:[[:space:]]*"[^"]*"' version.json | cut -d'"' -f4)
+          elif [ -f "Cargo.toml" ]; then
+            VERSION=$(grep '^version = ' Cargo.toml | head -1 | cut -d'"' -f2)
+          else
+            VERSION="0.0.0"
+          fi
+          echo "current=$VERSION" >> $GITHUB_OUTPUT
+          echo "Current version: $VERSION"
+
+      - name: Calculate new version
+        if: github.event.inputs.version_type != 'cancel'
+        id: new_version
+        run: |
+          CURRENT="${{ steps.current_version.outputs.current }}"
+          TYPE="${{ github.event.inputs.version_type }}"
+          CUSTOM="${{ github.event.inputs.custom_version }}"
+
+          # Parse current version
+          IFS='.' read -r major minor patch <<< "$CURRENT"
+
+          if [ "$TYPE" = "cancel" ]; then
+            echo "Release cancelled"
+            exit 0
+          elif [ "$TYPE" = "custom" ]; then
+            if [ -z "$CUSTOM" ]; then
+              echo "Error: Custom version is required when type is 'custom'"
+              exit 1
+            fi
+            NEW_VERSION="$CUSTOM"
+          else
+            case $TYPE in
+              "major")
+                major=$((major + 1))
+                minor=0
+                patch=0
+                ;;
+              "minor")
+                minor=$((minor + 1))
+                patch=0
+                ;;
+              "patch")
+                patch=$((patch + 1))
+                ;;
+            esac
+            NEW_VERSION="$major.$minor.$patch"
+          fi
+
+          echo "new=$NEW_VERSION" >> $GITHUB_OUTPUT
+          echo "New version: $NEW_VERSION"
+
+      - name: Update version files
+        if: github.event.inputs.version_type != 'cancel'
+        run: |
+          NEW_VERSION="${{ steps.new_version.outputs.new }}"
           CURRENT_DATE=$(date +"%Y-%m-%d")
 
           echo "Updating version to $NEW_VERSION..."
@@ -147,8 +244,9 @@ jobs:
           fi
 
       - name: Commit and create tag
+        if: github.event.inputs.version_type != 'cancel'
         run: |
-          NEW_VERSION="${{ needs.prepare-release.outputs.new_version }}"
+          NEW_VERSION="${{ steps.new_version.outputs.new }}"
 
           # Commit version updates
           git add .

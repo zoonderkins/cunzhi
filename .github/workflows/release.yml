@@ -93,9 +93,8 @@ jobs:
         run: |
           mkdir -p cli-package
 
-          # 获取版本号（去掉 v 前缀）
-          VERSION="${{ github.ref_name }}"
-          VERSION_NUMBER=${VERSION#v}
+          # 获取完整的 tag 名称
+          TAG_NAME="${{ github.ref_name }}"
 
           # 确定目标目录
           if [[ "${{ matrix.platform }}" == "macos-latest" ]]; then
@@ -115,12 +114,12 @@ jobs:
             cp "$TARGET_DIR/等一下.exe" cli-package/
             cp "$TARGET_DIR/寸止.exe" cli-package/
             cd cli-package
-            7z a ../cunzhi-cli-v${VERSION_NUMBER}-${{ matrix.name }}.zip *
+            7z a ../cunzhi-cli-${TAG_NAME}-${{ matrix.name }}.zip *
           else
             cp "$TARGET_DIR/等一下" cli-package/
             cp "$TARGET_DIR/寸止" cli-package/
             cd cli-package
-            tar -czf ../cunzhi-cli-v${VERSION_NUMBER}-${{ matrix.name }}.tar.gz *
+            tar -czf ../cunzhi-cli-${TAG_NAME}-${{ matrix.name }}.tar.gz *
           fi
 
       - name: Upload artifacts
@@ -148,8 +147,8 @@ jobs:
       - name: Verify version consistency
         run: |
           # 获取 git tag 版本号（去掉 v 前缀）
-          TAG_VERSION="${{ github.ref_name }}"
-          TAG_VERSION_NUMBER=${TAG_VERSION#v}
+          TAG_NAME="${{ github.ref_name }}"
+          TAG_VERSION_NUMBER=${TAG_NAME#v}
 
           # 从项目文件读取版本号
           if [ -f "version.json" ]; then
@@ -227,103 +226,27 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Calculate source archive SHA256 for Homebrew
-        id: sha256
-        run: |
-          DOWNLOAD_URL="https://github.com/imhuso/cunzhi/archive/refs/tags/${{ github.ref_name }}.tar.gz"
-          wget -O source.tar.gz "$DOWNLOAD_URL"
-          SHA256=$(sha256sum source.tar.gz | cut -d' ' -f1)
-          echo "sha256=${SHA256}" >> $GITHUB_OUTPUT
-          echo "download_url=${DOWNLOAD_URL}" >> $GITHUB_OUTPUT
-
-      - name: Checkout homebrew-cunzhi repository
-        uses: actions/checkout@v4
+      - name: Trigger Homebrew Formula Update
+        uses: actions/github-script@v7
         with:
-          repository: imhuso/homebrew-cunzhi
-          token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
-          path: homebrew-tap
+          github-token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+          script: |
+            console.log('Triggering Homebrew formula update...');
 
-      - name: Configure git for homebrew-tap
-        run: |
-          cd homebrew-tap
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          git config user.name "github-actions[bot]"
-          # 调试：检查remote URL
-          echo "Current remote URL:"
-          git remote -v
-          # 调试：检查是否能访问仓库
-          echo "Testing repository access..."
-          curl -s -H "Authorization: token ${{ secrets.PERSONAL_ACCESS_TOKEN }}" https://api.github.com/repos/imhuso/homebrew-cunzhi | jq -r '.permissions.push // "null"'
+            try {
+              const response = await github.rest.actions.createWorkflowDispatch({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                workflow_id: 'update-homebrew.yml',
+                ref: 'main',
+                inputs: {
+                  tag_name: '${{ github.ref_name }}'
+                }
+              });
 
-      - name: Update Homebrew Formula in tap repository
-        run: |
-          VERSION="${{ github.ref_name }}"
-          VERSION_NUMBER=${VERSION#v}
-
-          echo "Updating Formula with version: ${VERSION_NUMBER}"
-
-          # 计算预编译二进制的 SHA256（使用统一的版本号格式）
-          INTEL_URL="https://github.com/imhuso/cunzhi/releases/download/${VERSION}/cunzhi-cli-v${VERSION_NUMBER}-macos-x86_64.tar.gz"
-          ARM_URL="https://github.com/imhuso/cunzhi/releases/download/${VERSION}/cunzhi-cli-v${VERSION_NUMBER}-macos-aarch64.tar.gz"
-
-          echo "Intel download URL: $INTEL_URL"
-          echo "ARM download URL: $ARM_URL"
-
-          # 下载并计算 SHA256
-          curl -L -o /tmp/intel.tar.gz "$INTEL_URL"
-          curl -L -o /tmp/arm.tar.gz "$ARM_URL"
-
-          INTEL_SHA256=$(shasum -a 256 /tmp/intel.tar.gz | cut -d' ' -f1)
-          ARM_SHA256=$(shasum -a 256 /tmp/arm.tar.gz | cut -d' ' -f1)
-
-          echo "Intel SHA256: $INTEL_SHA256"
-          echo "ARM SHA256: $ARM_SHA256"
-
-          # 更新 tap 仓库中的 Formula 文件
-          cd homebrew-tap
-
-          # 确保 Formula 文件存在
-          if [[ ! -f "Formula/cunzhi.rb" ]]; then
-            echo "Error: Formula/cunzhi.rb not found in tap repository"
-            exit 1
-          fi
-
-          # 更新版本号
-          sed -i.bak "s|version \".*\"|version \"${VERSION_NUMBER}\"|g" Formula/cunzhi.rb
-
-          # 更新 Intel 版本的 URL 和 SHA256
-          sed -i.bak "s|cunzhi-cli-v[0-9.]*-macos-x86_64.tar.gz|cunzhi-cli-v${VERSION_NUMBER}-macos-x86_64.tar.gz|g" Formula/cunzhi.rb
-          sed -i.bak "/macos-x86_64.tar.gz/,/sha256/ s|sha256 \".*\"|sha256 \"${INTEL_SHA256}\"|" Formula/cunzhi.rb
-
-          # 更新 ARM 版本的 URL 和 SHA256
-          sed -i.bak "s|cunzhi-cli-v[0-9.]*-macos-aarch64.tar.gz|cunzhi-cli-v${VERSION_NUMBER}-macos-aarch64.tar.gz|g" Formula/cunzhi.rb
-          sed -i.bak "/macos-aarch64.tar.gz/,/sha256/ s|sha256 \".*\"|sha256 \"${ARM_SHA256}\"|" Formula/cunzhi.rb
-
-          # 清理备份文件和临时文件
-          rm -f Formula/cunzhi.rb.bak /tmp/intel.tar.gz /tmp/arm.tar.gz
-
-      - name: Commit and push to homebrew-cunzhi repository
-        run: |
-          VERSION="${{ github.ref_name }}"
-          cd homebrew-tap
-
-          # 显示更改内容
-          echo "Changes made to Formula:"
-          git diff Formula/cunzhi.rb || true
-
-          # 检查是否有更改
-          if git diff --quiet Formula/cunzhi.rb; then
-            echo "No changes to Formula, skipping commit"
-            exit 0
-          fi
-
-          # 提交并推送更改
-          git add Formula/cunzhi.rb
-          git commit -m "chore: update formula to ${VERSION}
-
-          - Update version to ${VERSION#v}
-          - Update download URL and SHA256
-          - Auto-generated by release workflow"
-
-          git push origin main
-          echo "Successfully updated homebrew-cunzhi repository"
+              console.log('✅ Homebrew update workflow triggered successfully');
+            } catch (error) {
+              console.error('❌ Failed to trigger Homebrew update workflow:', error);
+              // 不让这个错误阻止主要的发布流程
+              console.log('Continuing with release process...');
+            }
