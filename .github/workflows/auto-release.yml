@@ -4,18 +4,34 @@ on:
   pull_request:
     types: [closed]
     branches: [main]
+  workflow_dispatch:
+    inputs:
+      version_type:
+        description: 'Version type (patch=bugfix, minor=feature, major=breaking)'
+        required: true
+        default: patch
+        type: choice
+        options:
+          - patch
+          - minor
+          - major
+          - custom
+      custom_version:
+        description: 'Custom version (format: x.y.z, only when custom is selected)'
+        required: false
+        type: string
 
 jobs:
   prepare-release:
-    if: github.event.pull_request.merged == true && contains(github.event.pull_request.labels.*.name, 'release')
+    if: github.event_name == 'pull_request' && github.event.pull_request.merged == true && contains(github.event.pull_request.labels.*.name, 'release')
     runs-on: ubuntu-latest
     permissions:
       contents: write
-    environment: release-approval
 
     outputs:
       new_version: ${{ steps.new_version.outputs.new }}
       version_type: ${{ steps.version_type.outputs.type }}
+      current_version: ${{ steps.current_version.outputs.current }}
 
     steps:
       - name: Checkout code
@@ -88,19 +104,22 @@ jobs:
           echo "## 📋 Release Information" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "**Current Version:** ${{ steps.current_version.outputs.current }}" >> $GITHUB_STEP_SUMMARY
-          echo "**New Version:** ${{ steps.new_version.outputs.new }}" >> $GITHUB_STEP_SUMMARY
-          echo "**Version Type:** ${{ steps.version_type.outputs.type }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Suggested Version:** ${{ steps.new_version.outputs.new }} (type: ${{ steps.version_type.outputs.type }})" >> $GITHUB_STEP_SUMMARY
           echo "**PR Title:** ${{ github.event.pull_request.title }}" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "⚠️ **Please review the version information above before approving this deployment.**" >> $GITHUB_STEP_SUMMARY
+          echo "## 🚀 Next Steps" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "After approval, the following will happen:" >> $GITHUB_STEP_SUMMARY
-          echo "1. Version files will be updated" >> $GITHUB_STEP_SUMMARY
-          echo "2. Git tag v${{ steps.new_version.outputs.new }} will be created" >> $GITHUB_STEP_SUMMARY
-          echo "3. Release workflow will be triggered automatically" >> $GITHUB_STEP_SUMMARY
+          echo "1. Go to [Actions](https://github.com/${{ github.repository }}/actions/workflows/auto-release.yml)" >> $GITHUB_STEP_SUMMARY
+          echo "2. Click **Run workflow**" >> $GITHUB_STEP_SUMMARY
+          echo "3. Choose your preferred version type:" >> $GITHUB_STEP_SUMMARY
+          echo "   - **patch**: Bug fixes (e.g., ${{ steps.current_version.outputs.current }} → ${{ steps.new_version.outputs.new }})" >> $GITHUB_STEP_SUMMARY
+          echo "   - **minor**: New features" >> $GITHUB_STEP_SUMMARY
+          echo "   - **major**: Breaking changes" >> $GITHUB_STEP_SUMMARY
+          echo "   - **custom**: Specify exact version" >> $GITHUB_STEP_SUMMARY
+          echo "4. Click **Run workflow** to complete the release" >> $GITHUB_STEP_SUMMARY
 
   execute-release:
-    needs: prepare-release
+    if: github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -117,9 +136,59 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
 
+      - name: Get current version
+        id: current_version
+        run: |
+          if [ -f "version.json" ]; then
+            VERSION=$(grep -o '"version"[[:space:]]*:[[:space:]]*"[^"]*"' version.json | cut -d'"' -f4)
+          elif [ -f "Cargo.toml" ]; then
+            VERSION=$(grep '^version = ' Cargo.toml | head -1 | cut -d'"' -f2)
+          else
+            VERSION="0.0.0"
+          fi
+          echo "current=$VERSION" >> $GITHUB_OUTPUT
+          echo "Current version: $VERSION"
+
+      - name: Calculate new version
+        id: new_version
+        run: |
+          CURRENT="${{ steps.current_version.outputs.current }}"
+          TYPE="${{ github.event.inputs.version_type }}"
+          CUSTOM="${{ github.event.inputs.custom_version }}"
+
+          # Parse current version
+          IFS='.' read -r major minor patch <<< "$CURRENT"
+
+          if [ "$TYPE" = "custom" ]; then
+            if [ -z "$CUSTOM" ]; then
+              echo "Error: Custom version is required when type is 'custom'"
+              exit 1
+            fi
+            NEW_VERSION="$CUSTOM"
+          else
+            case $TYPE in
+              "major")
+                major=$((major + 1))
+                minor=0
+                patch=0
+                ;;
+              "minor")
+                minor=$((minor + 1))
+                patch=0
+                ;;
+              "patch")
+                patch=$((patch + 1))
+                ;;
+            esac
+            NEW_VERSION="$major.$minor.$patch"
+          fi
+
+          echo "new=$NEW_VERSION" >> $GITHUB_OUTPUT
+          echo "New version: $NEW_VERSION"
+
       - name: Update version files
         run: |
-          NEW_VERSION="${{ needs.prepare-release.outputs.new_version }}"
+          NEW_VERSION="${{ steps.new_version.outputs.new }}"
           CURRENT_DATE=$(date +"%Y-%m-%d")
 
           echo "Updating version to $NEW_VERSION..."
@@ -148,7 +217,7 @@ jobs:
 
       - name: Commit and create tag
         run: |
-          NEW_VERSION="${{ needs.prepare-release.outputs.new_version }}"
+          NEW_VERSION="${{ steps.new_version.outputs.new }}"
 
           # Commit version updates
           git add .
