@@ -93,6 +93,10 @@ jobs:
         run: |
           mkdir -p cli-package
 
+          # 获取版本号（去掉 v 前缀）
+          VERSION="${{ github.ref_name }}"
+          VERSION_NUMBER=${VERSION#v}
+
           # 确定目标目录
           if [[ "${{ matrix.platform }}" == "macos-latest" ]]; then
             if [[ "${{ matrix.args }}" == *"aarch64"* ]]; then
@@ -111,12 +115,12 @@ jobs:
             cp "$TARGET_DIR/等一下.exe" cli-package/
             cp "$TARGET_DIR/寸止.exe" cli-package/
             cd cli-package
-            7z a ../cunzhi-cli-${{ github.ref_name }}-${{ matrix.name }}.zip *
+            7z a ../cunzhi-cli-v${VERSION_NUMBER}-${{ matrix.name }}.zip *
           else
             cp "$TARGET_DIR/等一下" cli-package/
             cp "$TARGET_DIR/寸止" cli-package/
             cd cli-package
-            tar -czf ../cunzhi-cli-${{ github.ref_name }}-${{ matrix.name }}.tar.gz *
+            tar -czf ../cunzhi-cli-v${VERSION_NUMBER}-${{ matrix.name }}.tar.gz *
           fi
 
       - name: Upload artifacts
@@ -140,6 +144,40 @@ jobs:
         with:
           fetch-depth: 0
           token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+
+      - name: Verify version consistency
+        run: |
+          # 获取 git tag 版本号（去掉 v 前缀）
+          TAG_VERSION="${{ github.ref_name }}"
+          TAG_VERSION_NUMBER=${TAG_VERSION#v}
+
+          # 从项目文件读取版本号
+          if [ -f "version.json" ]; then
+            PROJECT_VERSION=$(grep -o '"version"[[:space:]]*:[[:space:]]*"[^"]*"' version.json | cut -d'"' -f4)
+          elif [ -f "Cargo.toml" ]; then
+            PROJECT_VERSION=$(grep '^version = ' Cargo.toml | head -1 | cut -d'"' -f2)
+          else
+            echo "Warning: No version file found, skipping version check"
+            exit 0
+          fi
+
+          echo "Git tag version: ${TAG_VERSION_NUMBER}"
+          echo "Project file version: ${PROJECT_VERSION}"
+
+          # 检查版本是否一致
+          if [ "${TAG_VERSION_NUMBER}" != "${PROJECT_VERSION}" ]; then
+            echo "❌ Version mismatch detected!"
+            echo "Git tag version: ${TAG_VERSION_NUMBER}"
+            echo "Project file version: ${PROJECT_VERSION}"
+            echo ""
+            echo "Please ensure the git tag matches the version in project files."
+            echo "You can either:"
+            echo "1. Update project files to match tag: ${TAG_VERSION_NUMBER}"
+            echo "2. Create a new tag that matches project version: v${PROJECT_VERSION}"
+            exit 1
+          fi
+
+          echo "✅ Version consistency check passed: ${TAG_VERSION_NUMBER}"
 
       - name: Download all artifacts
         uses: actions/download-artifact@v4
@@ -224,9 +262,12 @@ jobs:
 
           echo "Updating Formula with version: ${VERSION_NUMBER}"
 
-          # 计算预编译二进制的 SHA256
-          INTEL_URL="https://github.com/imhuso/cunzhi/releases/download/${VERSION}/cunzhi-cli-${VERSION}-macos-x86_64.tar.gz"
-          ARM_URL="https://github.com/imhuso/cunzhi/releases/download/${VERSION}/cunzhi-cli-${VERSION}-macos-aarch64.tar.gz"
+          # 计算预编译二进制的 SHA256（使用统一的版本号格式）
+          INTEL_URL="https://github.com/imhuso/cunzhi/releases/download/${VERSION}/cunzhi-cli-v${VERSION_NUMBER}-macos-x86_64.tar.gz"
+          ARM_URL="https://github.com/imhuso/cunzhi/releases/download/${VERSION}/cunzhi-cli-v${VERSION_NUMBER}-macos-aarch64.tar.gz"
+
+          echo "Intel download URL: $INTEL_URL"
+          echo "ARM download URL: $ARM_URL"
 
           # 下载并计算 SHA256
           curl -L -o /tmp/intel.tar.gz "$INTEL_URL"
@@ -251,11 +292,11 @@ jobs:
           sed -i.bak "s|version \".*\"|version \"${VERSION_NUMBER}\"|g" Formula/cunzhi.rb
 
           # 更新 Intel 版本的 URL 和 SHA256
-          sed -i.bak "s|cunzhi-cli-v[0-9.]*-macos-x86_64.tar.gz|cunzhi-cli-${VERSION}-macos-x86_64.tar.gz|g" Formula/cunzhi.rb
+          sed -i.bak "s|cunzhi-cli-v[0-9.]*-macos-x86_64.tar.gz|cunzhi-cli-v${VERSION_NUMBER}-macos-x86_64.tar.gz|g" Formula/cunzhi.rb
           sed -i.bak "/macos-x86_64.tar.gz/,/sha256/ s|sha256 \".*\"|sha256 \"${INTEL_SHA256}\"|" Formula/cunzhi.rb
 
           # 更新 ARM 版本的 URL 和 SHA256
-          sed -i.bak "s|cunzhi-cli-v[0-9.]*-macos-aarch64.tar.gz|cunzhi-cli-${VERSION}-macos-aarch64.tar.gz|g" Formula/cunzhi.rb
+          sed -i.bak "s|cunzhi-cli-v[0-9.]*-macos-aarch64.tar.gz|cunzhi-cli-v${VERSION_NUMBER}-macos-aarch64.tar.gz|g" Formula/cunzhi.rb
           sed -i.bak "/macos-aarch64.tar.gz/,/sha256/ s|sha256 \".*\"|sha256 \"${ARM_SHA256}\"|" Formula/cunzhi.rb
 
           # 清理备份文件和临时文件
