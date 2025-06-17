@@ -210,6 +210,12 @@ jobs:
           cd homebrew-tap
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git config user.name "github-actions[bot]"
+          # 调试：检查remote URL
+          echo "Current remote URL:"
+          git remote -v
+          # 调试：检查是否能访问仓库
+          echo "Testing repository access..."
+          curl -s -H "Authorization: token ${{ secrets.PERSONAL_ACCESS_TOKEN }}" https://api.github.com/repos/imhuso/homebrew-cunzhi | jq -r '.permissions.push // "null"'
 
       - name: Update Homebrew Formula in tap repository
         run: |
