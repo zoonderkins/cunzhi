@@ -110,24 +110,48 @@ jobs:
         with:
           github-token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
           script: |
-            // 触发 workflow_dispatch 事件，让用户选择版本
-            const response = await github.rest.actions.createWorkflowDispatch({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              workflow_id: 'auto-release.yml',
-              ref: 'main',
-              inputs: {
-                pr_number: '${{ github.event.pull_request.number }}'
-              }
-            });
+            console.log('Triggering version selection workflow...');
 
-            console.log('Version selection workflow triggered');
+            try {
+              const response = await github.rest.actions.createWorkflowDispatch({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                workflow_id: '.github/workflows/auto-release.yml',
+                ref: 'main',
+                inputs: {
+                  pr_number: '${{ github.event.pull_request.number }}'
+                }
+              });
 
-            // 等待用户输入（这里会暂停当前工作流）
-            core.info('Please select version type in the triggered workflow');
+              console.log('✅ Version selection workflow triggered successfully');
+              console.log('Please check the Actions tab to select your version type.');
 
-            // 设置输出，让后续步骤知道需要等待
-            core.setOutput('workflow_triggered', 'true');
+              core.summary.addHeading('🎯 Version Selection Triggered');
+              core.summary.addRaw('A new workflow run has been started for version selection.');
+              core.summary.addRaw('Please go to the [Actions tab](https://github.com/${{ github.repository }}/actions) to continue.');
+              await core.summary.write();
+
+            } catch (error) {
+              console.error('❌ Failed to trigger workflow:', error.message);
+
+              // 如果自动触发失败，提供手动指引
+              core.summary.addHeading('🎯 Manual Version Selection Required');
+              core.summary.addRaw('');
+              core.summary.addRaw('Automatic workflow trigger failed. Please manually:');
+              core.summary.addRaw('');
+              core.summary.addRaw('1. Go to [Actions → Auto Release (PR)](https://github.com/${{ github.repository }}/actions/workflows/auto-release.yml)');
+              core.summary.addRaw('2. Click **Run workflow**');
+              core.summary.addRaw('3. Select your version type:');
+              core.summary.addRaw('   - patch: ${{ steps.suggested_versions.outputs.patch }} (Bug fixes)');
+              core.summary.addRaw('   - minor: ${{ steps.suggested_versions.outputs.minor }} (New features)');
+              core.summary.addRaw('   - major: ${{ steps.suggested_versions.outputs.major }} (Breaking changes)');
+              core.summary.addRaw('   - custom: Specify exact version');
+              core.summary.addRaw('   - cancel: Cancel this release');
+              await core.summary.write();
+
+              // 不让错误阻止工作流程
+              console.log('Continuing with manual process...');
+            }
 
   execute-release:
     if: github.event_name == 'workflow_dispatch'
