@@ -6,11 +6,16 @@ on:
     branches: [main]
 
 jobs:
-  auto-release:
+  prepare-release:
     if: github.event.pull_request.merged == true && contains(github.event.pull_request.labels.*.name, 'release')
     runs-on: ubuntu-latest
     permissions:
       contents: write
+    environment: release-approval
+
+    outputs:
+      new_version: ${{ steps.new_version.outputs.new }}
+      version_type: ${{ steps.version_type.outputs.type }}
 
     steps:
       - name: Checkout code
@@ -76,37 +81,85 @@ jobs:
 
           NEW_VERSION="$major.$minor.$patch"
           echo "new=$NEW_VERSION" >> $GITHUB_OUTPUT
-          echo "🚀 Auto-releasing version $NEW_VERSION (type: $TYPE)"
+          echo "🚀 Preparing to release version $NEW_VERSION (type: $TYPE)"
+
+      - name: Display release information
+        run: |
+          echo "## 📋 Release Information" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Current Version:** ${{ steps.current_version.outputs.current }}" >> $GITHUB_STEP_SUMMARY
+          echo "**New Version:** ${{ steps.new_version.outputs.new }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Version Type:** ${{ steps.version_type.outputs.type }}" >> $GITHUB_STEP_SUMMARY
+          echo "**PR Title:** ${{ github.event.pull_request.title }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "⚠️ **Please review the version information above before approving this deployment.**" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "After approval, the following will happen:" >> $GITHUB_STEP_SUMMARY
+          echo "1. Version files will be updated" >> $GITHUB_STEP_SUMMARY
+          echo "2. Git tag v${{ steps.new_version.outputs.new }} will be created" >> $GITHUB_STEP_SUMMARY
+          echo "3. Release workflow will be triggered automatically" >> $GITHUB_STEP_SUMMARY
+
+  execute-release:
+    needs: prepare-release
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+
+      - name: Setup Git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
 
       - name: Update version files
         run: |
-          NEW_VERSION="${{ steps.new_version.outputs.new }}"
+          NEW_VERSION="${{ needs.prepare-release.outputs.new_version }}"
           CURRENT_DATE=$(date +"%Y-%m-%d")
+
+          echo "Updating version to $NEW_VERSION..."
 
           # Update version files (same logic as manual release)
           if [ -f "version.json" ]; then
             sed -i "s/\"version\"[[:space:]]*:[[:space:]]*\"[^\"]*\"/\"version\": \"$NEW_VERSION\"/" version.json
             sed -i "s/\"build_date\"[[:space:]]*:[[:space:]]*\"[^\"]*\"/\"build_date\": \"$CURRENT_DATE\"/" version.json
+            echo "Updated version.json"
           fi
 
           if [ -f "Cargo.toml" ]; then
             sed -i "s/^version = \"[^\"]*\"/version = \"$NEW_VERSION\"/" Cargo.toml
+            echo "Updated Cargo.toml"
           fi
 
           if [ -f "package.json" ]; then
             sed -i "s/\"version\"[[:space:]]*:[[:space:]]*\"[^\"]*\"/\"version\": \"$NEW_VERSION\"/" package.json
+            echo "Updated package.json"
           fi
 
           if [ -f "tauri.conf.json" ]; then
             sed -i "s/\"version\"[[:space:]]*:[[:space:]]*\"[^\"]*\"/\"version\": \"$NEW_VERSION\"/" tauri.conf.json
+            echo "Updated tauri.conf.json"
           fi
 
       - name: Commit and create tag
         run: |
-          NEW_VERSION="${{ steps.new_version.outputs.new }}"
+          NEW_VERSION="${{ needs.prepare-release.outputs.new_version }}"
 
+          # Commit version updates
           git add .
           git commit -m "release: Release $NEW_VERSION"
+
+          # Create tag
           git tag -a "v$NEW_VERSION" -m "Release $NEW_VERSION"
+
+          # Push changes and tag
           git push origin main
           git push origin "v$NEW_VERSION"
+
+          echo "✅ Released version v$NEW_VERSION"
+          echo "🚀 GitHub Actions will automatically build and publish the release"
