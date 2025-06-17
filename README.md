@@ -35,6 +35,24 @@
 brew tap imhuso/cunzhi && brew install cunzhi
 ```
 
+> ⚠️ **故障排除**：如果遇到 404 下载错误，请执行以下步骤：
+>
+> ```bash
+> # 清除旧的 tap 缓存
+> brew untap imhuso/cunzhi
+> # 重新安装
+> brew tap imhuso/cunzhi && brew install cunzhi
+> ```
+>
+> **常见错误示例：**
+> ```
+> curl: (56) The requested URL returned error: 404
+> Error: cunzhi: Failed to download resource "cunzhi"
+> Download failed: https://github.com/imhuso/cunzhi/releases/download/v0.2.0/cunzhi-cli-v0.2.4-macos-aarch64.tar.gz
+> ```
+>
+> 这通常是由于之前版本的缓存问题导致版本号不匹配。清除 tap 后重新安装即可解决。
+
 **Windows/Linux 用户：**
 推荐使用方式二手动下载，简单快捷！
 
