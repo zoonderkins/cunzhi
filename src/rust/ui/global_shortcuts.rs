@@ -72,6 +72,13 @@ fn get_exit_shortcuts() -> Vec<ShortcutConfig> {
         shortcut: Shortcut::new(Some(Modifiers::META), Code::KeyQ),
         description: "Cmd+Q (macOS)".to_string(),
     });
+
+    // macOS: Cmd+W (关闭窗口)
+    #[cfg(target_os = "macos")]
+    shortcuts.push(ShortcutConfig {
+        shortcut: Shortcut::new(Some(Modifiers::META), Code::KeyW),
+        description: "Cmd+W (macOS)".to_string(),
+    });
     
     // Windows: Alt+F4
     #[cfg(target_os = "windows")]

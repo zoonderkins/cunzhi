@@ -41,6 +41,7 @@
           ],
           "permissions": [
             "core:event:allow-listen",
+            "core:event:allow-unlisten",
             "core:event:allow-emit",
             "core:window:allow-show",
             "core:window:allow-hide",

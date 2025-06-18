@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { useMessage } from 'naive-ui'
 import { onMounted, ref, watch } from 'vue'
+import { setupExitWarningListener } from '../composables/useExitWarning'
 import LayoutWrapper from './layout/LayoutWrapper.vue'
 import McpPopup from './popup/McpPopup.vue'
 import PopupHeader from './popup/PopupHeader.vue'
@@ -70,6 +71,8 @@ watch(() => props.mcpRequest, (newRequest) => {
 onMounted(() => {
   // 将消息实例传递给父组件
   emit('messageReady', message)
+  // 设置退出警告监听器（统一处理主界面和弹窗）
+  setupExitWarningListener(message)
 })
 </script>
 
