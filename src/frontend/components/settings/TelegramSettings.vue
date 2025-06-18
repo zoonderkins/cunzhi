@@ -2,6 +2,7 @@
 import { invoke } from '@tauri-apps/api/core'
 import { useMessage } from 'naive-ui'
 import { onMounted, ref } from 'vue'
+import { API_BASE_URL, API_EXAMPLES } from '../../constants/telegram'
 
 interface TelegramConfig {
   enabled: boolean
@@ -22,7 +23,7 @@ const telegramConfig = ref<TelegramConfig>({
   bot_token: '',
   chat_id: '',
   hide_frontend_popup: false,
-  api_base_url: 'https://api.telegram.org/bot',
+  api_base_url: API_BASE_URL,
 })
 
 // 测试状态
@@ -290,20 +291,18 @@ onMounted(() => {
                   API服务器URL
                 </div>
                 <div class="text-xs opacity-60 mb-3">
-                  Telegram Bot API服务器地址。默认使用官方API，如需使用代理或自建服务器请修改此URL
+                  API服务器地址，支持自定义代理
                 </div>
                 <n-space vertical size="small">
                   <n-input
                     v-model:value="telegramConfig.api_base_url" type="text"
-                    placeholder="https://api.telegram.org/bot" size="small"
+                    :placeholder="API_BASE_URL" size="small"
                     :disabled="isTesting" @blur="saveTelegramConfig"
                   />
-                  <div class="text-xs text-gray-500 dark:text-gray-400">
-                    💡 常用代理服务器：
-                    <br>• 官方API: https://api.telegram.org/bot
-                    <br>• 自建代理: https://your-proxy.com/bot
-                  </div>
                 </n-space>
+                <div class="text-xs opacity-60 mt-2">
+                  💡 官方: {{ API_EXAMPLES.official }} | 代理: {{ API_EXAMPLES.proxy_example }}
+                </div>
               </div>
             </div>
           </div>

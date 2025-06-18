@@ -1,9 +1,10 @@
 use crate::config::{save_config, AppState, TelegramConfig};
+use crate::constants::telegram as telegram_constants;
 use crate::telegram::{
     handle_callback_query, handle_text_message, TelegramCore,
 };
 use crate::log_important;
-use tauri::{AppHandle, Emitter, State};
+use tauri::{AppHandle, Emitter, Manager, State};
 use teloxide::prelude::*;
 
 /// 获取Telegram配置
@@ -56,7 +57,7 @@ pub async fn test_telegram_connection_cmd(
     };
 
     // 使用默认API URL时传递None，否则传递自定义URL
-    let api_url_option = if api_url == crate::constants::telegram::API_BASE_URL {
+    let api_url_option = if api_url == telegram_constants::API_BASE_URL {
         None
     } else {
         Some(api_url.as_str())
@@ -73,7 +74,19 @@ pub async fn auto_get_chat_id(
     bot_token: String,
     app_handle: AppHandle,
 ) -> Result<(), String> {
-    let bot = Bot::new(bot_token);
+    // 获取API URL配置
+    let mut bot = Bot::new(bot_token.clone());
+    
+    if let Some(state) = app_handle.try_state::<AppState>() {
+        if let Ok(config) = state.config.lock() {
+            let api_url = &config.telegram_config.api_base_url;
+            if api_url != telegram_constants::API_BASE_URL {
+                if let Ok(url) = reqwest::Url::parse(api_url) {
+                    bot = bot.set_api_url(url);
+                }
+            }
+        }
+    }
 
     // 发送事件通知前端开始监听
     if let Err(e) = app_handle.emit("chat-id-detection-started", ()) {
@@ -200,7 +213,7 @@ pub async fn start_telegram_sync(
     };
 
     // 使用默认API URL时传递None，否则传递自定义URL
-    let api_url_option = if api_url == crate::constants::telegram::API_BASE_URL {
+    let api_url_option = if api_url == telegram_constants::API_BASE_URL {
         None
     } else {
         Some(api_url)
@@ -253,9 +266,24 @@ async fn start_telegram_listener(
     app_handle: AppHandle,
     predefined_options_list: Vec<String>,
 ) -> Result<(), String> {
-    // 这里我们需要获取配置，但是这个函数没有state参数
-    // 暂时使用默认API URL，后续可能需要重构
-    let core = TelegramCore::new(bot_token, chat_id)
+    // 从AppHandle获取应用状态来读取API URL配置
+    let api_url = match app_handle.try_state::<AppState>() {
+        Some(state) => {
+            let config = state
+                .config
+                .lock()
+                .map_err(|e| format!("获取配置失败: {}", e))?;
+            let api_url = config.telegram_config.api_base_url.clone();
+                         if api_url == telegram_constants::API_BASE_URL {
+                None
+            } else {
+                Some(api_url)
+            }
+        }
+        None => None, // 如果无法获取状态，使用默认API
+    };
+
+    let core = TelegramCore::new_with_api_url(bot_token, chat_id, api_url)
         .map_err(|e| format!("创建Telegram核心失败: {}", e))?;
 
     let mut offset = 0i32;
