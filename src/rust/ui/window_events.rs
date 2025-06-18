@@ -17,17 +17,20 @@ pub fn setup_window_event_listeners(app_handle: &AppHandle) {
                 // 异步处理退出请求
                 tauri::async_runtime::spawn(async move {
                     let state = app_handle.state::<AppState>();
-                    
-                    // 这里假设是系统快捷键触发的关闭（非手动点击）
-                    // 在实际应用中，可以通过其他方式区分关闭来源
+
+                    log_important!(info, "🖱️ 窗口关闭按钮被点击");
+
+                    // 窗口关闭按钮点击应该直接退出，不需要双重确认
                     match crate::ui::exit::handle_system_exit_request(
                         state,
                         &app_handle,
-                        false, // 假设是快捷键触发
+                        true, // 手动点击关闭按钮
                     ).await {
                         Ok(exited) => {
                             if !exited {
                                 log_important!(info, "退出被阻止，等待二次确认");
+                            } else {
+                                log_important!(info, "应用已退出");
                             }
                         }
                         Err(e) => {

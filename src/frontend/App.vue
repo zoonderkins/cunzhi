@@ -1,63 +1,26 @@
 <script setup lang="ts">
-import { computed, onMounted } from 'vue'
+import { onMounted } from 'vue'
 import AppContent from './components/AppContent.vue'
-import { useAppInitialization } from './composables/useAppInitialization'
-import { useAudioManager } from './composables/useAudioManager'
-import { useMcpHandler } from './composables/useMcpHandler'
-import { useSettings } from './composables/useSettings'
-import { useTheme } from './composables/useTheme'
+import { useAppManager } from './composables/useAppManager'
+import { useEventHandlers } from './composables/useEventHandlers'
 
-// 使用组合式函数
-const { currentTheme, naiveTheme, setTheme } = useTheme()
-const settings = useSettings()
-const { isInitializing, initializeApp } = useAppInitialization()
-const { handleTestAudioError } = useAudioManager()
+// 使用封装的应用管理器
 const {
+  naiveTheme,
   mcpRequest,
   showMcpPopup,
-  handleMcpResponse,
-  handleMcpCancel,
-} = useMcpHandler()
+  appConfig,
+  isInitializing,
+  actions,
+} = useAppManager()
 
-// 创建配置对象
-const appConfig = computed(() => ({
-  theme: currentTheme.value,
-  window: {
-    alwaysOnTop: settings.alwaysOnTop.value,
-    width: settings.windowWidth.value,
-    height: settings.windowHeight.value,
-    fixed: settings.fixedWindowSize.value,
-  },
-  audio: {
-    enabled: settings.audioNotificationEnabled.value,
-    url: settings.audioUrl.value,
-  },
-  reply: {
-    enabled: settings.continueReplyEnabled.value,
-    prompt: settings.continuePrompt.value,
-  },
-}))
-
-// 创建设置操作对象
-const settingsActions = {
-  toggleAlwaysOnTop: settings.toggleAlwaysOnTop,
-  toggleAudioNotification: settings.toggleAudioNotification,
-  updateAudioUrl: settings.updateAudioUrl,
-  testAudio: settings.testAudioSound,
-  stopAudio: settings.stopAudioSound,
-  updateWindowSize: settings.updateWindowSize,
-  updateReplyConfig: settings.updateReplyConfig,
-}
-
-// 处理消息实例就绪
-function handleMessageReady(message: any) {
-  settings.setMessageInstance(message)
-}
+// 创建事件处理器
+const handlers = useEventHandlers(actions)
 
 // 初始化
 onMounted(async () => {
   try {
-    await initializeApp()
+    await actions.app.initialize()
   }
   catch (error) {
     console.error('应用初始化失败:', error)
@@ -73,13 +36,13 @@ onMounted(async () => {
           <n-dialog-provider>
             <AppContent
               :mcp-request="mcpRequest" :show-mcp-popup="showMcpPopup" :app-config="appConfig"
-              :is-initializing="isInitializing" @mcp-response="handleMcpResponse" @mcp-cancel="handleMcpCancel"
-              @theme-change="setTheme" @toggle-always-on-top="settingsActions.toggleAlwaysOnTop"
-              @toggle-audio-notification="settingsActions.toggleAudioNotification"
-              @update-audio-url="settingsActions.updateAudioUrl" @test-audio="settingsActions.testAudio"
-              @stop-audio="settingsActions.stopAudio" @test-audio-error="handleTestAudioError"
-              @update-window-size="settingsActions.updateWindowSize"
-              @update-reply-config="settingsActions.updateReplyConfig" @message-ready="handleMessageReady"
+              :is-initializing="isInitializing" @mcp-response="handlers.onMcpResponse" @mcp-cancel="handlers.onMcpCancel"
+              @theme-change="handlers.onThemeChange" @toggle-always-on-top="handlers.onToggleAlwaysOnTop"
+              @toggle-audio-notification="handlers.onToggleAudioNotification"
+              @update-audio-url="handlers.onUpdateAudioUrl" @test-audio="handlers.onTestAudio"
+              @stop-audio="handlers.onStopAudio" @test-audio-error="handlers.onTestAudioError"
+              @update-window-size="handlers.onUpdateWindowSize"
+              @update-reply-config="handlers.onUpdateReplyConfig" @message-ready="handlers.onMessageReady"
             />
           </n-dialog-provider>
         </n-notification-provider>

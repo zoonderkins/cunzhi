@@ -1,5 +1,4 @@
 import { ref } from 'vue'
-import { useMcpHandler } from './useMcpHandler'
 import { initMcpTools } from './useMcpTools'
 import { useSettings } from './useSettings'
 import { useTheme } from './useTheme'
@@ -8,12 +7,12 @@ import { useVersionCheck } from './useVersionCheck'
 /**
  * 应用初始化组合式函数
  */
-export function useAppInitialization() {
+export function useAppInitialization(mcpHandler: ReturnType<typeof import('./useMcpHandler').useMcpHandler>) {
   const isInitializing = ref(true)
   const { loadTheme, setupSystemThemeListener } = useTheme()
   const settings = useSettings()
   const { silentCheckUpdate } = useVersionCheck()
-  const { checkMcpMode, setupMcpEventListener } = useMcpHandler()
+  const { checkMcpMode, setupMcpEventListener } = mcpHandler
 
   /**
    * 初始化应用

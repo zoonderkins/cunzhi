@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { useMessage } from 'naive-ui'
-import { onMounted, ref } from 'vue'
-import MainLayout from './layout/MainLayout.vue'
+import { onMounted, ref, watch } from 'vue'
+import LayoutWrapper from './layout/LayoutWrapper.vue'
 import McpPopup from './popup/McpPopup.vue'
 import PopupHeader from './popup/PopupHeader.vue'
 
@@ -59,6 +59,14 @@ function togglePopupSettings() {
   showPopupSettings.value = !showPopupSettings.value
 }
 
+// 监听 MCP 请求变化，当有新请求时重置设置页面状态
+watch(() => props.mcpRequest, (newRequest) => {
+  if (newRequest && showPopupSettings.value) {
+    // 有新的 MCP 请求时，自动切换回消息页面
+    showPopupSettings.value = false
+  }
+}, { immediate: true })
+
 onMounted(() => {
   // 将消息实例传递给父组件
   emit('messageReady', message)
@@ -82,14 +90,8 @@ onMounted(() => {
 
       <!-- 设置界面 -->
       <div v-if="showPopupSettings" class="flex-1 overflow-y-auto scrollbar-thin">
-        <MainLayout
-          :current-theme="props.appConfig.theme"
-          :always-on-top="props.appConfig.window.alwaysOnTop"
-          :audio-notification-enabled="props.appConfig.audio.enabled"
-          :audio-url="props.appConfig.audio.url"
-          :window-width="props.appConfig.window.width"
-          :window-height="props.appConfig.window.height"
-          :fixed-window-size="props.appConfig.window.fixed"
+        <LayoutWrapper
+          :app-config="props.appConfig"
           @theme-change="$emit('themeChange', $event)"
           @toggle-always-on-top="$emit('toggleAlwaysOnTop')"
           @toggle-audio-notification="$emit('toggleAudioNotification')"
@@ -153,15 +155,9 @@ onMounted(() => {
     </div>
 
     <!-- 主界面 - 只在非弹窗模式且非初始化时显示 -->
-    <MainLayout
+    <LayoutWrapper
       v-else
-      :current-theme="props.appConfig.theme"
-      :always-on-top="props.appConfig.window.alwaysOnTop"
-      :audio-notification-enabled="props.appConfig.audio.enabled"
-      :audio-url="props.appConfig.audio.url"
-      :window-width="props.appConfig.window.width"
-      :window-height="props.appConfig.window.height"
-      :fixed-window-size="props.appConfig.window.fixed"
+      :app-config="props.appConfig"
       @theme-change="$emit('themeChange', $event)"
       @toggle-always-on-top="$emit('toggleAlwaysOnTop')"
       @toggle-audio-notification="$emit('toggleAudioNotification')"
