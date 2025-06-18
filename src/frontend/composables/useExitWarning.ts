@@ -1,3 +1,5 @@
+import { listen } from '@tauri-apps/api/event'
+
 /**
  * 退出警告监听器管理
  */
@@ -11,10 +13,8 @@ class ExitWarningManager {
     // 先移除已存在的监听器
     this.removeListener()
 
-    if (typeof window !== 'undefined' && (window as any).__TAURI__) {
+    if (typeof window !== 'undefined') {
       try {
-        const { listen } = (window as any).__TAURI__.event
-
         this.unlistenExitWarning = await listen('exit-warning', (event: any) => {
           const message = event.payload as string
           console.log('收到退出警告:', message)
@@ -37,9 +37,6 @@ class ExitWarningManager {
       catch (error) {
         console.error('设置退出警告监听器失败:', error)
       }
-    }
-    else {
-      console.warn('Tauri环境不可用，无法设置退出警告监听器')
     }
   }
 

@@ -61,7 +61,6 @@ export function useMcpHandler() {
       // 设置请求数据和显示状态
       mcpRequest.value = request
       showMcpPopup.value = true
-      console.log('✅ 显示前端弹窗')
     }
     else {
       console.log('🔕 跳过前端弹窗显示，仅使用Telegram交互')

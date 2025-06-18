@@ -25,7 +25,7 @@
         "decorations": true,
         "hiddenTitle": true,
         "transparent": false,
-        "skipTaskbar": true,
+        "skipTaskbar": false,
         "resizable": true,
         "fullscreen": false
       }
@@ -41,6 +41,7 @@
           ],
           "permissions": [
             "core:event:allow-listen",
+            "core:event:allow-unlisten",
             "core:event:allow-emit",
             "core:window:allow-show",
             "core:window:allow-hide",
@@ -54,7 +55,10 @@
             "shell:allow-open",
             "updater:allow-check",
             "updater:allow-download",
-            "updater:allow-install"
+            "updater:allow-install",
+            "global-shortcut:allow-register",
+            "global-shortcut:allow-unregister",
+            "global-shortcut:allow-is-registered"
           ]
         }
       ]

@@ -2,6 +2,7 @@
 import type { McpRequest } from '../../types/popup'
 import { useMagicKeys } from '@vueuse/core'
 import { computed, watch } from 'vue'
+import { useKeyboard } from '../../composables/useKeyboard'
 
 interface Props {
   request: McpRequest | null
@@ -34,10 +35,8 @@ const keys = useMagicKeys()
 const ctrlEnter = keys['Ctrl+Enter']
 const metaEnter = keys['Meta+Enter']
 
-// 检测平台并显示正确的快捷键提示
-const isMac = computed(() => {
-  return navigator.userAgent.toUpperCase().includes('MAC')
-})
+// 使用统一的键盘处理
+const { isMac } = useKeyboard()
 
 const shortcutText = computed(() => {
   return isMac.value ? '⌘+回车 快速发送' : 'Ctrl+回车 快速发送'

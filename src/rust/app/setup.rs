@@ -1,5 +1,5 @@
 use crate::config::{AppState, load_config_and_apply_window_settings};
-use crate::ui::{initialize_audio_asset_manager, setup_window_event_listeners};
+use crate::ui::{initialize_audio_asset_manager, setup_window_event_listeners, setup_global_shortcuts};
 use crate::log_important;
 use tauri::{AppHandle, Manager};
 
@@ -19,6 +19,11 @@ pub async fn setup_application(app_handle: &AppHandle) -> Result<(), String> {
 
     // 设置窗口事件监听器
     setup_window_event_listeners(app_handle);
+
+    // 设置全局快捷键
+    if let Err(e) = setup_global_shortcuts(app_handle) {
+        log_important!(warn, "设置全局快捷键失败: {}", e);
+    }
 
     Ok(())
 }

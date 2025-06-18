@@ -14,5 +14,3 @@ export { default as PopupActions } from './PopupActions.vue'
 export { default as PopupContent } from './PopupContent.vue'
 export { default as PopupHeader } from './PopupHeader.vue'
 export { default as PopupInput } from './PopupInput.vue'
-
-export { default as PopupTransition } from './PopupTransition.vue'

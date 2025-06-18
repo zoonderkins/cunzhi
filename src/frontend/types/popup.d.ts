@@ -52,34 +52,6 @@ export interface ImageData {
   }
 }
 
-export interface PopupTransition {
-  name: string
-  duration: number
-  enterFrom: string
-  enterTo: string
-  leaveFrom: string
-  leaveTo: string
-}
-
-export interface PopupConfig {
-  enableTransitions: boolean
-  enableSkeletonLoader: boolean
-  enableMainLayoutButton: boolean
-  mockMode: boolean
-}
-
-// 弹窗管理器接口
-export interface IPopupManager {
-  state: PopupState
-  config: PopupConfig
-  show: (request: McpRequest) => void
-  hide: () => void
-  submit: (response: PopupResponse) => void
-  cancel: () => void
-  toggleTheme: () => void
-  openMainLayout: () => void
-}
-
 // 事件类型
 export type PopupEvent
   = | { type: 'show', payload: McpRequest }

@@ -44,16 +44,6 @@ export function useSettings() {
 
   function setMessageInstance(messageInstance: any) {
     message = messageInstance
-
-    // 消息实例准备好后，重新设置退出警告监听器
-    if (messageInstance) {
-      import('./useExitWarning').then(({ setupExitWarningListener }) => {
-        setupExitWarningListener(messageInstance)
-        console.log('退出警告监听器已重新设置，消息实例已准备好')
-      }).catch((error) => {
-        console.error('重新设置退出警告监听器失败:', error)
-      })
-    }
   }
 
   function getMessageInstance() {
