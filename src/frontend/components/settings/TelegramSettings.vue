@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { invoke } from '@tauri-apps/api/core'
+import { listen } from '@tauri-apps/api/event'
 import { useMessage } from 'naive-ui'
 import { onMounted, ref } from 'vue'
 import { API_BASE_URL, API_EXAMPLES } from '../../constants/telegram'
@@ -114,7 +115,7 @@ async function autoGetChatId() {
     detectedChatInfo.value = null
 
     // 监听Chat ID检测事件
-    const { listen } = await import('@tauri-apps/api/event')
+    // 使用静态导入的listen函数
 
     // 定义清理函数数组
     const cleanupFunctions: (() => void)[] = []

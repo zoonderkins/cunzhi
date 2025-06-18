@@ -78,7 +78,7 @@ impl MemoryManager {
 
         // 规范化路径（解析 . 和 .. 等）
         let canonical_path = absolute_path.canonicalize()
-            .unwrap_or_else(|_| absolute_path);
+            .unwrap_or(absolute_path);
 
         // 验证路径是否存在且为目录
         if !canonical_path.exists() {
@@ -94,10 +94,10 @@ impl MemoryManager {
             // 如果找到了 git 根目录，使用 git 根目录作为项目路径
             Ok(git_root)
         } else {
-            return Err(anyhow::anyhow!(
+            Err(anyhow::anyhow!(
                 "错误：提供的项目路径不在 git 仓库中。\n路径: {}\n请确保在 git 根目录（包含 .git 文件夹的目录）中调用此功能。",
                 canonical_path.display()
-            ));
+            ))
         }
     }
 
@@ -161,7 +161,7 @@ impl MemoryManager {
         let entry = MemoryEntry {
             id: id.clone(),
             content: content.to_string(),
-            category: category.clone(),
+            category,
             created_at: now,
             updated_at: now,
         };
@@ -190,7 +190,7 @@ impl MemoryManager {
             let file_path = self.memory_dir.join(filename);
             if file_path.exists() {
                 let content = fs::read_to_string(&file_path)?;
-                let entries = self.parse_memory_file(&content, category.clone())?;
+                let entries = self.parse_memory_file(&content, *category)?;
                 memories.extend(entries);
             }
         }
@@ -255,7 +255,7 @@ impl MemoryManager {
                     let entry = MemoryEntry {
                         id: uuid::Uuid::new_v4().to_string(),
                         content: content.to_string(),
-                        category: category.clone(),
+                        category,
                         created_at: Utc::now(),
                         updated_at: Utc::now(),
                     };
@@ -318,7 +318,7 @@ impl MemoryManager {
         ];
 
         for (category, title) in categories.iter() {
-            let memories = self.get_memories_by_category(category.clone())?;
+            let memories = self.get_memories_by_category(*category)?;
             if !memories.is_empty() {
                 let mut items = Vec::new();
                 for memory in memories {

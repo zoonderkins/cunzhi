@@ -17,6 +17,12 @@ pub struct ZhiServer {
     enabled_tools: HashMap<String, bool>,
 }
 
+impl Default for ZhiServer {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl ZhiServer {
     pub fn new() -> Self {
         // 尝试加载配置，如果失败则使用默认配置
@@ -164,7 +170,7 @@ impl ServerHandler for ZhiServer {
             "zhi" => {
                 // 解析请求参数
                 let arguments_value = request.arguments
-                    .map(|args| serde_json::Value::Object(args))
+                    .map(serde_json::Value::Object)
                     .unwrap_or(serde_json::Value::Object(serde_json::Map::new()));
 
                 let zhi_request: ZhiRequest = serde_json::from_value(arguments_value)
@@ -184,7 +190,7 @@ impl ServerHandler for ZhiServer {
 
                 // 解析请求参数
                 let arguments_value = request.arguments
-                    .map(|args| serde_json::Value::Object(args))
+                    .map(serde_json::Value::Object)
                     .unwrap_or(serde_json::Value::Object(serde_json::Map::new()));
 
                 let ji_request: JiyiRequest = serde_json::from_value(arguments_value)

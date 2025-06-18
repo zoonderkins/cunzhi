@@ -105,6 +105,9 @@ pub struct TelegramConfig {
 pub struct AppState {
     pub config: Mutex<AppConfig>,
     pub response_channel: Mutex<Option<tokio::sync::oneshot::Sender<String>>>,
+    // 防误触退出机制
+    pub exit_attempt_count: Mutex<u32>,
+    pub last_exit_attempt: Mutex<Option<std::time::Instant>>,
 }
 
 impl Default for AppConfig {
@@ -124,6 +127,8 @@ impl Default for AppState {
         Self {
             config: Mutex::new(AppConfig::default()),
             response_channel: Mutex::new(None),
+            exit_attempt_count: Mutex::new(0),
+            last_exit_attempt: Mutex::new(None),
         }
     }
 }

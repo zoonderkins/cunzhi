@@ -346,17 +346,13 @@ async fn start_telegram_listener(
                                     if let Some(msg_id) = options_message_id {
                                         let selected_vec: Vec<String> =
                                             selected_options.iter().cloned().collect();
-                                        match core
+                                        if let Ok(_) = core
                                             .update_inline_keyboard(
                                                 msg_id,
                                                 &predefined_options,
                                                 &selected_vec,
                                             )
-                                            .await
-                                        {
-                                            Ok(_) => {}
-                                            Err(_) => {}
-                                        }
+                                            .await {}
                                     }
                                 }
                             }

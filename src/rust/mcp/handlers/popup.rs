@@ -21,7 +21,7 @@ pub fn create_tauri_popup(request: &PopupRequest) -> Result<String> {
     // 调用等一下命令
     let output = Command::new(&command_path)
         .arg("--mcp-request")
-        .arg(&temp_file.to_string_lossy().to_string())
+        .arg(temp_file.to_string_lossy().to_string())
         .output()?;
 
     // 清理临时文件

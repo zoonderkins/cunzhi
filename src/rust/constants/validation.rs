@@ -49,7 +49,7 @@ pub use window::is_valid_window_size;
 /// 验证窗口位置是否有效
 pub fn is_valid_window_position(x: i32, y: i32) -> bool {
     // 允许负值，因为多显示器环境下可能有负坐标
-    x >= -10000 && x <= 10000 && y >= -10000 && y <= 10000
+    (-10000..=10000).contains(&x) && (-10000..=10000).contains(&y)
 }
 
 // 音频验证函数

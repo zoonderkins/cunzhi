@@ -258,7 +258,7 @@ async fn handle_send_pressed(
         "telegram",
     );
 
-    // 输出JSON响应到stdout
+    // 输出JSON响应到stdout（MCP协议要求）
     println!("{}", response);
 
     // 发送确认消息（使用统一的反馈消息生成函数）
@@ -283,7 +283,7 @@ async fn handle_continue_pressed(
         "telegram_continue",
     );
 
-    // 输出JSON响应到stdout
+    // 输出JSON响应到stdout（MCP协议要求）
     println!("{}", response);
 
     // 发送确认消息（使用统一的反馈消息生成函数）

@@ -103,7 +103,7 @@ impl AudioAssetManager {
     /// 判断是否为音频文件
     fn is_audio_file(&self, filename: &str) -> bool {
         let audio_extensions = ["mp3", "wav", "ogg", "m4a", "aac", "flac"];
-        if let Some(ext) = filename.split('.').last() {
+        if let Some(ext) = filename.split('.').next_back() {
             audio_extensions.contains(&ext.to_lowercase().as_str())
         } else {
             false
