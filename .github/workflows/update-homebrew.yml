@@ -31,7 +31,7 @@ jobs:
           else
             TAG_NAME="${{ github.event.inputs.tag_name }}"
           fi
-          
+
           VERSION_NUMBER=${TAG_NAME#v}
           echo "tag_name=${TAG_NAME}" >> $GITHUB_OUTPUT
           echo "version_number=${VERSION_NUMBER}" >> $GITHUB_OUTPUT
@@ -47,19 +47,19 @@ jobs:
           # URL 格式：/download/{TAG_NAME}/cunzhi-cli-{TAG_NAME}-{platform}.tar.gz
           INTEL_URL="https://github.com/imhuso/cunzhi/releases/download/${TAG_NAME}/cunzhi-cli-${TAG_NAME}-macos-x86_64.tar.gz"
           ARM_URL="https://github.com/imhuso/cunzhi/releases/download/${TAG_NAME}/cunzhi-cli-${TAG_NAME}-macos-aarch64.tar.gz"
-          
+
           echo "Checking Intel asset: $INTEL_URL"
           if ! curl --head --fail "$INTEL_URL" > /dev/null 2>&1; then
             echo "❌ Intel asset not found: $INTEL_URL"
             exit 1
           fi
-          
+
           echo "Checking ARM asset: $ARM_URL"
           if ! curl --head --fail "$ARM_URL" > /dev/null 2>&1; then
             echo "❌ ARM asset not found: $ARM_URL"
             exit 1
           fi
-          
+
           echo "✅ All release assets verified"
 
       - name: Calculate SHA256 for release assets
@@ -72,7 +72,7 @@ jobs:
           ARM_URL="https://github.com/imhuso/cunzhi/releases/download/${TAG_NAME}/cunzhi-cli-${TAG_NAME}-macos-aarch64.tar.gz"
 
           echo "Downloading and calculating SHA256..."
-          
+
           # 下载并计算 SHA256
           curl -L -o /tmp/intel.tar.gz "$INTEL_URL"
           curl -L -o /tmp/arm.tar.gz "$ARM_URL"
@@ -84,7 +84,7 @@ jobs:
           echo "arm_sha256=${ARM_SHA256}" >> $GITHUB_OUTPUT
           echo "intel_url=${INTEL_URL}" >> $GITHUB_OUTPUT
           echo "arm_url=${ARM_URL}" >> $GITHUB_OUTPUT
-          
+
           echo "Intel SHA256: $INTEL_SHA256"
           echo "ARM SHA256: $ARM_SHA256"
 
@@ -139,10 +139,10 @@ jobs:
       - name: Verify Formula changes
         run: |
           cd homebrew-tap
-          
+
           echo "=== Formula changes ==="
           git diff Formula/cunzhi.rb || true
-          
+
           echo "=== Updated Formula content ==="
           cat Formula/cunzhi.rb
 

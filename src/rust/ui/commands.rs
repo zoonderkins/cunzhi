@@ -369,7 +369,7 @@ pub async fn send_mcp_response(
     let is_mcp_mode = args.len() >= 3 && args[1] == "--mcp-request";
 
     if is_mcp_mode {
-        // MCP模式：直接输出到stdout
+        // MCP模式：直接输出到stdout（MCP协议要求）
         println!("{}", response_str);
         std::io::Write::flush(&mut std::io::stdout())
             .map_err(|e| format!("刷新stdout失败: {}", e))?;
@@ -466,15 +466,8 @@ pub async fn open_external_url(url: String) -> Result<(), String> {
 
 #[tauri::command]
 pub async fn exit_app(app: AppHandle) -> Result<(), String> {
-    // 关闭所有窗口
-    if let Some(window) = app.get_webview_window("main") {
-        let _ = window.close();
-    }
-
-    // 强制退出应用
-    tokio::time::sleep(tokio::time::Duration::from_millis(100)).await;
-    app.exit(0);
-    Ok(())
+    // 直接调用强制退出，用于程序内部的退出操作（如MCP响应后退出）
+    crate::ui::exit::force_exit_app(app).await
 }
 
 /// 构建发送操作的MCP响应

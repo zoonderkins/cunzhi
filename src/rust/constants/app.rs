@@ -36,6 +36,13 @@ pub const APP_IDENTIFIER: &str = "com.imhuso.cunzhi";
 /// 用户代理字符串
 pub const USER_AGENT: &str = concat!(env!("CARGO_PKG_NAME"), "/", env!("CARGO_PKG_VERSION"));
 
+// 防误触退出相关常量
+/// 退出确认时间窗口（秒）
+pub const EXIT_CONFIRMATION_WINDOW_SECS: u64 = 3;
+
+/// 需要的连续退出尝试次数
+pub const REQUIRED_EXIT_ATTEMPTS: u32 = 2;
+
 // 应用程序信息结构体
 #[derive(Debug, Clone)]
 pub struct AppInfo {

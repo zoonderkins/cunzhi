@@ -178,7 +178,7 @@ impl TelegramCore {
                 let button_text = if selected_options.contains(option) {
                     format!("✅ {}", option)
                 } else {
-                    format!("{}", option)
+                    option.to_string()
                 };
 
                 row.push(InlineKeyboardButton::callback(button_text, callback_data));
