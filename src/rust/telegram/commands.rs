@@ -1,6 +1,6 @@
 use crate::config::{save_config, AppState, TelegramConfig};
 use crate::telegram::{
-    handle_callback_query, handle_text_message, test_telegram_connection, TelegramCore,
+    handle_callback_query, handle_text_message, TelegramCore,
 };
 use crate::log_important;
 use tauri::{AppHandle, Emitter, State};
@@ -44,8 +44,25 @@ pub async fn set_telegram_config(
 pub async fn test_telegram_connection_cmd(
     bot_token: String,
     chat_id: String,
+    state: State<'_, AppState>,
 ) -> Result<String, String> {
-    test_telegram_connection(&bot_token, &chat_id)
+    // 获取API URL配置
+    let api_url = {
+        let config = state
+            .config
+            .lock()
+            .map_err(|e| format!("获取配置失败: {}", e))?;
+        config.telegram_config.api_base_url.clone()
+    };
+
+    // 使用默认API URL时传递None，否则传递自定义URL
+    let api_url_option = if api_url == crate::constants::telegram::API_BASE_URL {
+        None
+    } else {
+        Some(api_url.as_str())
+    };
+
+    crate::telegram::core::test_telegram_connection_with_api_url(&bot_token, &chat_id, api_url_option)
         .await
         .map_err(|e| e.to_string())
 }
@@ -173,8 +190,24 @@ pub async fn start_telegram_sync(
         return Err("Telegram配置不完整".to_string());
     }
 
+    // 获取API URL配置
+    let api_url = {
+        let config = state
+            .config
+            .lock()
+            .map_err(|e| format!("获取配置失败: {}", e))?;
+        config.telegram_config.api_base_url.clone()
+    };
+
+    // 使用默认API URL时传递None，否则传递自定义URL
+    let api_url_option = if api_url == crate::constants::telegram::API_BASE_URL {
+        None
+    } else {
+        Some(api_url)
+    };
+
     // 创建Telegram核心实例
-    let core = TelegramCore::new(bot_token.clone(), chat_id.clone())
+    let core = TelegramCore::new_with_api_url(bot_token.clone(), chat_id.clone(), api_url_option)
         .map_err(|e| format!("创建Telegram核心失败: {}", e))?;
 
     // 发送选项消息
@@ -220,6 +253,8 @@ async fn start_telegram_listener(
     app_handle: AppHandle,
     predefined_options_list: Vec<String>,
 ) -> Result<(), String> {
+    // 这里我们需要获取配置，但是这个函数没有state参数
+    // 暂时使用默认API URL，后续可能需要重构
     let core = TelegramCore::new(bot_token, chat_id)
         .map_err(|e| format!("创建Telegram核心失败: {}", e))?;
 

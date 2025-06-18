@@ -8,6 +8,7 @@ interface TelegramConfig {
   bot_token: string
   chat_id: string
   hide_frontend_popup: boolean
+  api_base_url: string
 }
 
 const emit = defineEmits(['telegramConfigChange'])
@@ -21,6 +22,7 @@ const telegramConfig = ref<TelegramConfig>({
   bot_token: '',
   chat_id: '',
   hide_frontend_popup: false,
+  api_base_url: 'https://api.telegram.org/bot',
 })
 
 // 测试状态
@@ -279,6 +281,33 @@ onMounted(() => {
             </div>
           </div>
 
+          <!-- API服务器URL设置 -->
+          <div class="pt-4 border-t border-gray-200 dark:border-gray-700">
+            <div class="flex items-start">
+              <div class="w-1.5 h-1.5 bg-info rounded-full mr-3 mt-2 flex-shrink-0" />
+              <div class="flex-1">
+                <div class="text-sm font-medium mb-3 leading-relaxed">
+                  API服务器URL
+                </div>
+                <div class="text-xs opacity-60 mb-3">
+                  Telegram Bot API服务器地址。默认使用官方API，如需使用代理或自建服务器请修改此URL
+                </div>
+                <n-space vertical size="small">
+                  <n-input
+                    v-model:value="telegramConfig.api_base_url" type="text"
+                    placeholder="https://api.telegram.org/bot" size="small"
+                    :disabled="isTesting" @blur="saveTelegramConfig"
+                  />
+                  <div class="text-xs text-gray-500 dark:text-gray-400">
+                    💡 常用代理服务器：
+                    <br>• 官方API: https://api.telegram.org/bot
+                    <br>• 自建代理: https://your-proxy.com/bot
+                  </div>
+                </n-space>
+              </div>
+            </div>
+          </div>
+
           <!-- 隐藏前端弹窗设置 -->
           <div class="pt-4 border-t border-gray-200 dark:border-gray-700">
             <div class="flex items-center justify-between">
@@ -406,7 +435,7 @@ onMounted(() => {
             <div class="text-sm space-y-2">
               <div class="p-2 rounded border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800">
                 <code class="text-xs break-all text-gray-700 dark:text-gray-300">
-                  https://api.telegram.org/bot{{ telegramConfig.bot_token || 'YOUR_BOT_TOKEN' }}/getUpdates
+                  {{ telegramConfig.api_base_url }}{{ telegramConfig.bot_token || 'YOUR_BOT_TOKEN' }}/getUpdates
                 </code>
               </div>
             </div>

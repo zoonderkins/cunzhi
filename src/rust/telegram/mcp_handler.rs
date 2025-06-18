@@ -27,10 +27,17 @@ pub async fn handle_telegram_only_mcp_request(request_file: &str) -> Result<()> 
         return Ok(());
     }
 
-    // 创建Telegram核心实例
-    let core = TelegramCore::new(
+    // 创建Telegram核心实例，使用配置中的API URL
+    let api_url = if telegram_config.api_base_url == crate::constants::telegram::API_BASE_URL {
+        None
+    } else {
+        Some(telegram_config.api_base_url.clone())
+    };
+
+    let core = TelegramCore::new_with_api_url(
         telegram_config.bot_token.clone(),
         telegram_config.chat_id.clone(),
+        api_url,
     )?;
 
     // 发送消息到Telegram

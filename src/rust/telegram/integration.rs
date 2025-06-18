@@ -24,7 +24,12 @@ pub struct TelegramIntegration {
 impl TelegramIntegration {
     /// 创建新的Telegram集成实例
     pub fn new(bot_token: String, chat_id: String, app_handle: AppHandle) -> Result<Self> {
-        let core = TelegramCore::new(bot_token, chat_id)?;
+        Self::new_with_api_url(bot_token, chat_id, app_handle, None)
+    }
+
+    /// 创建新的Telegram集成实例，支持自定义API URL
+    pub fn new_with_api_url(bot_token: String, chat_id: String, app_handle: AppHandle, api_url: Option<String>) -> Result<Self> {
+        let core = TelegramCore::new_with_api_url(bot_token, chat_id, api_url)?;
 
         Ok(Self {
             core,

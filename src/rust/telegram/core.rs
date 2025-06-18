@@ -35,7 +35,19 @@ pub struct TelegramCore {
 impl TelegramCore {
     /// 创建新的Telegram核心实例
     pub fn new(bot_token: String, chat_id: String) -> Result<Self> {
-        let bot = Bot::new(bot_token);
+        Self::new_with_api_url(bot_token, chat_id, None)
+    }
+
+    /// 创建新的Telegram核心实例，支持自定义API URL
+    pub fn new_with_api_url(bot_token: String, chat_id: String, api_url: Option<String>) -> Result<Self> {
+        let mut bot = Bot::new(bot_token);
+
+        // 如果提供了自定义API URL，则设置它
+        if let Some(url_str) = api_url {
+            let url = reqwest::Url::parse(&url_str)
+                .map_err(|e| anyhow::anyhow!("无效的API URL格式: {}", e))?;
+            bot = bot.set_api_url(url);
+        }
 
         // 解析chat_id
         let chat_id = if chat_id.starts_with('@') {
@@ -313,6 +325,15 @@ pub fn build_feedback_message(
 
 /// 测试Telegram连接的通用函数
 pub async fn test_telegram_connection(bot_token: &str, chat_id: &str) -> Result<String> {
+    test_telegram_connection_with_api_url(bot_token, chat_id, None).await
+}
+
+/// 测试Telegram连接的通用函数，支持自定义API URL
+pub async fn test_telegram_connection_with_api_url(
+    bot_token: &str,
+    chat_id: &str,
+    api_url: Option<&str>
+) -> Result<String> {
     if bot_token.trim().is_empty() {
         return Err(anyhow::anyhow!("Bot Token不能为空"));
     }
@@ -322,7 +343,14 @@ pub async fn test_telegram_connection(bot_token: &str, chat_id: &str) -> Result<
     }
 
     // 创建Bot实例
-    let bot = Bot::new(bot_token);
+    let mut bot = Bot::new(bot_token);
+
+    // 如果提供了自定义API URL，则设置它
+    if let Some(url_str) = api_url {
+        let url = reqwest::Url::parse(url_str)
+            .map_err(|e| anyhow::anyhow!("无效的API URL格式: {}", e))?;
+        bot = bot.set_api_url(url);
+    }
 
     // 验证Chat ID格式
     let chat_id_parsed: i64 = chat_id
