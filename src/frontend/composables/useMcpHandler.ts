@@ -34,6 +34,7 @@ export function useMcpHandler() {
     }
     catch (error) {
       // 静默处理MCP取消错误
+      console.error('MCP取消处理失败:', error)
     }
   }
 
