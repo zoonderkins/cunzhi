@@ -35,6 +35,7 @@ export function useTheme() {
       applyTheme(theme as string)
     }
     catch (error) {
+      console.error('加载主题失败:', error)
       // 默认使用深色主题
       applyTheme('dark')
     }

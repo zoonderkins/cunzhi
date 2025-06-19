@@ -19,7 +19,7 @@ export function useMcpHandler() {
       await invoke('exit_app')
     }
     catch (error) {
-      // 静默处理MCP响应错误
+      console.error('MCP响应处理失败:', error)
     }
   }
 
