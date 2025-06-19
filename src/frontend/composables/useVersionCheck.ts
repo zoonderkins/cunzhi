@@ -25,6 +25,35 @@ interface UpdateProgress {
   percentage: number
 }
 
+// 持久化存储的键名
+const CANCELLED_VERSIONS_KEY = 'cunzhi_cancelled_versions'
+
+// 加载已取消的版本
+function loadCancelledVersions(): Set<string> {
+  try {
+    const stored = localStorage.getItem(CANCELLED_VERSIONS_KEY)
+    if (stored) {
+      const versions = JSON.parse(stored) as string[]
+      return new Set(versions)
+    }
+  }
+  catch (error) {
+    console.warn('加载已取消版本失败:', error)
+  }
+  return new Set()
+}
+
+// 保存已取消的版本
+function saveCancelledVersions(versions: Set<string>) {
+  try {
+    const versionsArray = Array.from(versions)
+    localStorage.setItem(CANCELLED_VERSIONS_KEY, JSON.stringify(versionsArray))
+  }
+  catch (error) {
+    console.warn('保存已取消版本失败:', error)
+  }
+}
+
 // 全局版本检查状态
 const versionInfo = ref<VersionInfo | null>(null)
 const isChecking = ref(false)
@@ -34,6 +63,12 @@ const lastCheckTime = ref<Date | null>(null)
 const isUpdating = ref(false)
 const updateProgress = ref<UpdateProgress | null>(null)
 const updateStatus = ref<'idle' | 'checking' | 'downloading' | 'installing' | 'completed' | 'error'>('idle')
+
+// 自动更新弹窗状态
+const showUpdateModal = ref(false)
+const autoCheckEnabled = ref(true)
+// 记录用户取消的版本，避免重复弹窗（持久化存储）
+const cancelledVersions = ref<Set<string>>(loadCancelledVersions())
 
 // 比较版本号
 function compareVersions(version1: string, version2: string): number {
@@ -57,15 +92,13 @@ function compareVersions(version1: string, version2: string): number {
 async function getCurrentVersion(): Promise<string> {
   try {
     const appInfo = await invoke('get_app_info') as string
-    console.log('获取到的应用信息:', appInfo) // 调试日志
     const match = appInfo.match(/v(\d+\.\d+\.\d+)/)
-    const version = match ? match[1] : '0.2.0' // 更新默认版本
-    console.log('解析到的版本:', version) // 调试日志
+    const version = match ? match[1] : '0.2.0'
     return version
   }
   catch (error) {
     console.error('获取当前版本失败:', error)
-    return '0.2.0' // 更新默认版本
+    return '0.2.0'
   }
 }
 
@@ -89,7 +122,10 @@ async function checkLatestVersion(): Promise<VersionInfo | null> {
     }
 
     const release = await response.json()
-    const latestVersion = release.tag_name.replace(/^v/, '')
+    // 提取版本号，处理中文tag的情况
+    let latestVersion = release.tag_name
+    // 移除前缀 v 和中文字符，只保留数字和点
+    latestVersion = latestVersion.replace(/^v/, '').replace(/[^\d.]/g, '')
     const currentVersion = await getCurrentVersion()
 
     const hasUpdate = compareVersions(latestVersion, currentVersion) > 0
@@ -116,15 +152,52 @@ async function checkLatestVersion(): Promise<VersionInfo | null> {
   }
 }
 
-// 静默检查更新（应用启动时调用）
-async function silentCheckUpdate(): Promise<boolean> {
-  // 如果最近1小时内已经检查过，跳过
-  if (lastCheckTime.value && Date.now() - lastCheckTime.value.getTime() < 60 * 60 * 1000) {
-    return versionInfo.value?.hasUpdate || false
+// 自动检查更新并弹窗（应用启动时调用）
+async function autoCheckUpdate(): Promise<boolean> {
+  // 如果禁用自动检查，跳过
+  if (!autoCheckEnabled.value) {
+    return false
   }
 
-  const info = await checkLatestVersion()
-  return info?.hasUpdate || false
+  // 如果最近1小时内已经检查过，跳过
+  if (lastCheckTime.value && Date.now() - lastCheckTime.value.getTime() < 60 * 60 * 1000) {
+    const hasUpdate = versionInfo.value?.hasUpdate || false
+    // 如果有更新且未显示弹窗，且用户未取消该版本，则显示弹窗
+    if (hasUpdate && !showUpdateModal.value && versionInfo.value?.latest && !cancelledVersions.value.has(versionInfo.value.latest)) {
+      showUpdateModal.value = true
+    }
+    return hasUpdate
+  }
+
+  try {
+    const info = await checkLatestVersion()
+
+    // 如果检测到新版本且用户未取消该版本，自动显示更新弹窗
+    if (info?.hasUpdate && !cancelledVersions.value.has(info.latest)) {
+      showUpdateModal.value = true
+      return true
+    }
+
+    return false
+  }
+  catch (error) {
+    console.warn('自动检查更新失败:', error)
+    return false
+  }
+}
+
+// 静默检查更新（不弹窗，保持兼容性）
+async function silentCheckUpdate(): Promise<boolean> {
+  const originalAutoCheck = autoCheckEnabled.value
+  autoCheckEnabled.value = false
+
+  try {
+    const info = await checkLatestVersion()
+    return info?.hasUpdate || false
+  }
+  finally {
+    autoCheckEnabled.value = originalAutoCheck
+  }
 }
 
 // 获取版本信息（如果没有则初始化）
@@ -172,14 +245,29 @@ async function openReleasePage(): Promise<void> {
   }
 }
 
-// 使用Tauri Updater检查更新
+// 使用改进的更新检查（避免Tauri原生updater的中文tag问题）
 async function checkForUpdatesWithTauri(): Promise<UpdateInfo | null> {
   try {
     const updateInfo = await invoke('check_for_updates') as UpdateInfo
+    console.log('✅ Tauri 更新检查成功:', updateInfo)
     return updateInfo
   }
   catch (error) {
-    console.error('Tauri更新检查失败:', error)
+    console.error('❌ Tauri更新检查失败，使用 GitHub API fallback:', error)
+
+    // 如果Tauri检查失败，fallback到前端GitHub API检查
+    const githubInfo = await checkLatestVersion()
+
+    if (githubInfo?.hasUpdate) {
+      return {
+        available: true,
+        current_version: githubInfo.current,
+        latest_version: githubInfo.latest,
+        release_notes: githubInfo.releaseNotes,
+        download_url: githubInfo.releaseUrl,
+      }
+    }
+
     return null
   }
 }
@@ -187,6 +275,7 @@ async function checkForUpdatesWithTauri(): Promise<UpdateInfo | null> {
 // 一键更新功能
 async function performOneClickUpdate(): Promise<void> {
   if (isUpdating.value) {
+    console.log('⚠️ 更新已在进行中，跳过')
     return
   }
 
@@ -197,6 +286,7 @@ async function performOneClickUpdate(): Promise<void> {
 
     // 首先检查是否有更新
     const updateInfo = await checkForUpdatesWithTauri()
+
     if (!updateInfo?.available) {
       throw new Error('没有可用的更新')
     }
@@ -215,22 +305,30 @@ async function performOneClickUpdate(): Promise<void> {
       updateStatus.value = 'completed'
     })
 
+    const unlistenManualDownload = await listen('update_manual_download_required', (event) => {
+      console.log('🔗 需要手动下载，URL:', event.payload)
+    })
+
     try {
       // 开始下载和安装
       updateStatus.value = 'downloading'
       await invoke('download_and_install_update')
-
-      // 更新完成
       updateStatus.value = 'completed'
+    }
+    catch (backendError) {
+      console.error('🔴 后端更新调用失败:', backendError)
+      throw backendError
     }
     finally {
       // 清理事件监听器
       unlistenProgress()
       unlistenInstallStart()
       unlistenInstallFinish()
+      unlistenManualDownload()
     }
   }
   catch (error) {
+    console.error('🔥 更新失败:', error)
     updateStatus.value = 'error'
     throw error
   }
@@ -250,6 +348,38 @@ async function restartApp(): Promise<void> {
   }
 }
 
+// 关闭更新弹窗
+function closeUpdateModal() {
+  showUpdateModal.value = false
+}
+
+// 关闭更新弹窗（不再自动弹出该版本的更新提醒）
+function dismissUpdate() {
+  if (versionInfo.value?.latest) {
+    cancelledVersions.value.add(versionInfo.value.latest)
+    saveCancelledVersions(cancelledVersions.value)
+    console.log(`🚫 用户关闭了版本 ${versionInfo.value.latest} 的更新弹窗`)
+  }
+  showUpdateModal.value = false
+}
+
+// 手动检查更新（重置取消状态）
+async function manualCheckUpdate(): Promise<VersionInfo | null> {
+  // 清空取消的版本记录，因为这是用户主动检查
+  cancelledVersions.value.clear()
+  saveCancelledVersions(cancelledVersions.value)
+  console.log('🔄 手动检查更新，清空取消记录')
+
+  const info = await checkLatestVersion()
+
+  // 如果有更新，显示弹窗
+  if (info?.hasUpdate) {
+    showUpdateModal.value = true
+  }
+
+  return info
+}
+
 export function useVersionCheck() {
   return {
     versionInfo,
@@ -258,7 +388,10 @@ export function useVersionCheck() {
     isUpdating,
     updateProgress,
     updateStatus,
+    showUpdateModal,
+    autoCheckEnabled,
     checkLatestVersion,
+    autoCheckUpdate,
     silentCheckUpdate,
     getVersionInfo,
     openDownloadPage,
@@ -266,6 +399,9 @@ export function useVersionCheck() {
     checkForUpdatesWithTauri,
     performOneClickUpdate,
     restartApp,
+    closeUpdateModal,
+    dismissUpdate,
+    manualCheckUpdate,
     compareVersions,
     safeOpenUrl,
   }

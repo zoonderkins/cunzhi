@@ -205,7 +205,7 @@ jobs:
 
           # 简化的发布信息
           {
-            echo "## 寸止 ${{ github.ref_name }}"
+            echo "## Release Notes"
             echo ""
             cat changelog.md
           } > temp_changelog.md
@@ -221,7 +221,7 @@ jobs:
           draft: false
           prerelease: false
           generate_release_notes: false
-          name: 寸止 ${{ github.ref_name }}
+          name: Cunzhi ${{ github.ref_name }}
           body_path: changelog.md
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

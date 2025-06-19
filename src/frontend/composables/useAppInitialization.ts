@@ -11,7 +11,7 @@ export function useAppInitialization(mcpHandler: ReturnType<typeof import('./use
   const isInitializing = ref(true)
   const { loadTheme, setupSystemThemeListener } = useTheme()
   const settings = useSettings()
-  const { silentCheckUpdate } = useVersionCheck()
+  const { autoCheckUpdate } = useVersionCheck()
   const { checkMcpMode, setupMcpEventListener } = mcpHandler
 
   /**
@@ -38,9 +38,9 @@ export function useAppInitialization(mcpHandler: ReturnType<typeof import('./use
       // 监听系统主题变化
       setupSystemThemeListener()
 
-      // 静默检查版本更新（非阻塞）
-      silentCheckUpdate().catch((error) => {
-        console.warn('静默版本检查失败:', error)
+      // 自动检查版本更新并弹窗（非阻塞）
+      autoCheckUpdate().catch(() => {
+        // 静默处理版本检查失败
       })
 
       // 结束初始化状态

@@ -17,11 +17,9 @@ class ExitWarningManager {
       try {
         this.unlistenExitWarning = await listen('exit-warning', (event: any) => {
           const message = event.payload as string
-          console.log('收到退出警告:', message)
 
           // 显示退出警告消息
           if (messageInstance) {
-            console.log('显示退出警告消息:', message)
             messageInstance.warning(message, {
               duration: 3000,
               closable: true,
@@ -31,8 +29,6 @@ class ExitWarningManager {
             console.warn('Message实例未准备好')
           }
         })
-
-        console.log('退出警告监听器已设置')
       }
       catch (error) {
         console.error('设置退出警告监听器失败:', error)
@@ -47,7 +43,6 @@ class ExitWarningManager {
     if (this.unlistenExitWarning) {
       this.unlistenExitWarning()
       this.unlistenExitWarning = null
-      console.log('退出警告监听器已移除')
     }
   }
 }

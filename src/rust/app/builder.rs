@@ -11,7 +11,7 @@ pub fn build_tauri_app() -> Builder<tauri::Wry> {
     tauri::Builder::default()
         .plugin(tauri_plugin_shell::init())
         .plugin(tauri_plugin_updater::Builder::new().build())
-        .plugin(tauri_plugin_global_shortcut::Builder::new().with_handler(crate::ui::global_shortcuts::handle_global_shortcut).build())
+
         .manage(AppState::default())
         .manage(AudioController {
             should_stop: Arc::new(AtomicBool::new(false)),
@@ -71,6 +71,7 @@ pub fn build_tauri_app() -> Builder<tauri::Wry> {
             // 系统命令
             open_external_url,
             exit_app,
+            handle_app_exit_request,
             force_exit_app,
             reset_exit_attempts_cmd,
 

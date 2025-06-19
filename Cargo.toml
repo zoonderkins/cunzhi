@@ -23,7 +23,6 @@ tauri = { version = "2.0", features = [
 ] }
 tauri-plugin-shell = "2.0"
 tauri-plugin-updater = "2.0"
-tauri-plugin-global-shortcut = "2.0"
 serde = { version = "1.0", features = [ "derive" ] }
 serde_json = "1.0"
 tokio = { version = "1.0", features = [
@@ -45,7 +44,10 @@ rmcp = { git = "https://github.com/modelcontextprotocol/rust-sdk", branch = "mai
 ] }
 schemars = "0.8"
 rodio = "0.19"
-reqwest = { version = "0.11", features = [ "stream" ] }
+reqwest = { version = "0.11", features = [
+  "stream",
+  "json"
+] }
 base64 = "0.21"
 rust-embed = "8.0"
 teloxide = { version = "0.15.0", features = [ "macros" ] }

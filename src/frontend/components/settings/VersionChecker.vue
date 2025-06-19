@@ -13,7 +13,7 @@ const {
   isUpdating,
   updateProgress,
   updateStatus,
-  checkLatestVersion,
+  manualCheckUpdate,
   getVersionInfo,
   openDownloadPage,
   openReleasePage,
@@ -29,7 +29,7 @@ const formattedLastCheckTime = computed(() => {
 // 手动检查更新
 async function handleCheckUpdate() {
   try {
-    const info = await checkLatestVersion()
+    const info = await manualCheckUpdate()
 
     if (info?.hasUpdate) {
       message.info(`发现新版本 v${info.latest}！`)
@@ -81,7 +81,7 @@ async function handleViewReleaseNotes() {
 // 一键更新
 async function handleOneClickUpdate() {
   try {
-    message.info('开始检查更新...')
+    message.info('开始下载更新...')
     await performOneClickUpdate()
 
     if (updateStatus.value === 'completed') {
@@ -90,7 +90,7 @@ async function handleOneClickUpdate() {
   }
   catch (error) {
     console.error('一键更新失败:', error)
-    const errorMsg = error instanceof Error ? error.message : '更新失败，请手动下载'
+    const errorMsg = error instanceof Error ? error.message : '更新失败，请稍后重试或手动下载'
     message.error(errorMsg)
   }
 }
@@ -132,23 +132,38 @@ onMounted(async () => {
 
     <div class="space-y-4">
       <!-- 版本信息显示 -->
-      <div v-if="!loading && versionInfo" class="space-y-3">
+      <div
+        v-if="!loading && versionInfo"
+        class="space-y-3"
+      >
         <div class="flex items-center justify-between">
           <span class="text-sm text-on-surface-secondary">当前版本:</span>
-          <n-tag size="small" type="info">
+          <n-tag
+            size="small"
+            type="info"
+          >
             v{{ versionInfo.current }}
           </n-tag>
         </div>
 
-        <div v-if="versionInfo.latest !== versionInfo.current" class="flex items-center justify-between">
+        <div
+          v-if="versionInfo.latest !== versionInfo.current"
+          class="flex items-center justify-between"
+        >
           <span class="text-sm text-on-surface-secondary">最新版本:</span>
-          <n-tag size="small" :type="versionInfo.hasUpdate ? 'warning' : 'success'">
+          <n-tag
+            size="small"
+            :type="versionInfo.hasUpdate ? 'warning' : 'success'"
+          >
             v{{ versionInfo.latest }}
           </n-tag>
         </div>
 
         <!-- 更新提示 -->
-        <div v-if="versionInfo.hasUpdate" class="p-3 bg-warning/10 dark:bg-warning/20 rounded-lg border border-warning/20 dark:border-warning/30">
+        <div
+          v-if="versionInfo.hasUpdate"
+          class="p-3 bg-warning/10 dark:bg-warning/20 rounded-lg border border-warning/20 dark:border-warning/30"
+        >
           <div class="flex items-start gap-2">
             <div class="i-carbon-warning text-warning mt-0.5" />
             <div class="flex-1">
@@ -163,7 +178,10 @@ onMounted(async () => {
         </div>
 
         <!-- 更新进度显示 -->
-        <div v-if="isUpdating" class="p-3 bg-surface-100 dark:bg-surface-800 rounded-lg border border-surface-200 dark:border-surface-700">
+        <div
+          v-if="isUpdating"
+          class="p-3 bg-surface-100 dark:bg-surface-800 rounded-lg border border-surface-200 dark:border-surface-700"
+        >
           <div class="space-y-2">
             <div class="flex items-center gap-2">
               <n-spin size="small" />
@@ -176,7 +194,10 @@ onMounted(async () => {
             </div>
 
             <!-- 下载进度条 -->
-            <div v-if="updateProgress && updateStatus === 'downloading'" class="space-y-1">
+            <div
+              v-if="updateProgress && updateStatus === 'downloading'"
+              class="space-y-1"
+            >
               <n-progress
                 type="line"
                 :percentage="Math.round(updateProgress.percentage)"
@@ -195,13 +216,19 @@ onMounted(async () => {
         </div>
 
         <!-- 最后检查时间 -->
-        <div v-if="formattedLastCheckTime" class="text-xs text-on-surface-muted dark:text-on-surface-muted">
+        <div
+          v-if="formattedLastCheckTime"
+          class="text-xs text-on-surface-muted dark:text-on-surface-muted"
+        >
           最后检查: {{ formattedLastCheckTime }}
         </div>
       </div>
 
       <!-- 加载状态 -->
-      <div v-else-if="loading" class="flex items-center justify-center py-4">
+      <div
+        v-else-if="loading"
+        class="flex items-center justify-center py-4"
+      >
         <n-spin size="small" />
         <span class="ml-2 text-sm text-on-surface-secondary">加载版本信息...</span>
       </div>
@@ -220,7 +247,7 @@ onMounted(async () => {
           检查更新
         </n-button>
 
-        <!-- 一键更新按钮 -->
+        <!-- 立即更新按钮 -->
         <n-button
           v-if="versionInfo?.hasUpdate && updateStatus !== 'completed'"
           type="primary"
@@ -231,7 +258,7 @@ onMounted(async () => {
           <template #icon>
             <div class="i-carbon-upgrade" />
           </template>
-          一键更新
+          立即更新
         </n-button>
 
         <!-- 重启按钮 -->

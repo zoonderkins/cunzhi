@@ -235,7 +235,6 @@ function setupCodeCopy() {
 // 监听request变化，重新设置代码复制
 watch(() => props.request, () => {
   if (props.request) {
-    console.log('Request变化，设置代码复制')
     setupCodeCopy()
   }
 }, { deep: true })
@@ -243,13 +242,11 @@ watch(() => props.request, () => {
 // 监听loading状态变化
 watch(() => props.loading, (newLoading) => {
   if (!newLoading && props.request) {
-    console.log('Loading完成，设置代码复制')
     setupCodeCopy()
   }
 })
 
 onMounted(() => {
-  console.log('PopupContent mounted')
   // 初始化代码高亮样式
   loadHighlightStyle(props.currentTheme)
   if (props.request) {
@@ -265,7 +262,6 @@ watch(() => props.currentTheme, (newTheme) => {
 // 在DOM更新后也尝试设置
 onUpdated(() => {
   if (props.request && !props.loading) {
-    console.log('PopupContent updated，设置代码复制')
     setupCodeCopy()
   }
 })
