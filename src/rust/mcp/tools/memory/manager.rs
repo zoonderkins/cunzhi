@@ -18,44 +18,16 @@ impl MemoryManager {
         let normalized_path = Self::normalize_project_path(project_path)?;
         let memory_dir = normalized_path.join(".cunzhi-memory");
 
-        // 尝试创建记忆目录，增强错误处理
-        let final_memory_dir = if let Err(e) = fs::create_dir_all(&memory_dir) {
-            // 如果是权限问题或只读文件系统，使用临时目录
-            if e.kind() == std::io::ErrorKind::PermissionDenied ||
-               e.raw_os_error() == Some(30) || // macOS的只读文件系统错误码
-               e.kind() == std::io::ErrorKind::Other {
-                let project_name = normalized_path
-                    .file_name()
-                    .and_then(|n| n.to_str())
-                    .unwrap_or("default");
-                let temp_dir = std::env::temp_dir().join("cunzhi-memory").join(project_name);
-
-                // 尝试创建临时目录
-                if let Err(temp_err) = fs::create_dir_all(&temp_dir) {
-                    return Err(anyhow::anyhow!(
-                        "无法创建记忆目录，项目路径: {}, 原始目录: {}, 原始错误: {}, 临时目录: {}, 临时目录错误: {}",
-                        normalized_path.display(),
-                        memory_dir.display(),
-                        e,
-                        temp_dir.display(),
-                        temp_err
-                    ));
-                }
-                temp_dir
-            } else {
-                return Err(anyhow::anyhow!(
-                    "创建记忆管理器失败，项目路径: {}, 目标目录: {}, 错误: {}",
-                    normalized_path.display(),
-                    memory_dir.display(),
-                    e
-                ));
-            }
-        } else {
-            memory_dir
-        };
+        // 创建记忆目录，如果失败则说明项目不适合使用记忆功能
+        fs::create_dir_all(&memory_dir)
+            .map_err(|e| anyhow::anyhow!(
+                "无法在git项目中创建记忆目录: {}\n错误: {}\n这可能是因为项目目录没有写入权限。",
+                memory_dir.display(),
+                e
+            ))?;
 
         let manager = Self {
-            memory_dir: final_memory_dir,
+            memory_dir,
             project_path: normalized_path.to_string_lossy().to_string(),
         };
 
