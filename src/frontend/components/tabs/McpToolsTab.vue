@@ -32,7 +32,6 @@ async function toggleTool(toolId: string) {
     }
   }
   catch (err) {
-    console.error('更新MCP工具状态失败:', err)
     if (message) {
       message.error(`更新MCP工具状态失败: ${err}`)
     }
@@ -44,7 +43,6 @@ onMounted(async () => {
     await loadMcpTools()
   }
   catch (err) {
-    console.error('加载MCP工具配置失败:', err)
     if (message) {
       message.error(`加载MCP工具配置失败: ${err}`)
     }

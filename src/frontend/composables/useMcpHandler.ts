@@ -19,7 +19,7 @@ export function useMcpHandler() {
       await invoke('exit_app')
     }
     catch (error) {
-      console.error('处理MCP响应失败:', error)
+      // 静默处理MCP响应错误
     }
   }
 
@@ -33,7 +33,7 @@ export function useMcpHandler() {
       await invoke('exit_app')
     }
     catch (error) {
-      console.error('处理MCP取消失败:', error)
+      // 静默处理MCP取消错误
     }
   }
 

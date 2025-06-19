@@ -470,6 +470,14 @@ pub async fn exit_app(app: AppHandle) -> Result<(), String> {
     crate::ui::exit::force_exit_app(app).await
 }
 
+
+
+/// 处理应用退出请求（用于前端退出快捷键）
+#[tauri::command]
+pub async fn handle_app_exit_request(app: AppHandle) -> Result<bool, String> {
+    crate::ui::exit_handler::handle_exit_request_internal(app).await
+}
+
 /// 构建发送操作的MCP响应
 #[tauri::command]
 pub fn build_mcp_send_response(

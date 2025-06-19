@@ -18,6 +18,7 @@ import {
   NMessageProvider,
   NModal,
   NNotificationProvider,
+  NProgress,
   NSkeleton,
   NSpace,
   NSpin,
@@ -66,6 +67,7 @@ const naive = create({
     NGridItem,
     NTag,
     NSkeleton,
+    NProgress,
   ],
 })
 

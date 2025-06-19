@@ -4,7 +4,7 @@ import { computed, onMounted } from 'vue'
 import { useVersionCheck } from '../../composables/useVersionCheck'
 
 const message = useMessage()
-const { versionInfo, checkLatestVersion, safeOpenUrl, lastCheckTime, isChecking, getVersionInfo } = useVersionCheck()
+const { versionInfo, manualCheckUpdate, safeOpenUrl, lastCheckTime, isChecking, getVersionInfo } = useVersionCheck()
 
 // 格式化最后检查时间
 const formattedLastCheckTime = computed(() => {
@@ -48,7 +48,7 @@ async function openGitHubStars() {
 // 检查版本更新
 async function checkVersion() {
   try {
-    const info = await checkLatestVersion()
+    const info = await manualCheckUpdate()
     if (info?.hasUpdate) {
       message.info(`发现新版本 v${info.latest}！`)
     }
