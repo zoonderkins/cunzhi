@@ -9,7 +9,9 @@ pub fn run() {
 
 fn main() -> Result<()> {
     // 初始化日志系统
-    auto_init_logger()?;
+    if let Err(e) = auto_init_logger() {
+        eprintln!("初始化日志系统失败: {}", e);
+    }
 
     // 处理命令行参数
     handle_cli_args()
