@@ -41,7 +41,6 @@ export const TRANSITION_EASINGS = {
 export const THEMES = {
   light: 'light',
   dark: 'dark',
-  system: 'system',
 } as const
 
 // 默认主题

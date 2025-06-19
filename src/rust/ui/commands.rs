@@ -86,8 +86,8 @@ pub async fn set_theme(
     app: tauri::AppHandle,
 ) -> Result<(), String> {
     // 验证主题值
-    if !["light", "dark", "system"].contains(&theme.as_str()) {
-        return Err("无效的主题值，只支持 light、dark、system".to_string());
+    if !["light", "dark"].contains(&theme.as_str()) {
+        return Err("无效的主题值，只支持 light、dark".to_string());
     }
 
     {

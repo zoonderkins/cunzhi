@@ -90,10 +90,6 @@ export const customLightTheme: GlobalTheme = {
 
 // 主题工具函数
 export function getTheme(themeName: string): GlobalTheme {
-  if (themeName === 'system') {
-    const isDark = window.matchMedia('(prefers-color-scheme: dark)').matches
-    return isDark ? customDarkTheme : customLightTheme
-  }
   return themeName === 'dark' ? customDarkTheme : customLightTheme
 }
 
@@ -101,12 +97,16 @@ export function getTheme(themeName: string): GlobalTheme {
 export function applyThemeVariables(themeName: string) {
   const root = document.documentElement
 
-  // 确定实际主题
-  const effectiveTheme = themeName === 'system'
-    ? (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light')
-    : themeName
+  // 确定实际主题（移除system模式，默认dark）
+  const effectiveTheme = themeName === 'light' ? 'light' : 'dark'
 
   const colors = themeColors[effectiveTheme as keyof typeof themeColors]
+
+  // 确保颜色配置存在
+  if (!colors) {
+    console.warn(`未找到主题颜色配置: ${effectiveTheme}`)
+    return
+  }
 
   // 设置语义化 CSS 变量 - 用于 UnoCSS
   root.style.setProperty('--color-surface', colors.surface)
@@ -123,11 +123,28 @@ export function applyThemeVariables(themeName: string) {
   root.style.setProperty('--color-surface-950', colors.surface950)
   root.style.setProperty('--color-on-surface', colors.onSurface)
 
+  // 设置其他语义化变量
+  root.style.setProperty('--color-on-surface-secondary', colors.onSurfaceSecondary)
+  root.style.setProperty('--color-on-surface-muted', colors.onSurfaceMuted)
+  root.style.setProperty('--color-container', colors.container)
+  root.style.setProperty('--color-border', colors.border)
+  root.style.setProperty('--color-divider', colors.divider)
+
   // 设置body和text颜色变量（兼容旧CSS）
   root.style.setProperty('--body-color', colors.surface)
   root.style.setProperty('--text-color', colors.onSurface)
 
-  // 设置主题类
+  // 强制设置主题类 - 确保根节点类名正确
   root.classList.remove('light', 'dark')
   root.classList.add(effectiveTheme)
+
+  // 同时设置 data 属性，确保兼容性
+  root.setAttribute('data-theme', effectiveTheme)
+
+  // 强制重绘确保样式立即生效
+  requestAnimationFrame(() => {
+    document.body.style.display = 'none'
+    void document.body.offsetHeight // 触发重排
+    document.body.style.display = ''
+  })
 }

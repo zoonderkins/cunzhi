@@ -9,11 +9,8 @@ pub const LIGHT: &str = "light";
 /// 深色主题
 pub const DARK: &str = "dark";
 
-/// 系统主题
-pub const SYSTEM: &str = "system";
-
 /// 可用主题列表
-pub const AVAILABLE_THEMES: &[&str] = &[LIGHT, DARK, SYSTEM];
+pub const AVAILABLE_THEMES: &[&str] = &[LIGHT, DARK];
 
 // 主题配置结构体
 #[derive(Debug, Clone)]

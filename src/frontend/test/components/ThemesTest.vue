@@ -8,7 +8,6 @@ const { currentTheme, setTheme } = useTheme()
 const themeOptions = [
   { value: 'light', label: '浅色主题', icon: '☀️' },
   { value: 'dark', label: '深色主题', icon: '🌙' },
-  { value: 'system', label: '跟随系统', icon: '🖥️' },
 ]
 
 const colorPalettes = [
@@ -38,9 +37,7 @@ function copyColorValue(color: string) {
   console.log(`已复制颜色值: ${color}`)
 }
 
-const systemPreference = computed(() => {
-  return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
-})
+// 移除系统偏好相关代码
 </script>
 
 <template>
@@ -81,8 +78,7 @@ const systemPreference = computed(() => {
             <div class="theme-info">
               <n-space vertical size="small">
                 <div><strong>当前主题:</strong> {{ currentTheme }}</div>
-                <div><strong>系统偏好:</strong> {{ systemPreference }}</div>
-                <div><strong>实际应用:</strong> {{ currentTheme === 'system' ? systemPreference : currentTheme }}</div>
+                <div><strong>实际应用:</strong> {{ currentTheme }}</div>
               </n-space>
             </div>
           </n-card>
@@ -233,7 +229,7 @@ const systemPreference = computed(() => {
               <div><strong>颜色配置:</strong> src/frontend/theme/colors.ts</div>
               <div><strong>UnoCSS 配置:</strong> uno.config.ts</div>
               <div>
-                <strong>当前使用:</strong> {{ currentTheme === 'system' ? `系统 (${systemPreference})` : currentTheme }}
+                <strong>当前使用:</strong> {{ currentTheme }}
               </div>
             </n-space>
           </n-card>

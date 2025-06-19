@@ -40,7 +40,7 @@ defineEmits(['themeChange'])
             界面主题
           </div>
           <div class="text-xs opacity-60">
-            选择浅色、深色或跟随系统
+            选择浅色或深色主题
           </div>
         </div>
       </div>
@@ -81,23 +81,7 @@ defineEmits(['themeChange'])
           深色
         </n-button>
 
-        <!-- 系统跟随 -->
-        <n-button
-          :type="currentTheme === 'system' ? 'primary' : 'default'"
-          size="small"
-          @click="$emit('themeChange', 'system')"
-        >
-          <template #icon>
-            <div
-              class="w-3 h-3 rounded-full border transition-all duration-200"
-              :style="{
-                background: 'linear-gradient(to right, #ffffff, #1f2937)',
-                borderColor: currentTheme === 'system' ? '#14b8a6' : '#d1d5db',
-              }"
-            />
-          </template>
-          跟随
-        </n-button>
+
       </n-space>
     </div>
   </n-card>

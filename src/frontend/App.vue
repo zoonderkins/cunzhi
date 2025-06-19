@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onMounted } from 'vue'
+import { onMounted, watchEffect } from 'vue'
 import AppContent from './components/AppContent.vue'
 import { useAppManager } from './composables/useAppManager'
 import { useEventHandlers } from './composables/useEventHandlers'
@@ -17,6 +17,19 @@ const {
 // 创建事件处理器
 const handlers = useEventHandlers(actions)
 
+// 监听主题变化，确保根节点类名正确（但不干扰主题应用）
+watchEffect(() => {
+  const root = document.documentElement
+  const theme = appConfig.value.theme
+
+  // 只更新类名，不触发主题重新应用
+  if (theme) {
+    root.classList.remove('light', 'dark')
+    root.classList.add(theme === 'light' ? 'light' : 'dark')
+    root.setAttribute('data-theme', theme === 'light' ? 'light' : 'dark')
+  }
+})
+
 // 初始化
 onMounted(async () => {
   try {
@@ -29,7 +42,7 @@ onMounted(async () => {
 </script>
 
 <template>
-  <div class="min-h-screen bg-black">
+  <div class="min-h-screen bg-surface transition-colors duration-200">
     <n-config-provider :theme="naiveTheme">
       <n-message-provider>
         <n-notification-provider>

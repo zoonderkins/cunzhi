@@ -66,7 +66,7 @@ function handleOpenMainLayout() {
           @click="handleThemeChange"
         >
           <template #icon>
-            <ThemeIcon :theme="props.currentTheme" class="w-4 h-4" />
+            <ThemeIcon :theme="props.currentTheme" class="w-4 h-4 text-white" />
           </template>
         </n-button>
       </n-space>

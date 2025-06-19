@@ -33,6 +33,8 @@ export default defineConfig({
     colors: {
       // 语义化颜色系统 - 重新定义基础颜色让它们适配主题
       ...semanticColors,
+      // 添加表面色的直接映射
+      surface: 'var(--color-surface)',
     },
     fontSize: {
       'xs': '0.75rem',
@@ -60,6 +62,9 @@ export default defineConfig({
   ],
   safelist: [
     // 语义化颜色类名 - 基于新的颜色系统
+    'bg-surface',
+    'text-surface',
+    'border-surface',
     'bg-black',
     'bg-white',
     'text-black',

@@ -21,7 +21,7 @@ pub struct AppConfig {
 pub struct UiConfig {
     // 主题设置
     #[serde(default = "default_theme")]
-    pub theme: String, // "light", "dark", "system"
+    pub theme: String, // "light", "dark"
 
     // 窗口设置
     #[serde(default = "default_window_config")]

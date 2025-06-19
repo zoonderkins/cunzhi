@@ -9,7 +9,7 @@ import { useVersionCheck } from './useVersionCheck'
  */
 export function useAppInitialization(mcpHandler: ReturnType<typeof import('./useMcpHandler').useMcpHandler>) {
   const isInitializing = ref(true)
-  const { loadTheme, setupSystemThemeListener } = useTheme()
+  const { loadTheme } = useTheme()
   const settings = useSettings()
   const { autoCheckUpdate } = useVersionCheck()
   const { checkMcpMode, setupMcpEventListener } = mcpHandler
@@ -19,7 +19,7 @@ export function useAppInitialization(mcpHandler: ReturnType<typeof import('./use
    */
   async function initializeApp() {
     try {
-      // 首先加载主题设置
+      // 加载主题设置
       await loadTheme()
 
       // 检查是否为MCP模式
@@ -34,9 +34,6 @@ export function useAppInitialization(mcpHandler: ReturnType<typeof import('./use
         await initMcpTools()
         await setupMcpEventListener()
       }
-
-      // 监听系统主题变化
-      setupSystemThemeListener()
 
       // 自动检查版本更新并弹窗（非阻塞）
       autoCheckUpdate().catch(() => {
@@ -58,7 +55,5 @@ export function useAppInitialization(mcpHandler: ReturnType<typeof import('./use
   return {
     isInitializing,
     initializeApp,
-    checkMcpMode,
-    setupMcpEventListener,
   }
 }
