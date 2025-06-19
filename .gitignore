@@ -68,3 +68,6 @@ src-tauri/Cargo.lock
 
 # macOS specific
 *.app/
+
+# scripts
+scripts/
