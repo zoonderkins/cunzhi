@@ -2,6 +2,7 @@ pub mod commands;
 pub mod window;
 pub mod audio;
 pub mod audio_assets;
+pub mod font_commands;
 pub mod updater;
 pub mod exit;
 pub mod window_events;

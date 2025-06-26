@@ -1,5 +1,6 @@
 import { ref } from 'vue'
 import { initMcpTools } from './useMcpTools'
+import { useFontManager } from './useFontManager'
 import { useSettings } from './useSettings'
 import { useTheme } from './useTheme'
 import { useVersionCheck } from './useVersionCheck'
@@ -10,6 +11,7 @@ import { useVersionCheck } from './useVersionCheck'
 export function useAppInitialization(mcpHandler: ReturnType<typeof import('./useMcpHandler').useMcpHandler>) {
   const isInitializing = ref(true)
   const { loadTheme } = useTheme()
+  const { loadFontConfig, loadFontOptions } = useFontManager()
   const settings = useSettings()
   const { autoCheckUpdate } = useVersionCheck()
   const { checkMcpMode, setupMcpEventListener } = mcpHandler
@@ -21,6 +23,12 @@ export function useAppInitialization(mcpHandler: ReturnType<typeof import('./use
     try {
       // 加载主题设置
       await loadTheme()
+
+      // 加载字体设置
+      await Promise.all([
+        loadFontConfig(),
+        loadFontOptions(),
+      ])
 
       // 检查是否为MCP模式
       const { isMcp, mcpContent } = await checkMcpMode()

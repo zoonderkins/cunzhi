@@ -137,6 +137,33 @@ export function applyThemeVariables(themeName: string) {
   // 强制设置主题类 - 确保根节点类名正确
   root.classList.remove('light', 'dark')
   root.classList.add(effectiveTheme)
+}
+
+// 应用字体变量（由字体管理器调用）
+export function applyFontVariables(fontFamily: string, fontScale: number) {
+  const root = document.documentElement
+
+  // 设置字体系列
+  root.style.setProperty('--font-family', fontFamily)
+  root.style.setProperty('--body-font-family', fontFamily)
+
+  // 设置字体大小比例
+  root.style.setProperty('--font-size-scale', fontScale.toString())
+
+  // 应用字体大小到各个尺寸级别
+  const baseSizes = [
+    { name: 'xs', base: 0.75 },
+    { name: 'sm', base: 0.875 },
+    { name: 'base', base: 0.875 },
+    { name: 'lg', base: 1.0 },
+    { name: 'xl', base: 1.125 },
+    { name: '2xl', base: 1.25 },
+  ]
+
+  baseSizes.forEach(({ name, base }) => {
+    const scaledSize = base * fontScale
+    root.style.setProperty(`--font-size-${name}`, `${scaledSize}rem`)
+  })
 
   // 同时设置 data 属性，确保兼容性
   root.setAttribute('data-theme', effectiveTheme)

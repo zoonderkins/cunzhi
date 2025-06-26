@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import AudioSettings from '../settings/AudioSettings.vue'
+import FontSettings from '../settings/FontSettings.vue'
 import ReplySettings from '../settings/ReplySettings.vue'
 import TelegramSettings from '../settings/TelegramSettings.vue'
 import ThemeSettings from '../settings/ThemeSettings.vue'
@@ -41,6 +42,9 @@ function handleWindowSizeUpdate(size: { width: number, height: number, fixed: bo
     <n-space vertical size="large">
       <!-- 主题设置组件 -->
       <ThemeSettings :current-theme="currentTheme" @theme-change="$emit('themeChange', $event)" />
+
+      <!-- 字体设置组件 -->
+      <FontSettings />
 
       <!-- 继续回复设置组件 -->
       <ReplySettings />
