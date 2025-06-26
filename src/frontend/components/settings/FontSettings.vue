@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { onMounted, ref, computed } from 'vue'
-import { useFontManager } from '../../composables/useFontManager'
 import { useMessage } from 'naive-ui'
+import { computed, onMounted, ref } from 'vue'
+import { useFontManager } from '../../composables/useFontManager'
 
 const message = useMessage()
 const {
@@ -35,11 +35,10 @@ const currentFontSizeName = computed(() => {
   return option?.name || '未知'
 })
 
-
-
 // 处理字体系列变更
 async function handleFontFamilyChange(value: string) {
-  if (isLoading.value) return
+  if (isLoading.value)
+    return
 
   try {
     isLoading.value = true
@@ -48,7 +47,8 @@ async function handleFontFamilyChange(value: string) {
     // 如果切换到非自定义字体，清空自定义字体输入
     if (value !== 'custom') {
       customFontInput.value = ''
-    } else {
+    }
+    else {
       // 如果切换到自定义字体，使用当前的自定义字体值
       customFontInput.value = fontConfig.value.custom_font_family
     }
@@ -66,7 +66,8 @@ async function handleFontFamilyChange(value: string) {
 
 // 处理字体大小变更
 async function handleFontSizeChange(value: string) {
-  if (isLoading.value) return
+  if (isLoading.value)
+    return
 
   try {
     isLoading.value = true
@@ -82,11 +83,10 @@ async function handleFontSizeChange(value: string) {
   }
 }
 
-
-
 // 处理自定义字体系列变更
 async function handleCustomFontFamilyChange() {
-  if (isLoading.value || !customFontInput.value.trim()) return
+  if (isLoading.value || !customFontInput.value.trim())
+    return
 
   try {
     isLoading.value = true
@@ -102,11 +102,10 @@ async function handleCustomFontFamilyChange() {
   }
 }
 
-
-
 // 处理字体名称输入应用
 async function handleFontNameApply() {
-  if (isLoading.value || !fontNameInput.value.trim()) return
+  if (isLoading.value || !fontNameInput.value.trim())
+    return
 
   const fontName = fontNameInput.value.trim()
   // 构建字体CSS值，包含降级字体
@@ -132,7 +131,8 @@ async function handleFontNameApply() {
 
 // 处理重置配置
 async function handleResetConfig() {
-  if (isLoading.value) return
+  if (isLoading.value)
+    return
 
   try {
     isLoading.value = true
@@ -148,8 +148,6 @@ async function handleResetConfig() {
     isLoading.value = false
   }
 }
-
-
 
 // 组件挂载时加载数据
 onMounted(async () => {
@@ -229,7 +227,9 @@ onMounted(async () => {
         <!-- 自定义字体输入（当选择自定义时显示） -->
         <n-collapse-transition :show="fontConfig.font_family === 'custom'">
           <div class="mt-3">
-            <div class="text-xs opacity-60 mb-2">自定义字体CSS值</div>
+            <div class="text-xs opacity-60 mb-2">
+              自定义字体CSS值
+            </div>
             <n-input-group>
               <n-input
                 v-model:value="customFontInput"
@@ -292,8 +292,6 @@ onMounted(async () => {
         </div>
       </div>
 
-
-
       <!-- 字体大小设置 -->
       <div>
         <div class="flex items-center mb-3">
@@ -324,10 +322,6 @@ onMounted(async () => {
         </div>
       </div>
 
-
-
-
-
       <!-- 字体预览 -->
       <div>
         <div class="flex items-center justify-between mb-3">
@@ -342,13 +336,12 @@ onMounted(async () => {
               </div>
             </div>
           </div>
-
         </div>
         <div
           class="bg-black-200 rounded p-4 border border-black-300 transition-all duration-200"
           :style="{
             fontFamily: currentFontFamily,
-            fontSize: `${currentFontScale}rem`
+            fontSize: `${currentFontScale}rem`,
           }"
         >
           <div class="mb-3 font-medium text-lg">
@@ -367,14 +360,12 @@ onMounted(async () => {
             abcdefghijklmnopqrstuvwxyz
           </div>
           <div class="text-sm opacity-60">
-            0123456789 !@#$%^&*()_+-=[]{}|;:'",./<>?
+            0123456789 !@#$%^&amp;*()_+-=[]{}|;:&apos;&quot;,./?
           </div>
         </div>
         <div class="text-xs opacity-50 mt-2 space-y-1">
           <div>当前字体: {{ currentFontFamily }}</div>
         </div>
-
-
       </div>
     </n-space>
   </n-card>

@@ -1,6 +1,6 @@
 import { ref } from 'vue'
-import { initMcpTools } from './useMcpTools'
 import { useFontManager } from './useFontManager'
+import { initMcpTools } from './useMcpTools'
 import { useSettings } from './useSettings'
 import { useTheme } from './useTheme'
 import { useVersionCheck } from './useVersionCheck'

@@ -1,5 +1,5 @@
 import { invoke } from '@tauri-apps/api/core'
-import { ref, computed, watch } from 'vue'
+import { computed, ref, watch } from 'vue'
 
 export interface FontInfo {
   font_family: string
@@ -18,8 +18,6 @@ export interface FontSizeOption {
   name: string
   scale: number
 }
-
-
 
 /**
  * 字体管理组合式函数
@@ -40,7 +38,7 @@ export function useFontManager() {
     if (fontConfig.value.font_family === 'custom') {
       return fontConfig.value.custom_font_family
     }
-    
+
     const option = fontFamilyOptions.value.find(opt => opt.id === fontConfig.value.font_family)
     return option?.css_value || fontFamilyOptions.value[0]?.css_value || 'Inter, sans-serif'
   })
@@ -50,8 +48,6 @@ export function useFontManager() {
     const option = fontSizeOptions.value.find(opt => opt.id === fontConfig.value.font_size)
     return option?.scale || 1.0
   })
-
-
 
   /**
    * 应用字体变量到DOM
@@ -150,8 +146,6 @@ export function useFontManager() {
     }
   }
 
-
-
   /**
    * 设置自定义字体系列
    */
@@ -166,8 +160,6 @@ export function useFontManager() {
       throw error
     }
   }
-
-
 
   /**
    * 重置字体配置

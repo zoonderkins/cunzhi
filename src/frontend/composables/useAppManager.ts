@@ -1,7 +1,6 @@
 import { computed } from 'vue'
 import { useAppInitialization } from './useAppInitialization'
 import { useAudioManager } from './useAudioManager'
-import { useFontManager } from './useFontManager'
 import { useMcpHandler } from './useMcpHandler'
 import { useSettings } from './useSettings'
 import { useTheme } from './useTheme'
@@ -15,7 +14,6 @@ export function useAppManager() {
   const theme = useTheme()
   const settings = useSettings()
   const audioManager = useAudioManager()
-  const fontManager = useFontManager()
   const mcpHandler = useMcpHandler()
   const appInit = useAppInitialization(mcpHandler)
 
