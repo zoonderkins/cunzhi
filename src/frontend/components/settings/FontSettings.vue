@@ -165,54 +165,32 @@ onMounted(async () => {
 </script>
 
 <template>
-  <n-card size="small">
-    <!-- 卡片头部 -->
-    <template #header>
-      <n-space align="center" justify="space-between">
-        <n-space align="center">
-          <!-- 图标 -->
-          <div class="w-10 h-10 rounded-lg bg-orange-100 dark:bg-orange-900 flex items-center justify-center">
-            <div class="i-carbon-text-font text-lg text-orange-600 dark:text-orange-400" />
-          </div>
-
-          <!-- 标题和副标题 -->
-          <div>
-            <div class="text-lg font-medium mb-1 tracking-tight">
-              字体设置
-            </div>
-            <div class="text-sm opacity-60 font-normal">
-              自定义应用字体系列和大小
-            </div>
-          </div>
-        </n-space>
-
-        <!-- 重置按钮 -->
-        <n-button
-          size="small"
-          type="default"
-          :loading="isLoading"
-          @click="handleResetConfig"
-        >
-          重置
-        </n-button>
-      </n-space>
-    </template>
-
-    <!-- 设置内容 -->
-
+  <!-- 设置内容 -->
+  <div class="space-y-6">
     <n-space vertical size="large">
       <!-- 字体系列设置 -->
       <div>
-        <div class="flex items-center mb-3">
-          <div class="w-1.5 h-1.5 bg-orange-500 rounded-full mr-3 flex-shrink-0" />
-          <div class="flex-1">
-            <div class="text-sm font-medium leading-relaxed">
-              字体系列
-            </div>
-            <div class="text-xs opacity-60">
-              选择或自定义应用使用的字体系列
+        <div class="flex items-center justify-between mb-3">
+          <div class="flex items-center">
+            <div class="w-1.5 h-1.5 bg-orange-500 rounded-full mr-3 flex-shrink-0" />
+            <div class="flex-1">
+              <div class="text-sm font-medium leading-relaxed">
+                字体系列
+              </div>
+              <div class="text-xs opacity-60">
+                选择或自定义应用使用的字体系列
+              </div>
             </div>
           </div>
+          <!-- 重置按钮 -->
+          <n-button
+            size="small"
+            type="default"
+            :loading="isLoading"
+            @click="handleResetConfig"
+          >
+            重置
+          </n-button>
         </div>
 
         <!-- 字体选择器 -->
@@ -368,5 +346,5 @@ onMounted(async () => {
         </div>
       </div>
     </n-space>
-  </n-card>
+  </div>
 </template>

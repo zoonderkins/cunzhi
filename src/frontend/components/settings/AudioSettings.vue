@@ -208,177 +208,155 @@ onMounted(async () => {
 </script>
 
 <template>
-  <n-card size="small">
-    <!-- 卡片头部 -->
-    <template #header>
-      <n-space align="center">
-        <!-- 图标 -->
-        <div class="w-10 h-10 rounded-lg bg-warning/10 dark:bg-warning/20 flex items-center justify-center">
-          <div class="i-carbon-volume-up text-lg text-orange-600 dark:text-orange-400" />
-        </div>
-
-        <!-- 标题和副标题 -->
+  <!-- 设置内容 -->
+  <n-space vertical size="large">
+    <!-- 音频通知开关 -->
+    <div class="flex items-center justify-between">
+      <div class="flex items-center">
+        <div class="w-1.5 h-1.5 bg-warning rounded-full mr-3 flex-shrink-0" />
         <div>
-          <div class="text-lg font-medium mb-1 tracking-tight">
-            音效设置
+          <div class="text-sm font-medium leading-relaxed">
+            音频通知
           </div>
-          <div class="text-sm opacity-60 font-normal">
-            配置音频通知和音效
-          </div>
-        </div>
-      </n-space>
-    </template>
-
-    <!-- 设置内容 -->
-    <n-space vertical size="large">
-      <!-- 音频通知开关 -->
-      <div class="flex items-center justify-between">
-        <div class="flex items-center">
-          <div class="w-1.5 h-1.5 bg-warning rounded-full mr-3 flex-shrink-0" />
-          <div>
-            <div class="text-sm font-medium leading-relaxed">
-              音频通知
-            </div>
-            <div class="text-xs opacity-60">
-              启用后在MCP工具被触发时播放音频提示
-            </div>
+          <div class="text-xs opacity-60">
+            启用后在MCP工具被触发时播放音频提示
           </div>
         </div>
-        <n-switch
-          :value="audioNotificationEnabled"
-          size="small"
-          @update:value="$emit('toggleAudioNotification')"
-        />
       </div>
+      <n-switch
+        :value="audioNotificationEnabled"
+        size="small"
+        @update:value="$emit('toggleAudioNotification')"
+      />
+    </div>
 
-      <!-- 音效选择 -->
-      <div v-if="audioNotificationEnabled" class="pt-4 border-t border-gray-200 dark:border-gray-700">
-        <div class="flex items-start">
-          <div class="w-1.5 h-1.5 bg-warning rounded-full mr-3 mt-2 flex-shrink-0" />
-          <div class="flex-1">
-            <div class="text-sm font-medium mb-3 leading-relaxed">
-              音效选择
+    <!-- 音效选择 -->
+    <div v-if="audioNotificationEnabled" class="pt-4 border-t border-gray-200 dark:border-gray-700">
+      <div class="flex items-start">
+        <div class="w-1.5 h-1.5 bg-warning rounded-full mr-3 mt-2 flex-shrink-0" />
+        <div class="flex-1">
+          <div class="text-sm font-medium mb-3 leading-relaxed">
+            音效选择
+          </div>
+
+          <!-- 预设音效 -->
+          <div class="mb-4">
+            <div class="text-xs opacity-60 mb-2">
+              预设音效
+            </div>
+            <div v-if="loading" class="text-xs opacity-60">
+              加载中...
+            </div>
+            <n-space v-else>
+              <n-button
+                v-for="preset in presetSounds"
+                :key="preset.id"
+                :type="selectedSoundType === 'preset' && selectedPreset === preset.id ? 'primary' : 'default'"
+                size="small"
+                @click="selectPreset(preset.id)"
+              >
+                {{ preset.name }}
+              </n-button>
+            </n-space>
+          </div>
+
+          <!-- 自定义音效 -->
+          <div class="mb-3">
+            <div class="flex items-center justify-between mb-2">
+              <div class="text-xs opacity-60">
+                自定义音效
+              </div>
+              <n-button
+                :type="selectedSoundType === 'custom' ? 'primary' : 'default'"
+                size="tiny"
+                @click="selectCustom"
+              >
+                使用自定义
+              </n-button>
             </div>
 
-            <!-- 预设音效 -->
-            <div class="mb-4">
-              <div class="text-xs opacity-60 mb-2">
-                预设音效
-              </div>
-              <div v-if="loading" class="text-xs opacity-60">
-                加载中...
-              </div>
-              <n-space v-else>
-                <n-button
-                  v-for="preset in presetSounds"
-                  :key="preset.id"
-                  :type="selectedSoundType === 'preset' && selectedPreset === preset.id ? 'primary' : 'default'"
-                  size="small"
-                  @click="selectPreset(preset.id)"
-                >
-                  {{ preset.name }}
-                </n-button>
-              </n-space>
-            </div>
+            <div v-if="selectedSoundType === 'custom' || customAudioState !== 'hidden'" class="space-y-2">
+              <!-- 自定义名称 -->
+              <n-input
+                v-model:value="customName"
+                size="small"
+                placeholder="音效名称（可选）"
+              />
 
-            <!-- 自定义音效 -->
-            <div class="mb-3">
-              <div class="flex items-center justify-between mb-2">
-                <div class="text-xs opacity-60">
-                  自定义音效
-                </div>
-                <n-button
-                  :type="selectedSoundType === 'custom' ? 'primary' : 'default'"
-                  size="tiny"
-                  @click="selectCustom"
-                >
-                  使用自定义
-                </n-button>
-              </div>
-
-              <div v-if="selectedSoundType === 'custom' || customAudioState !== 'hidden'" class="space-y-2">
-                <!-- 自定义名称 -->
+              <!-- 自定义URL -->
+              <n-input-group>
                 <n-input
-                  v-model:value="customName"
+                  v-model:value="customUrl"
                   size="small"
-                  placeholder="音效名称（可选）"
+                  placeholder="音效文件路径或URL"
+                  @input="updateCustomUrl"
                 />
+                <n-button
+                  v-if="customAudioState === 'show_input'"
+                  type="primary"
+                  size="small"
+                  :disabled="!customUrl.trim()"
+                  @click="saveCustomUrl"
+                >
+                  <template #icon>
+                    <div class="i-carbon-save text-sm" />
+                  </template>
+                  保存
+                </n-button>
+                <n-button
+                  v-else-if="customAudioState === 'saved'"
+                  type="success"
+                  size="small"
+                  :disabled="!customUrl.trim() || isTestingCustom"
+                  :loading="isTestingCustom"
+                  @click="testCustomAudio"
+                >
+                  <template #icon>
+                    <div class="i-carbon-volume-up text-sm" />
+                  </template>
+                  试听
+                </n-button>
+                <n-button
+                  v-else
+                  type="info"
+                  size="small"
+                  :disabled="!customUrl.trim()"
+                  @click="$emit('testAudio')"
+                >
+                  <template #icon>
+                    <div class="i-carbon-volume-up text-sm" />
+                  </template>
+                  试听
+                </n-button>
+              </n-input-group>
 
-                <!-- 自定义URL -->
-                <n-input-group>
-                  <n-input
-                    v-model:value="customUrl"
-                    size="small"
-                    placeholder="音效文件路径或URL"
-                    @input="updateCustomUrl"
-                  />
-                  <n-button
-                    v-if="customAudioState === 'show_input'"
-                    type="primary"
-                    size="small"
-                    :disabled="!customUrl.trim()"
-                    @click="saveCustomUrl"
-                  >
-                    <template #icon>
-                      <div class="i-carbon-save text-sm" />
-                    </template>
-                    保存
-                  </n-button>
-                  <n-button
-                    v-else-if="customAudioState === 'saved'"
-                    type="success"
-                    size="small"
-                    :disabled="!customUrl.trim() || isTestingCustom"
-                    :loading="isTestingCustom"
-                    @click="testCustomAudio"
-                  >
-                    <template #icon>
-                      <div class="i-carbon-volume-up text-sm" />
-                    </template>
-                    试听
-                  </n-button>
-                  <n-button
-                    v-else
-                    type="info"
-                    size="small"
-                    :disabled="!customUrl.trim()"
-                    @click="$emit('testAudio')"
-                  >
-                    <template #icon>
-                      <div class="i-carbon-volume-up text-sm" />
-                    </template>
-                    试听
-                  </n-button>
-                </n-input-group>
-
-                <div class="text-xs opacity-60">
-                  <span v-if="customAudioState === 'show_input'">
-                    示例：/path/to/sound.mp3 或 https://example.com/notification.wav
-                  </span>
-                  <span v-else-if="customAudioState === 'saved'" class="text-orange-500">
-                    请点击试听按钮测试音频，试听成功后将自动切换到自定义音效
-                  </span>
-                  <span v-else class="text-green-500">
-                    ✅ 自定义音效已验证并启用
-                  </span>
-                </div>
+              <div class="text-xs opacity-60">
+                <span v-if="customAudioState === 'show_input'">
+                  示例：/path/to/sound.mp3 或 https://example.com/notification.wav
+                </span>
+                <span v-else-if="customAudioState === 'saved'" class="text-orange-500">
+                  请点击试听按钮测试音频，试听成功后将自动切换到自定义音效
+                </span>
+                <span v-else class="text-green-500">
+                  ✅ 自定义音效已验证并启用
+                </span>
               </div>
             </div>
+          </div>
 
-            <!-- 当前音效显示 -->
-            <div class="mt-3 p-2 bg-gray-100 rounded text-xs">
-              <span class="opacity-60">当前音效：</span>
-              <span v-if="selectedSoundType === 'preset'">
-                {{ presetSounds.find(p => p.id === selectedPreset)?.name }}
-              </span>
-              <span v-else-if="customUrl">
-                {{ customName || '自定义音效' }} ({{ customUrl }})
-              </span>
-              <span v-else class="opacity-60">未设置</span>
-            </div>
+          <!-- 当前音效显示 -->
+          <div class="mt-3 p-2 bg-gray-100 rounded text-xs">
+            <span class="opacity-60">当前音效：</span>
+            <span v-if="selectedSoundType === 'preset'">
+              {{ presetSounds.find(p => p.id === selectedPreset)?.name }}
+            </span>
+            <span v-else-if="customUrl">
+              {{ customName || '自定义音效' }} ({{ customUrl }})
+            </span>
+            <span v-else class="opacity-60">未设置</span>
           </div>
         </div>
       </div>
-    </n-space>
-  </n-card>
+    </div>
+  </n-space>
 </template>
