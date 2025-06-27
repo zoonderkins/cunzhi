@@ -49,6 +49,15 @@ pub fn build_tauri_app() -> Builder<tauri::Wry> {
             apply_window_constraints,
             update_window_size,
 
+            // 字体命令
+            get_font_config,
+            set_font_family,
+            set_font_size,
+            set_custom_font_family,
+            get_font_family_options,
+            get_font_size_options,
+            reset_font_config,
+
             // MCP 命令
             get_mcp_tools_config,
             set_mcp_tool_enabled,

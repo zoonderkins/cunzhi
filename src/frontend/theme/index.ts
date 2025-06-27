@@ -137,14 +137,4 @@ export function applyThemeVariables(themeName: string) {
   // 强制设置主题类 - 确保根节点类名正确
   root.classList.remove('light', 'dark')
   root.classList.add(effectiveTheme)
-
-  // 同时设置 data 属性，确保兼容性
-  root.setAttribute('data-theme', effectiveTheme)
-
-  // 强制重绘确保样式立即生效
-  requestAnimationFrame(() => {
-    document.body.style.display = 'none'
-    void document.body.offsetHeight // 触发重排
-    document.body.style.display = ''
-  })
 }

@@ -122,185 +122,176 @@ onMounted(async () => {
 </script>
 
 <template>
-  <n-card size="small">
-    <template #header>
-      <div class="flex items-center gap-2">
-        <div class="i-carbon-upgrade text-lg text-blue-500" />
-        <span class="font-medium">版本信息</span>
+  <div class="space-y-4">
+    <!-- 版本信息显示 -->
+    <div
+      v-if="!loading && versionInfo"
+      class="space-y-3"
+    >
+      <div class="flex items-center justify-between">
+        <span class="text-sm text-on-surface-secondary">当前版本:</span>
+        <n-tag
+          size="small"
+          type="info"
+        >
+          v{{ versionInfo.current }}
+        </n-tag>
       </div>
-    </template>
 
-    <div class="space-y-4">
-      <!-- 版本信息显示 -->
       <div
-        v-if="!loading && versionInfo"
-        class="space-y-3"
+        v-if="versionInfo.latest !== versionInfo.current"
+        class="flex items-center justify-between"
       >
-        <div class="flex items-center justify-between">
-          <span class="text-sm text-on-surface-secondary">当前版本:</span>
-          <n-tag
-            size="small"
-            type="info"
-          >
-            v{{ versionInfo.current }}
-          </n-tag>
-        </div>
-
-        <div
-          v-if="versionInfo.latest !== versionInfo.current"
-          class="flex items-center justify-between"
+        <span class="text-sm text-on-surface-secondary">最新版本:</span>
+        <n-tag
+          size="small"
+          :type="versionInfo.hasUpdate ? 'warning' : 'success'"
         >
-          <span class="text-sm text-on-surface-secondary">最新版本:</span>
-          <n-tag
-            size="small"
-            :type="versionInfo.hasUpdate ? 'warning' : 'success'"
-          >
-            v{{ versionInfo.latest }}
-          </n-tag>
-        </div>
+          v{{ versionInfo.latest }}
+        </n-tag>
+      </div>
 
-        <!-- 更新提示 -->
-        <div
-          v-if="versionInfo.hasUpdate"
-          class="p-3 bg-warning/10 dark:bg-warning/20 rounded-lg border border-warning/20 dark:border-warning/30"
-        >
-          <div class="flex items-start gap-2">
-            <div class="i-carbon-warning text-warning mt-0.5" />
-            <div class="flex-1">
-              <p class="text-sm font-medium text-on-surface dark:text-on-surface">
-                发现新版本 v{{ versionInfo.latest }}
-              </p>
-              <p class="text-xs text-on-surface-secondary dark:text-on-surface-secondary mt-1">
-                建议更新到最新版本以获得更好的体验
-              </p>
-            </div>
+      <!-- 更新提示 -->
+      <div
+        v-if="versionInfo.hasUpdate"
+        class="p-3 bg-warning/10 dark:bg-warning/20 rounded-lg border border-warning/20 dark:border-warning/30"
+      >
+        <div class="flex items-start gap-2">
+          <div class="i-carbon-warning text-warning mt-0.5" />
+          <div class="flex-1">
+            <p class="text-sm font-medium text-on-surface dark:text-on-surface">
+              发现新版本 v{{ versionInfo.latest }}
+            </p>
+            <p class="text-xs text-on-surface-secondary dark:text-on-surface-secondary mt-1">
+              建议更新到最新版本以获得更好的体验
+            </p>
           </div>
         </div>
+      </div>
 
-        <!-- 更新进度显示 -->
-        <div
-          v-if="isUpdating"
-          class="p-3 bg-surface-100 dark:bg-surface-800 rounded-lg border border-surface-200 dark:border-surface-700"
-        >
-          <div class="space-y-2">
-            <div class="flex items-center gap-2">
-              <n-spin size="small" />
-              <span class="text-sm font-medium text-on-surface dark:text-on-surface">
-                {{ updateStatus === 'checking' ? '检查更新中...'
-                  : updateStatus === 'downloading' ? '下载更新中...'
-                    : updateStatus === 'installing' ? '安装更新中...'
-                      : updateStatus === 'completed' ? '更新完成' : '更新中...' }}
+      <!-- 更新进度显示 -->
+      <div
+        v-if="isUpdating"
+        class="p-3 bg-surface-100 dark:bg-surface-800 rounded-lg border border-surface-200 dark:border-surface-700"
+      >
+        <div class="space-y-2">
+          <div class="flex items-center gap-2">
+            <n-spin size="small" />
+            <span class="text-sm font-medium text-on-surface dark:text-on-surface">
+              {{ updateStatus === 'checking' ? '检查更新中...'
+                : updateStatus === 'downloading' ? '下载更新中...'
+                  : updateStatus === 'installing' ? '安装更新中...'
+                    : updateStatus === 'completed' ? '更新完成' : '更新中...' }}
+            </span>
+          </div>
+
+          <!-- 下载进度条 -->
+          <div
+            v-if="updateProgress && updateStatus === 'downloading'"
+            class="space-y-1"
+          >
+            <n-progress
+              type="line"
+              :percentage="Math.round(updateProgress.percentage)"
+              :show-indicator="false"
+              :height="6"
+            />
+            <div class="flex justify-between text-xs text-on-surface-secondary dark:text-on-surface-secondary">
+              <span>{{ Math.round(updateProgress.downloaded / 1024 / 1024 * 100) / 100 }}MB</span>
+              <span v-if="updateProgress.content_length">
+                / {{ Math.round(updateProgress.content_length / 1024 / 1024 * 100) / 100 }}MB
               </span>
-            </div>
-
-            <!-- 下载进度条 -->
-            <div
-              v-if="updateProgress && updateStatus === 'downloading'"
-              class="space-y-1"
-            >
-              <n-progress
-                type="line"
-                :percentage="Math.round(updateProgress.percentage)"
-                :show-indicator="false"
-                :height="6"
-              />
-              <div class="flex justify-between text-xs text-on-surface-secondary dark:text-on-surface-secondary">
-                <span>{{ Math.round(updateProgress.downloaded / 1024 / 1024 * 100) / 100 }}MB</span>
-                <span v-if="updateProgress.content_length">
-                  / {{ Math.round(updateProgress.content_length / 1024 / 1024 * 100) / 100 }}MB
-                </span>
-                <span>{{ Math.round(updateProgress.percentage) }}%</span>
-              </div>
+              <span>{{ Math.round(updateProgress.percentage) }}%</span>
             </div>
           </div>
         </div>
-
-        <!-- 最后检查时间 -->
-        <div
-          v-if="formattedLastCheckTime"
-          class="text-xs text-on-surface-muted dark:text-on-surface-muted"
-        >
-          最后检查: {{ formattedLastCheckTime }}
-        </div>
       </div>
 
-      <!-- 加载状态 -->
+      <!-- 最后检查时间 -->
       <div
-        v-else-if="loading"
-        class="flex items-center justify-center py-4"
+        v-if="formattedLastCheckTime"
+        class="text-xs text-on-surface-muted dark:text-on-surface-muted"
       >
-        <n-spin size="small" />
-        <span class="ml-2 text-sm text-on-surface-secondary">加载版本信息...</span>
-      </div>
-
-      <!-- 操作按钮 -->
-      <div class="flex items-center gap-2 pt-2 border-t border-surface-200 dark:border-surface-700">
-        <n-button
-          size="small"
-          :loading="isChecking"
-          :disabled="isUpdating"
-          @click="handleCheckUpdate"
-        >
-          <template #icon>
-            <div class="i-carbon-renew" />
-          </template>
-          检查更新
-        </n-button>
-
-        <!-- 立即更新按钮 -->
-        <n-button
-          v-if="versionInfo?.hasUpdate && updateStatus !== 'completed'"
-          type="primary"
-          size="small"
-          :loading="isUpdating"
-          @click="handleOneClickUpdate"
-        >
-          <template #icon>
-            <div class="i-carbon-upgrade" />
-          </template>
-          立即更新
-        </n-button>
-
-        <!-- 重启按钮 -->
-        <n-button
-          v-if="updateStatus === 'completed'"
-          type="success"
-          size="small"
-          @click="handleRestartApp"
-        >
-          <template #icon>
-            <div class="i-carbon-restart" />
-          </template>
-          重启应用
-        </n-button>
-
-        <!-- 手动下载按钮（备选方案） -->
-        <n-button
-          v-if="versionInfo?.hasUpdate"
-          secondary
-          size="small"
-          :disabled="isUpdating"
-          @click="handleDownloadUpdate"
-        >
-          <template #icon>
-            <div class="i-carbon-download" />
-          </template>
-          手动下载
-        </n-button>
-
-        <n-button
-          v-if="versionInfo?.releaseUrl"
-          secondary
-          size="small"
-          :disabled="isUpdating"
-          @click="handleViewReleaseNotes"
-        >
-          <template #icon>
-            <div class="i-carbon-document" />
-          </template>
-          更新日志
-        </n-button>
+        最后检查: {{ formattedLastCheckTime }}
       </div>
     </div>
-  </n-card>
+
+    <!-- 加载状态 -->
+    <div
+      v-else-if="loading"
+      class="flex items-center justify-center py-4"
+    >
+      <n-spin size="small" />
+      <span class="ml-2 text-sm text-on-surface-secondary">加载版本信息...</span>
+    </div>
+
+    <!-- 操作按钮 -->
+    <div class="flex items-center gap-2 pt-2 border-t border-surface-200 dark:border-surface-700">
+      <n-button
+        size="small"
+        :loading="isChecking"
+        :disabled="isUpdating"
+        @click="handleCheckUpdate"
+      >
+        <template #icon>
+          <div class="i-carbon-renew" />
+        </template>
+        检查更新
+      </n-button>
+
+      <!-- 立即更新按钮 -->
+      <n-button
+        v-if="versionInfo?.hasUpdate && updateStatus !== 'completed'"
+        type="primary"
+        size="small"
+        :loading="isUpdating"
+        @click="handleOneClickUpdate"
+      >
+        <template #icon>
+          <div class="i-carbon-upgrade" />
+        </template>
+        立即更新
+      </n-button>
+
+      <!-- 重启按钮 -->
+      <n-button
+        v-if="updateStatus === 'completed'"
+        type="success"
+        size="small"
+        @click="handleRestartApp"
+      >
+        <template #icon>
+          <div class="i-carbon-restart" />
+        </template>
+        重启应用
+      </n-button>
+
+      <!-- 手动下载按钮（备选方案） -->
+      <n-button
+        v-if="versionInfo?.hasUpdate"
+        secondary
+        size="small"
+        :disabled="isUpdating"
+        @click="handleDownloadUpdate"
+      >
+        <template #icon>
+          <div class="i-carbon-download" />
+        </template>
+        手动下载
+      </n-button>
+
+      <n-button
+        v-if="versionInfo?.releaseUrl"
+        secondary
+        size="small"
+        :disabled="isUpdating"
+        @click="handleViewReleaseNotes"
+      >
+        <template #icon>
+          <div class="i-carbon-document" />
+        </template>
+        更新日志
+      </n-button>
+    </div>
+  </div>
 </template>

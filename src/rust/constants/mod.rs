@@ -3,6 +3,7 @@
 
 pub mod app;
 pub mod audio;
+pub mod font;
 pub mod mcp;
 pub mod network;
 pub mod telegram;
