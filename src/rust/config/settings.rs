@@ -1,7 +1,7 @@
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::sync::Mutex;
-use crate::constants::{window, theme, audio, mcp, telegram};
+use crate::constants::{window, theme, audio, mcp, telegram, font};
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct AppConfig {
@@ -23,6 +23,10 @@ pub struct UiConfig {
     #[serde(default = "default_theme")]
     pub theme: String, // "light", "dark"
 
+    // 字体设置
+    #[serde(default = "default_font_config")]
+    pub font_config: FontConfig,
+
     // 窗口设置
     #[serde(default = "default_window_config")]
     pub window_config: WindowConfig,
@@ -30,6 +34,21 @@ pub struct UiConfig {
     // 置顶设置
     #[serde(default = "default_always_on_top")]
     pub always_on_top: bool,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct FontConfig {
+    // 字体系列
+    #[serde(default = "default_font_family")]
+    pub font_family: String, // "inter", "jetbrains-mono", "system", "custom"
+
+    // 字体大小
+    #[serde(default = "default_font_size")]
+    pub font_size: String, // "small", "medium", "large"
+
+    // 自定义字体系列（当 font_family 为 "custom" 时使用）
+    #[serde(default = "default_custom_font_family")]
+    pub custom_font_family: String,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
@@ -137,6 +156,7 @@ impl Default for AppState {
 pub fn default_ui_config() -> UiConfig {
     UiConfig {
         theme: default_theme(),
+        font_config: default_font_config(),
         window_config: default_window_config(),
         always_on_top: default_always_on_top(),
     }
@@ -320,4 +340,25 @@ impl WindowConfig {
             self.free_height = height;
         }
     }
+}
+
+// 字体配置默认值函数
+pub fn default_font_config() -> FontConfig {
+    FontConfig {
+        font_family: default_font_family(),
+        font_size: default_font_size(),
+        custom_font_family: default_custom_font_family(),
+    }
+}
+
+pub fn default_font_family() -> String {
+    font::DEFAULT_FONT_FAMILY.to_string()
+}
+
+pub fn default_font_size() -> String {
+    font::DEFAULT_FONT_SIZE.to_string()
+}
+
+pub fn default_custom_font_family() -> String {
+    font::DEFAULT_CUSTOM_FONT_FAMILY.to_string()
 }

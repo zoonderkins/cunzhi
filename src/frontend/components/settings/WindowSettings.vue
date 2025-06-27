@@ -258,182 +258,160 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <n-card size="small">
-    <!-- 卡片头部 -->
-    <template #header>
-      <n-space align="center">
-        <!-- 图标 -->
-        <div class="w-10 h-10 rounded-lg bg-success/10 dark:bg-success/20 flex items-center justify-center">
-          <div class="i-carbon-settings text-lg text-green-600 dark:text-green-400" />
-        </div>
-
-        <!-- 标题和副标题 -->
+  <!-- 设置内容 -->
+  <n-space vertical size="large">
+    <!-- 置顶显示设置 -->
+    <div class="flex items-center justify-between">
+      <div class="flex items-center">
+        <div class="w-1.5 h-1.5 bg-success rounded-full mr-3 flex-shrink-0" />
         <div>
-          <div class="text-lg font-medium mb-1 tracking-tight">
-            窗口设置
+          <div class="text-sm font-medium leading-relaxed">
+            总在最前
           </div>
-          <div class="text-sm opacity-60 font-normal">
-            配置窗口显示行为
-          </div>
-        </div>
-      </n-space>
-    </template>
-
-    <!-- 设置内容 -->
-    <n-space vertical size="large">
-      <!-- 置顶显示设置 -->
-      <div class="flex items-center justify-between">
-        <div class="flex items-center">
-          <div class="w-1.5 h-1.5 bg-success rounded-full mr-3 flex-shrink-0" />
-          <div>
-            <div class="text-sm font-medium leading-relaxed">
-              总在最前
-            </div>
-            <div class="text-xs opacity-60">
-              启用后窗口将始终保持在其他应用程序之上
-            </div>
+          <div class="text-xs opacity-60">
+            启用后窗口将始终保持在其他应用程序之上
           </div>
         </div>
-        <n-switch
-          :value="alwaysOnTop"
-          size="small"
-          @update:value="$emit('toggleAlwaysOnTop')"
-        />
       </div>
+      <n-switch
+        :value="alwaysOnTop"
+        size="small"
+        @update:value="$emit('toggleAlwaysOnTop')"
+      />
+    </div>
 
-      <!-- 窗口尺寸设置 -->
-      <div class="pt-4 border-t border-gray-200 dark:border-gray-700">
-        <div class="flex items-start">
-          <div class="w-1.5 h-1.5 bg-success rounded-full mr-3 mt-2 flex-shrink-0" />
-          <div class="flex-1">
-            <div class="text-sm font-medium mb-3 leading-relaxed">
-              窗口尺寸
+    <!-- 窗口尺寸设置 -->
+    <div class="pt-4 border-t border-gray-200 dark:border-gray-700">
+      <div class="flex items-start">
+        <div class="w-1.5 h-1.5 bg-success rounded-full mr-3 mt-2 flex-shrink-0" />
+        <div class="flex-1">
+          <div class="text-sm font-medium mb-3 leading-relaxed">
+            窗口尺寸
+          </div>
+
+          <!-- 窗口模式选择 -->
+          <div class="space-y-3">
+            <!-- 自由拉伸模式 -->
+            <div
+              class="p-3 rounded-lg border cursor-pointer transition-all"
+              :class="!localFixed ? 'border-primary-500 bg-primary-50 dark:bg-primary-900/20 shadow-sm' : 'border-gray-300 dark:border-gray-600 hover:border-primary-300 dark:hover:border-primary-500 hover:bg-gray-100'"
+              @click="toggleWindowMode(false)"
+            >
+              <div class="flex items-center justify-between">
+                <div class="flex items-center">
+                  <div
+                    class="w-4 h-4 rounded-full border-2 mr-3 flex items-center justify-center"
+                    :class="!localFixed ? 'border-primary-500' : 'border-gray-400 dark:border-gray-500'"
+                  >
+                    <div
+                      v-if="!localFixed"
+                      class="w-2 h-2 bg-primary-500 rounded-full"
+                    />
+                  </div>
+                  <div>
+                    <div class="text-sm font-medium mb-1">
+                      自由拉伸
+                    </div>
+                    <div class="text-xs opacity-60">
+                      窗口可以自由拖拽调整大小
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
 
-            <!-- 窗口模式选择 -->
-            <div class="space-y-3">
-              <!-- 自由拉伸模式 -->
-              <div
-                class="p-3 rounded-lg border cursor-pointer transition-all"
-                :class="!localFixed ? 'border-primary-500 bg-primary-50 dark:bg-primary-900/20 shadow-sm' : 'border-gray-300 dark:border-gray-600 hover:border-primary-300 dark:hover:border-primary-500 hover:bg-gray-100'"
-                @click="toggleWindowMode(false)"
-              >
-                <div class="flex items-center justify-between">
-                  <div class="flex items-center">
+            <!-- 固定大小模式 -->
+            <div
+              class="p-3 rounded-lg border cursor-pointer transition-all"
+              :class="localFixed ? 'border-primary-500 bg-primary-50 dark:bg-primary-900/20 shadow-sm' : 'border-gray-300 dark:border-gray-600 hover:border-primary-300 dark:hover:border-primary-500 hover:bg-gray-100'"
+              @click="toggleWindowMode(true)"
+            >
+              <div class="flex items-center justify-between">
+                <div class="flex items-center">
+                  <div
+                    class="w-4 h-4 rounded-full border-2 mr-3 flex items-center justify-center"
+                    :class="localFixed ? 'border-primary-500' : 'border-gray-400 dark:border-gray-500'"
+                  >
                     <div
-                      class="w-4 h-4 rounded-full border-2 mr-3 flex items-center justify-center"
-                      :class="!localFixed ? 'border-primary-500' : 'border-gray-400 dark:border-gray-500'"
-                    >
-                      <div
-                        v-if="!localFixed"
-                        class="w-2 h-2 bg-primary-500 rounded-full"
-                      />
+                      v-if="localFixed"
+                      class="w-2 h-2 bg-primary-500 rounded-full"
+                    />
+                  </div>
+                  <div>
+                    <div class="text-sm font-medium mb-1">
+                      固定大小
                     </div>
-                    <div>
-                      <div class="text-sm font-medium mb-1">
-                        自由拉伸
-                      </div>
-                      <div class="text-xs opacity-60">
-                        窗口可以自由拖拽调整大小
-                      </div>
+                    <div class="text-xs opacity-60">
+                      设置固定的窗口尺寸
                     </div>
                   </div>
                 </div>
               </div>
 
-              <!-- 固定大小模式 -->
-              <div
-                class="p-3 rounded-lg border cursor-pointer transition-all"
-                :class="localFixed ? 'border-primary-500 bg-primary-50 dark:bg-primary-900/20 shadow-sm' : 'border-gray-300 dark:border-gray-600 hover:border-primary-300 dark:hover:border-primary-500 hover:bg-gray-100'"
-                @click="toggleWindowMode(true)"
-              >
-                <div class="flex items-center justify-between">
-                  <div class="flex items-center">
-                    <div
-                      class="w-4 h-4 rounded-full border-2 mr-3 flex items-center justify-center"
-                      :class="localFixed ? 'border-primary-500' : 'border-gray-400 dark:border-gray-500'"
-                    >
-                      <div
-                        v-if="localFixed"
-                        class="w-2 h-2 bg-primary-500 rounded-full"
-                      />
+              <!-- 固定模式的尺寸设置 -->
+              <div v-if="localFixed" class="mt-3 pt-3 border-t border-gray-200 dark:border-gray-600">
+                <div class="grid grid-cols-2 gap-3">
+                  <!-- 宽度设置 -->
+                  <div>
+                    <div class="text-xs opacity-60 mb-2">
+                      宽度
                     </div>
-                    <div>
-                      <div class="text-sm font-medium mb-1">
-                        固定大小
-                      </div>
-                      <div class="text-xs opacity-60">
-                        设置固定的窗口尺寸
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                <!-- 固定模式的尺寸设置 -->
-                <div v-if="localFixed" class="mt-3 pt-3 border-t border-gray-200 dark:border-gray-600">
-                  <div class="grid grid-cols-2 gap-3">
-                    <!-- 宽度设置 -->
-                    <div>
-                      <div class="text-xs opacity-60 mb-2">
-                        宽度
-                      </div>
-                      <n-input-number
-                        v-model:value="localWidth"
-                        :min="windowConstraints.min_width"
-                        :max="windowConstraints.max_width"
-                        :step="windowConstraints.resize_step"
-                        size="small"
-                        placeholder="宽度"
-                        @click.stop
-                        @mousedown.stop
-                      />
-                    </div>
-
-                    <!-- 高度设置 -->
-                    <div>
-                      <div class="text-xs opacity-60 mb-2">
-                        高度
-                      </div>
-                      <n-input-number
-                        v-model:value="localHeight"
-                        :min="windowConstraints.min_height"
-                        :max="windowConstraints.max_height"
-                        :step="windowConstraints.resize_step"
-                        size="small"
-                        placeholder="高度"
-                        @click.stop
-                        @mousedown.stop
-                      />
-                    </div>
-                  </div>
-
-                  <!-- 保存按钮 -->
-                  <div class="mt-3 pt-3 border-t border-gray-200 dark:border-gray-600">
-                    <n-button
-                      type="primary"
+                    <n-input-number
+                      v-model:value="localWidth"
+                      :min="windowConstraints.min_width"
+                      :max="windowConstraints.max_width"
+                      :step="windowConstraints.resize_step"
                       size="small"
-                      @click="saveWindowSize"
-                    >
-                      保存窗口设置
-                    </n-button>
+                      placeholder="宽度"
+                      @click.stop
+                      @mousedown.stop
+                    />
                   </div>
+
+                  <!-- 高度设置 -->
+                  <div>
+                    <div class="text-xs opacity-60 mb-2">
+                      高度
+                    </div>
+                    <n-input-number
+                      v-model:value="localHeight"
+                      :min="windowConstraints.min_height"
+                      :max="windowConstraints.max_height"
+                      :step="windowConstraints.resize_step"
+                      size="small"
+                      placeholder="高度"
+                      @click.stop
+                      @mousedown.stop
+                    />
+                  </div>
+                </div>
+
+                <!-- 保存按钮 -->
+                <div class="mt-3 pt-3 border-t border-gray-200 dark:border-gray-600">
+                  <n-button
+                    type="primary"
+                    size="small"
+                    @click="saveWindowSize"
+                  >
+                    保存窗口设置
+                  </n-button>
                 </div>
               </div>
             </div>
+          </div>
 
-            <!-- 窗口信息显示（弱化） -->
-            <div class="mt-4 text-center space-y-1">
-              <div class="text-xs opacity-60 text-gray-600 dark:text-gray-400">
-                当前窗口：{{ currentWidth || localWidth }} × {{ currentHeight || localHeight }} px
-                （{{ localFixed ? '固定大小' : '自由拉伸' }}）
-              </div>
-              <div class="text-xs opacity-50 text-gray-500 dark:text-gray-500">
-                尺寸限制：宽度 {{ windowConstraints.min_width }}-{{ windowConstraints.max_width }}px，高度 {{ windowConstraints.min_height }}-{{ windowConstraints.max_height }}px
-              </div>
+          <!-- 窗口信息显示（弱化） -->
+          <div class="mt-4 text-center space-y-1">
+            <div class="text-xs opacity-60 text-gray-600 dark:text-gray-400">
+              当前窗口：{{ currentWidth || localWidth }} × {{ currentHeight || localHeight }} px
+              （{{ localFixed ? '固定大小' : '自由拉伸' }}）
+            </div>
+            <div class="text-xs opacity-50 text-gray-500 dark:text-gray-500">
+              尺寸限制：宽度 {{ windowConstraints.min_width }}-{{ windowConstraints.max_width }}px，高度 {{ windowConstraints.min_height }}-{{ windowConstraints.max_height }}px
             </div>
           </div>
         </div>
       </div>
-    </n-space>
-  </n-card>
+    </div>
+  </n-space>
 </template>
