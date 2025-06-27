@@ -21,7 +21,6 @@ import {
   NModal,
   NNotificationProvider,
   NProgress,
-  NSelect,
   NSkeleton,
   NSpace,
   NSpin,
