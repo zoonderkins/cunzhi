@@ -5,17 +5,20 @@ interface Props {
   currentTheme?: string
   loading?: boolean
   showMainLayout?: boolean
+  alwaysOnTop?: boolean
 }
 
 interface Emits {
   themeChange: [theme: string]
   openMainLayout: []
+  toggleAlwaysOnTop: []
 }
 
 const props = withDefaults(defineProps<Props>(), {
   currentTheme: 'dark',
   loading: false,
   showMainLayout: false,
+  alwaysOnTop: false,
 })
 
 const emit = defineEmits<Emits>()
@@ -28,6 +31,10 @@ function handleThemeChange() {
 
 function handleOpenMainLayout() {
   emit('openMainLayout')
+}
+
+function handleToggleAlwaysOnTop() {
+  emit('toggleAlwaysOnTop')
 }
 </script>
 
@@ -44,6 +51,21 @@ function handleOpenMainLayout() {
 
       <!-- 右侧：操作按钮 -->
       <n-space size="small">
+        <!-- 置顶按钮 -->
+        <n-button
+          size="small"
+          quaternary
+          circle
+          :title="props.alwaysOnTop ? '取消置顶' : '窗口置顶'"
+          @click="handleToggleAlwaysOnTop"
+        >
+          <template #icon>
+            <div
+              :class="props.alwaysOnTop ? 'i-carbon-pin-filled' : 'i-carbon-pin'"
+              class="w-4 h-4 text-white"
+            />
+          </template>
+        </n-button>
         <n-button
           size="small"
           quaternary

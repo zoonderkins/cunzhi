@@ -111,8 +111,10 @@ onUnmounted(() => {
           :current-theme="props.appConfig.theme"
           :loading="false"
           :show-main-layout="showPopupSettings"
+          :always-on-top="props.appConfig.window.alwaysOnTop"
           @theme-change="$emit('themeChange', $event)"
           @open-main-layout="togglePopupSettings"
+          @toggle-always-on-top="$emit('toggleAlwaysOnTop')"
         />
       </div>
 

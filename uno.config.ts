@@ -201,5 +201,7 @@ export default defineConfig({
     'i-carbon-upgrade',
     'i-carbon-renew',
     'i-carbon-download',
+    'i-carbon-pin',
+    'i-carbon-pin-filled',
   ],
 })
