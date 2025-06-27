@@ -85,8 +85,7 @@ jobs:
           elif [[ "${{ matrix.platform }}" == "windows-latest" ]]; then
             cargo tauri build --no-bundle
           else
-            # Linux build with improved compatibility
-            export RUSTFLAGS="-C target-feature=+crt-static"
+            # Linux build - 移除静态链接标志以避免 proc-macro 编译问题
             cargo tauri build --no-bundle
           fi
 
