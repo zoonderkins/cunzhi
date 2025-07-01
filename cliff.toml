@@ -5,13 +5,15 @@
 # changelog 头部
 header = ""
 
-# changelog 主体模板 - 优化格式，包含 commit 链接和作者信息
+# changelog 主体模板 - 清晰的结构化格式
 body = """
+## What's Changed
+
 {% for group, commits in commits | group_by(attribute="group") %}
 ### {{ group }}
 
 {% for commit in commits -%}
-- {{ commit.message | split(pat=":") | last | trim | upper_first | truncate(length=80, end="...") }} ([{{ commit.id | truncate(length=7, end="") }}](https://github.com/imhuso/cunzhi/commit/{{ commit.id }}))
+* {{ commit.message | split(pat=":") | last | trim | upper_first }} by [@{{ commit.author.name }}](https://github.com/{{ commit.author.name }}) in [{{ commit.id | truncate(length=7, end="") }}](https://github.com/imhuso/cunzhi/commit/{{ commit.id }})
 {% endfor %}
 {% endfor -%}
 """
@@ -29,22 +31,22 @@ conventional_commits = true
 filter_unconventional = false
 # 分割提交信息
 split_commits = false
-# 提交解析器 - 英文分组名称
+# 提交解析器
 commit_parsers = [
-  { message = "^feat", group = "✨ Features" },
-  { message = "^fix", group = "🐛 Bug Fixes" },
-  { message = "^docs?", group = "📚 Documentation" },
-  { message = "^perf", group = "⚡ Performance" },
-  { message = "^refactor", group = "♻️ Refactor" },
-  { message = "^style", group = "💄 Styling" },
-  { message = "^test", group = "🧪 Testing" },
+  { message = "^feat", group = "✨ 新功能" },
+  { message = "^fix", group = "🐞 修复" },
+  { message = "^perf", group = "💎 优化" },
+  { message = "^refactor", group = "♻️ 重构" },
+  { message = "^docs?", group = "📚 文档" },
+  { message = "^style", group = "💄 样式" },
+  { message = "^test", group = "🧪 测试" },
+  { message = "^build", group = "📦 构建" },
+  { message = "^security", group = "🔒 安全" },
   { message = "^chore\\(release\\)", skip = true },
   { message = "^chore\\(deps", skip = true },
-  { message = "^chore|^ci", group = "🔧 Chore" },
-  { message = "^revert", group = "⏪ Revert" },
-  { message = "^build", group = "📦 Build" },
-  { message = "^security", group = "🔒 Security" },
-  { message = ".*", group = "📝 Other" },
+  { message = "^chore|^ci", group = "🔧 维护" },
+  { message = "^revert", group = "⏪ 回滚" },
+  { message = ".*", group = "📝 其他" },
 ]
 
 # 提交预处理器 - 清理提交信息

@@ -187,14 +187,29 @@ jobs:
       - name: Install git-cliff
         uses: taiki-e/install-action@git-cliff
 
-      - name: Generate changelog
+      - name: Generate changelog and release title
         id: changelog
         run: |
-          # 获取上一个版本标签
-          PREVIOUS_TAG=$(git tag --sort=-version:refname | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+$' | head -2 | tail -1)
+          # 从 GitHub API 获取最新的 release 版本
+          echo "Fetching latest release from GitHub API..."
+          LATEST_RELEASE=$(curl -s "https://api.github.com/repos/imhuso/cunzhi/releases/latest" | jq -r '.tag_name // empty' 2>/dev/null || echo "")
+
+          if [ -z "$LATEST_RELEASE" ] || [ "$LATEST_RELEASE" = "null" ]; then
+            echo "GitHub API failed or no previous release found, falling back to git tags"
+            # 回退到使用 git tag 获取上一个版本
+            PREVIOUS_TAG=$(git tag --sort=-version:refname | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+$' | head -2 | tail -1)
+            if [ -z "$PREVIOUS_TAG" ]; then
+              echo "No previous tags found, generating full changelog"
+            else
+              echo "Found previous tag: $PREVIOUS_TAG"
+            fi
+          else
+            PREVIOUS_TAG="$LATEST_RELEASE"
+            echo "Found previous release: $PREVIOUS_TAG"
+          fi
 
           echo "Current tag: ${{ github.ref_name }}"
-          echo "Previous tag: $PREVIOUS_TAG"
+          echo "Previous version: $PREVIOUS_TAG"
 
           if [ -z "$PREVIOUS_TAG" ]; then
             # 如果没有上一个版本，生成所有提交的 changelog
@@ -202,16 +217,33 @@ jobs:
           else
             # 只生成从上一个版本到当前版本的 changelog
             git-cliff $PREVIOUS_TAG..${{ github.ref_name }} --output changelog.md
+
+            # 添加 Full Changelog 链接
+            echo "" >> changelog.md
+            echo "**Full Changelog**: [$PREVIOUS_TAG...${{ github.ref_name }}](https://github.com/imhuso/cunzhi/compare/$PREVIOUS_TAG...${{ github.ref_name }})" >> changelog.md
           fi
 
-          # 简化的发布信息
-          {
-            echo "## Release Notes"
-            echo ""
-            cat changelog.md
-          } > temp_changelog.md
+          # 生成发布标题
+          VERSION_NUMBER="${{ github.ref_name }}"
+          VERSION_NUMBER=${VERSION_NUMBER#v}  # 移除 v 前缀
 
-          mv temp_changelog.md changelog.md
+          # 从最近的提交中提取主要功能作为标题
+          if [ -z "$PREVIOUS_TAG" ]; then
+            COMMIT_RANGE="${{ github.ref_name }}"
+          else
+            COMMIT_RANGE="$PREVIOUS_TAG..${{ github.ref_name }}"
+          fi
+
+          MAIN_FEATURE=$(git log --oneline $COMMIT_RANGE | grep -E "^[a-f0-9]+ (feat|fix)" | head -1 | sed 's/^[a-f0-9]* //' | sed 's/^feat: /✨ /' | sed 's/^fix: /🐞 /')
+
+          if [ -z "$MAIN_FEATURE" ]; then
+            RELEASE_TITLE="$VERSION_NUMBER 📦 版本更新"
+          else
+            RELEASE_TITLE="$VERSION_NUMBER $MAIN_FEATURE"
+          fi
+
+          echo "release_title=$RELEASE_TITLE" >> $GITHUB_OUTPUT
+          echo "Generated release title: $RELEASE_TITLE"
 
       - name: Create Release
         uses: softprops/action-gh-release@v1
@@ -222,7 +254,7 @@ jobs:
           draft: false
           prerelease: false
           generate_release_notes: false
-          name: Cunzhi ${{ github.ref_name }}
+          name: ${{ steps.changelog.outputs.release_title }}
           body_path: changelog.md
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
