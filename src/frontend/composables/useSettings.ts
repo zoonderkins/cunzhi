@@ -3,7 +3,7 @@ import { getCurrentWebviewWindow } from '@tauri-apps/api/webviewWindow'
 import { ref } from 'vue'
 
 export function useSettings() {
-  const alwaysOnTop = ref(true)
+  const alwaysOnTop = ref(true) // 与后端默认值保持一致
   const audioNotificationEnabled = ref(true)
   const audioUrl = ref('')
   const windowConfig = ref({
@@ -129,6 +129,47 @@ export function useSettings() {
     }
     catch (error) {
       console.error('切换置顶设置失败:', error)
+    }
+  }
+
+  // 从后端同步窗口状态（用于MCP弹窗启动时确保状态一致）
+  async function syncWindowStateFromBackend() {
+    const maxRetries = 3
+    let retryCount = 0
+
+    while (retryCount < maxRetries) {
+      try {
+        console.log(`尝试同步窗口状态 (第${retryCount + 1}次)`)
+
+        // 重新获取后端的置顶状态
+        const backendAlwaysOnTop = await invoke('get_always_on_top')
+        const previousValue = alwaysOnTop.value
+        alwaysOnTop.value = backendAlwaysOnTop as boolean
+
+        // 同步窗口状态到前端
+        await invoke('sync_window_state')
+
+        console.log('窗口状态已从后端同步:', {
+          previous: previousValue,
+          current: alwaysOnTop.value,
+          backend: backendAlwaysOnTop,
+          retry: retryCount + 1
+        })
+
+        // 成功则退出循环
+        break
+      }
+      catch (error) {
+        retryCount++
+        console.error(`同步窗口状态失败 (第${retryCount}次):`, error)
+
+        if (retryCount < maxRetries) {
+          // 等待一段时间后重试
+          await new Promise(resolve => setTimeout(resolve, 100 * retryCount))
+        } else {
+          console.error('窗口状态同步最终失败，已达到最大重试次数')
+        }
+      }
     }
   }
 
@@ -349,6 +390,19 @@ export function useSettings() {
     }
   }
 
+  // 重新加载所有设置
+  async function reloadAllSettings() {
+    try {
+      console.log('重新加载所有设置...')
+      await loadWindowSettings()
+      await loadWindowConfig()
+      console.log('所有设置重新加载完成')
+    }
+    catch (error) {
+      console.error('重新加载设置失败:', error)
+    }
+  }
+
   return {
     // 状态
     alwaysOnTop,
@@ -368,6 +422,7 @@ export function useSettings() {
     loadWindowSettings,
     loadWindowConstraints,
     toggleAlwaysOnTop,
+    syncWindowStateFromBackend,
     toggleAudioNotification,
     updateAudioUrl,
     testAudioSound,
@@ -377,5 +432,6 @@ export function useSettings() {
     loadWindowConfig,
     setupWindowResizeListener,
     removeWindowResizeListener,
+    reloadAllSettings,
   }
 }
