@@ -657,7 +657,7 @@ pub async fn update_custom_prompt_order(
     state: State<'_, AppState>,
     app: AppHandle,
 ) -> Result<(), String> {
-    println!("开始更新prompt排序，接收到的IDs: {:?}", prompt_ids);
+    log::debug!("开始更新prompt排序，接收到的IDs: {:?}", prompt_ids);
 
     {
         let mut config = state
@@ -665,9 +665,9 @@ pub async fn update_custom_prompt_order(
             .lock()
             .map_err(|e| format!("获取配置失败: {}", e))?;
 
-        println!("更新前的prompt顺序:");
+        log::debug!("更新前的prompt顺序:");
         for prompt in &config.custom_prompt_config.prompts {
-            println!("  {} (sort_order: {})", prompt.name, prompt.sort_order);
+            log::debug!("  {} (sort_order: {})", prompt.name, prompt.sort_order);
         }
 
         // 根据新的顺序更新sort_order
@@ -676,20 +676,20 @@ pub async fn update_custom_prompt_order(
                 let old_order = prompt.sort_order;
                 prompt.sort_order = (index + 1) as i32;
                 prompt.updated_at = chrono::Utc::now().to_rfc3339();
-                println!("更新prompt '{}': {} -> {}", prompt.name, old_order, prompt.sort_order);
+                log::debug!("更新prompt '{}': {} -> {}", prompt.name, old_order, prompt.sort_order);
             }
         }
 
         // 按sort_order排序
         config.custom_prompt_config.prompts.sort_by_key(|p| p.sort_order);
 
-        println!("更新后的prompt顺序:");
+        log::debug!("更新后的prompt顺序:");
         for prompt in &config.custom_prompt_config.prompts {
-            println!("  {} (sort_order: {})", prompt.name, prompt.sort_order);
+            log::debug!("  {} (sort_order: {})", prompt.name, prompt.sort_order);
         }
     }
 
-    println!("开始保存配置文件...");
+    log::debug!("开始保存配置文件...");
     let save_start = std::time::Instant::now();
 
     // 保存配置到文件
@@ -698,7 +698,7 @@ pub async fn update_custom_prompt_order(
         .map_err(|e| format!("保存配置失败: {}", e))?;
 
     let save_duration = save_start.elapsed();
-    println!("配置保存完成，耗时: {:?}", save_duration);
+    log::debug!("配置保存完成，耗时: {:?}", save_duration);
 
     Ok(())
 }

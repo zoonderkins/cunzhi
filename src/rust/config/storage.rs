@@ -32,7 +32,7 @@ pub async fn save_config(state: &State<'_, AppState>, app: &AppHandle) -> Result
         let _ = file.sync_all();
     }
 
-    println!("配置已保存到: {:?}", config_path);
+    log::debug!("配置已保存到: {:?}", config_path);
 
     Ok(())
 }
@@ -166,16 +166,16 @@ fn merge_default_shortcuts(config: &mut AppConfig) {
             // 如果用户配置中不存在，则添加
             config.shortcut_config.shortcuts.insert(key, default_binding);
         } else if key == "enhance" {
-            // 特殊处理：更新增强快捷键的默认值从 Ctrl+Shift+Enter 到 Shift+Enter
+            // 特殊处理：更新增强快捷键的默认值从 Shift+Enter 到 Ctrl+Shift+Enter
             let existing_binding = config.shortcut_config.shortcuts.get(&key).unwrap();
 
-            // 检查是否是旧的默认值 (Ctrl+Shift+Enter)
+            // 检查是否是旧的默认值 (Shift+Enter)
             if existing_binding.key_combination.key == "Enter"
-                && existing_binding.key_combination.ctrl
+                && !existing_binding.key_combination.ctrl
                 && existing_binding.key_combination.shift
                 && !existing_binding.key_combination.alt
                 && !existing_binding.key_combination.meta {
-                // 更新为新的默认值 (Shift+Enter)
+                // 更新为新的默认值 (Ctrl+Shift+Enter)
                 config.shortcut_config.shortcuts.insert(key, default_binding);
             }
         }

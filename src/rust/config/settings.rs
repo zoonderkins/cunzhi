@@ -636,7 +636,7 @@ pub fn default_shortcuts() -> HashMap<String, ShortcutBinding> {
         action: "enhance".to_string(),
         key_combination: ShortcutKey {
             key: "Enter".to_string(),
-            ctrl: false,
+            ctrl: true,
             alt: false,
             shift: true,
             meta: false,

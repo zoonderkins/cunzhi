@@ -145,7 +145,7 @@ export function useShortcuts() {
   const enhanceShortcutText = computed(() => {
     const binding = getShortcutByAction('enhance')
     if (!binding) {
-      return isMac.value ? '⇧+回车 增强' : 'Shift+回车 增强'
+      return isMac.value ? '⌘+⇧+回车 增强' : 'Ctrl+Shift+回车 增强'
     }
     return `${shortcutKeyToString(binding.key_combination)} ${binding.name}`
   })
