@@ -107,14 +107,6 @@ brew tap imhuso/cunzhi && brew install cunzhi
 
 寸止是开源项目，我们欢迎所有形式的贡献！
 
-### 🐛 发现问题？
-- [提交 Issue](https://github.com/imhuso/cunzhi/issues) 描述问题
-- 提供复现步骤和环境信息
-
-### 💡 有好想法？
-- [发起讨论](https://github.com/imhuso/cunzhi/discussions) 分享你的想法
-- 提交 Pull Request 实现新功能
-
 ### 🛠️ 本地开发
 ```bash
 git clone https://github.com/imhuso/cunzhi.git
