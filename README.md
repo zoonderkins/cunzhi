@@ -115,22 +115,8 @@ pnpm install
 pnpm tauri:dev
 ```
 
-## 📞 联系我们
-
-- 🐛 **问题反馈**：[GitHub Issues](https://github.com/imhuso/cunzhi/issues)
-- 💬 **功能讨论**：[GitHub Discussions](https://github.com/imhuso/cunzhi/discussions)
-- ⭐ **喜欢项目**：给我们一个 Star 支持！
-
 ## 📄 开源协议
 
 MIT License - 自由使用，欢迎贡献！
-
----
-
-<div align="center">
-
-**告别 AI 对话"早泄" | 让每次交流都持续到底**
-
-[⭐ Star](https://github.com/imhuso/cunzhi) · [🐛 Report Bug](https://github.com/imhuso/cunzhi/issues) · [💡 Request Feature](https://github.com/imhuso/cunzhi/discussions)
 
 </div>
