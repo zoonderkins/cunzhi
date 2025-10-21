@@ -1,61 +1,65 @@
 <script setup lang="ts">
+import { computed } from 'vue'
 import FeatureCard from '../common/FeatureCard.vue'
 import ProjectInfoCard from '../common/ProjectInfoCard.vue'
+import { useI18n } from '../../i18n'
 
-const features = [
+const { t } = useI18n()
+
+const features = computed(() => [
   {
     icon: 'i-carbon-chat text-lg text-blue-600 dark:text-blue-400',
-    title: 'Zhi 智能审查工具',
-    subtitle: '寸止交互系统',
+    title: t('intro.features.zhiTitle'),
+    subtitle: t('intro.features.zhiSubtitle'),
     iconBg: 'bg-blue-100',
     features: [
-      '智能代码审查交互',
-      '支持文本和图片输入',
-      '预定义选项支持',
-      'Markdown 渲染',
-      '跨平台快捷键支持',
+      t('intro.features.zhiFeature1'),
+      t('intro.features.zhiFeature2'),
+      t('intro.features.zhiFeature3'),
+      t('intro.features.zhiFeature4'),
+      t('intro.features.zhiFeature5'),
     ],
   },
   {
     icon: 'i-carbon-data-base text-lg text-purple-600 dark:text-purple-400',
-    title: '记忆管理工具',
-    subtitle: '智能记忆系统',
+    title: t('intro.features.jiTitle'),
+    subtitle: t('intro.features.jiSubtitle'),
     iconBg: 'bg-purple-100',
     features: [
-      '开发规范存储',
-      '用户偏好记录',
-      '项目上下文管理',
-      '最佳实践收集',
-      '自动记忆整理',
+      t('intro.features.jiFeature1'),
+      t('intro.features.jiFeature2'),
+      t('intro.features.jiFeature3'),
+      t('intro.features.jiFeature4'),
+      t('intro.features.jiFeature5'),
     ],
   },
   {
     icon: 'i-carbon-volume-up text-lg text-orange-600 dark:text-orange-400',
-    title: '音频通知系统',
-    subtitle: '智能音效管理',
+    title: t('intro.features.audioTitle'),
+    subtitle: t('intro.features.audioSubtitle'),
     iconBg: 'bg-orange-100',
     features: [
-      '多种内置音效',
-      '自定义音频支持',
-      '网络音频播放',
-      '动态资源加载',
-      '音效试听功能',
+      t('intro.features.audioFeature1'),
+      t('intro.features.audioFeature2'),
+      t('intro.features.audioFeature3'),
+      t('intro.features.audioFeature4'),
+      t('intro.features.audioFeature5'),
     ],
   },
   {
     icon: 'i-carbon-settings text-lg text-green-600 dark:text-green-400',
-    title: '个性化设置',
-    subtitle: '全面配置选项',
+    title: t('intro.features.settingsTitle'),
+    subtitle: t('intro.features.settingsSubtitle'),
     iconBg: 'bg-green-100',
     features: [
-      '深色/浅色主题',
-      '窗口大小控制',
-      '置顶显示设置',
-      'MCP工具管理',
-      '继续回复配置',
+      t('intro.features.settingsFeature1'),
+      t('intro.features.settingsFeature2'),
+      t('intro.features.settingsFeature3'),
+      t('intro.features.settingsFeature4'),
+      t('intro.features.settingsFeature5'),
     ],
   },
-]
+])
 </script>
 
 <template>
@@ -68,7 +72,7 @@ const features = [
     <!-- 功能卡片 -->
     <n-grid :cols="2" :x-gap="20" :y-gap="20" responsive="screen">
       <n-grid-item
-        v-for="(feature, index) in features"
+        v-for="(feature, index) in features.value"
         :key="index"
         :span="1"
       >

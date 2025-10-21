@@ -1,6 +1,3 @@
-use crate::config::load_standalone_telegram_config;
-use crate::telegram::handle_telegram_only_mcp_request;
-use crate::log_important;
 use crate::app::builder::run_tauri_app;
 use anyhow::Result;
 
@@ -41,30 +38,9 @@ pub fn handle_cli_args() -> Result<()> {
 }
 
 /// 处理MCP请求
-fn handle_mcp_request(request_file: &str) -> Result<()> {
-    // 检查Telegram配置，决定是否启用纯Telegram模式
-    match load_standalone_telegram_config() {
-        Ok(telegram_config) => {
-            if telegram_config.enabled && telegram_config.hide_frontend_popup {
-                // 纯Telegram模式：不启动GUI，直接处理
-                if let Err(e) = tokio::runtime::Runtime::new()
-                    .unwrap()
-                    .block_on(handle_telegram_only_mcp_request(request_file))
-                {
-                    log_important!(error, "处理Telegram请求失败: {}", e);
-                    std::process::exit(1);
-                }
-            } else {
-                // 正常模式：启动GUI处理弹窗
-                run_tauri_app();
-            }
-        }
-        Err(e) => {
-            log_important!(warn, "加载Telegram配置失败: {}，使用默认GUI模式", e);
-            // 配置加载失败时，使用默认行为（启动GUI）
-            run_tauri_app();
-        }
-    }
+fn handle_mcp_request(_request_file: &str) -> Result<()> {
+    // Telegram 功能已移除，直接啟動 GUI 處理 MCP 請求
+    run_tauri_app();
     Ok(())
 }
 

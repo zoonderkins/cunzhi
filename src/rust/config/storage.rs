@@ -137,11 +137,7 @@ pub fn load_standalone_config() -> Result<AppConfig> {
     }
 }
 
-/// 独立加载Telegram配置（用于MCP模式下的配置检查）
-pub fn load_standalone_telegram_config() -> Result<super::settings::TelegramConfig> {
-    let config = load_standalone_config()?;
-    Ok(config.telegram_config)
-}
+// Telegram 功能已移除
 
 /// 获取独立配置文件路径（不依赖Tauri）
 fn get_standalone_config_path() -> Result<PathBuf> {
@@ -167,16 +163,16 @@ fn merge_default_shortcuts(config: &mut AppConfig) {
             config.shortcut_config.shortcuts.insert(key, default_binding);
         } else if key == "enhance" {
             // 特殊处理：更新增强快捷键的默认值从 Shift+Enter 到 Ctrl+Shift+Enter
-            let existing_binding = config.shortcut_config.shortcuts.get(&key).unwrap();
-
-            // 检查是否是旧的默认值 (Shift+Enter)
-            if existing_binding.key_combination.key == "Enter"
-                && !existing_binding.key_combination.ctrl
-                && existing_binding.key_combination.shift
-                && !existing_binding.key_combination.alt
-                && !existing_binding.key_combination.meta {
-                // 更新为新的默认值 (Ctrl+Shift+Enter)
-                config.shortcut_config.shortcuts.insert(key, default_binding);
+            if let Some(existing_binding) = config.shortcut_config.shortcuts.get(&key) {
+                // 检查是否是旧的默认值 (Shift+Enter)
+                if existing_binding.key_combination.key == "Enter"
+                    && !existing_binding.key_combination.ctrl
+                    && existing_binding.key_combination.shift
+                    && !existing_binding.key_combination.alt
+                    && !existing_binding.key_combination.meta {
+                    // 更新为新的默认值 (Ctrl+Shift+Enter)
+                    config.shortcut_config.shortcuts.insert(key, default_binding);
+                }
             }
         }
     }

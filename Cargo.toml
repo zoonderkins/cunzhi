@@ -1,6 +1,6 @@
 [package]
 name = "cunzhi"
-version = "0.3.8"
+version = "0.4.2"
 edition = "2021"
 default-run = "等一下"
 
@@ -19,7 +19,8 @@ path = "src/rust/bin/mcp_server.rs"
 tauri = { version = "2.0", features = [
   "tray-icon",
   "image-ico",
-  "image-png"
+  "image-png",
+  "devtools"
 ] }
 tauri-plugin-shell = "2.0"
 tauri-plugin-updater = "2.0"
@@ -50,7 +51,6 @@ reqwest = { version = "0.11", features = [
 ] }
 base64 = "0.21"
 rust-embed = "8.0"
-teloxide = { version = "0.15.0", features = [ "macros" ] }
 regex = "1.0"
 log = "0.4.27"
 env_logger = "0.11.8"

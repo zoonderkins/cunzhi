@@ -398,10 +398,13 @@ function generateConditionalContent(): string {
 
   conditionalPrompts.value.forEach((prompt) => {
     const isEnabled = prompt.current_state ?? false
-    const template = isEnabled ? prompt.template_true : prompt.template_false
 
-    if (template && template.trim()) {
-      conditionalTexts.push(template.trim())
+    // 只在開關「開啟」時才附加內容，關閉時不附加任何內容
+    if (isEnabled) {
+      const template = prompt.template_true
+      if (template && template.trim()) {
+        conditionalTexts.push(template.trim())
+      }
     }
   })
 

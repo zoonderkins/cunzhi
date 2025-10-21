@@ -108,9 +108,6 @@ watch(() => props.appConfig.reply, (newReplyConfig) => {
   }
 }, { deep: true, immediate: true })
 
-// Telegram事件监听器
-let telegramUnlisten: (() => void) | null = null
-
 // 监听请求变化
 watch(() => props.request, (newRequest) => {
   if (newRequest) {
@@ -124,46 +121,7 @@ watch(() => props.request, (newRequest) => {
   }
 }, { immediate: true })
 
-// 设置Telegram事件监听
-async function setupTelegramListener() {
-  try {
-    telegramUnlisten = await listen('telegram-event', (event) => {
-      console.log('🎯 [McpPopup] 收到Telegram事件:', event)
-      console.log('🎯 [McpPopup] 事件payload:', event.payload)
-      handleTelegramEvent(event.payload as any)
-    })
-    console.log('🎯 [McpPopup] Telegram事件监听器已设置')
-  }
-  catch (error) {
-    console.error('🎯 [McpPopup] 设置Telegram事件监听器失败:', error)
-  }
-}
-
-// 处理Telegram事件
-function handleTelegramEvent(event: any) {
-  console.log('🎯 [McpPopup] 开始处理事件:', event.type)
-
-  switch (event.type) {
-    case 'option_toggled':
-      console.log('🎯 [McpPopup] 处理选项切换:', event.option)
-      handleOptionToggle(event.option)
-      break
-    case 'text_updated':
-      console.log('🎯 [McpPopup] 处理文本更新:', event.text)
-      handleTextUpdate(event.text)
-      break
-    case 'continue_pressed':
-      console.log('🎯 [McpPopup] 处理继续按钮')
-      handleContinue()
-      break
-    case 'send_pressed':
-      console.log('🎯 [McpPopup] 处理发送按钮')
-      handleSubmit()
-      break
-    default:
-      console.log('🎯 [McpPopup] 未知事件类型:', event.type)
-  }
-}
+// Telegram 功能已移除
 
 // 处理选项切换
 function handleOptionToggle(option: string) {
@@ -193,17 +151,9 @@ function handleTextUpdate(text: string) {
   }
 }
 
-// 组件挂载时设置监听器和加载配置
+// 组件挂载时加载配置
 onMounted(() => {
   loadReplyConfig()
-  setupTelegramListener()
-})
-
-// 组件卸载时清理监听器
-onUnmounted(() => {
-  if (telegramUnlisten) {
-    telegramUnlisten()
-  }
 })
 
 // 重置表单
@@ -282,47 +232,7 @@ function handleImageRemove(index: number) {
   draggedImages.value.splice(index, 1)
 }
 
-// 处理继续按钮点击
-async function handleContinue() {
-  if (submitting.value)
-    return
-
-  submitting.value = true
-
-  try {
-    // 使用新的结构化数据格式
-    const response = {
-      user_input: continuePrompt.value,
-      selected_options: [],
-      images: [],
-      metadata: {
-        timestamp: new Date().toISOString(),
-        request_id: props.request?.id || null,
-        source: 'popup_continue',
-      },
-    }
-
-    if (props.mockMode) {
-      // 模拟模式下的延迟
-      await new Promise(resolve => setTimeout(resolve, 1000))
-      message.success('继续请求发送成功')
-    }
-    else {
-      // 实际发送继续请求
-      await invoke('send_mcp_response', { response })
-      await invoke('exit_app')
-    }
-
-    emit('response', response)
-  }
-  catch (error) {
-    console.error('发送继续请求失败:', error)
-    message.error('继续请求失败，请重试')
-  }
-  finally {
-    submitting.value = false
-  }
-}
+// 「繼續」按鈕已移除，因為它會忽略使用者輸入
 
 // 处理引用消息
 function handleQuoteMessage(messageContent: string) {
@@ -339,17 +249,10 @@ async function handleEnhance() {
   submitting.value = true
 
   try {
-    // 构建增强prompt
-    const enhancePrompt = `Use the following prompt to optimize and enhance the context of the content in 《》, and return the enhanced result by calling the tool '寸止' after completion.Here is an instruction that I'd like to give you, but it needs to be improved. Rewrite and enhance this instruction to make it clearer, more specific, less ambiguous, and correct any mistakes. Reply immediately with your answer, even if you're not sure. Consider the context of our conversation history when enhancing the prompt. Reply with the following format:
+    // 构建增强prompt - 简化版本
+    const enhancePrompt = `請優化並增強以下指令，使其更清晰、更具體、更明確。考慮對話歷史的上下文，直接回覆增強後的版本，完成後使用「寸止」工具回報。
 
-### BEGIN RESPONSE ###
-Here is an enhanced version of the original instruction that is more specific and clear:
-<augment-enhanced-prompt>enhanced prompt goes here</augment-enhanced-prompt>
-
-### END RESPONSE ###
-
-Here is my original instruction:
-
+原始指令：
 《${userInput.value.trim()}》`
 
     // 使用新的结构化数据格式
@@ -409,8 +312,8 @@ Here is my original instruction:
     <div class="flex-shrink-0 bg-black-100 border-t-2 border-black-200" data-guide="popup-actions">
       <PopupActions
         :request="request" :loading="loading" :submitting="submitting" :can-submit="canSubmit"
-        :continue-reply-enabled="continueReplyEnabled" :input-status-text="inputStatusText"
-        @submit="handleSubmit" @continue="handleContinue" @enhance="handleEnhance"
+        :input-status-text="inputStatusText"
+        @submit="handleSubmit" @enhance="handleEnhance"
       />
     </div>
   </div>

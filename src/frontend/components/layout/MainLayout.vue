@@ -2,10 +2,13 @@
 import { invoke } from '@tauri-apps/api/core'
 import { useMessage } from 'naive-ui'
 import { ref } from 'vue'
+import { useI18n } from '../../i18n'
 import IntroTab from '../tabs/IntroTab.vue'
 import McpToolsTab from '../tabs/McpToolsTab.vue'
 import PromptsTab from '../tabs/PromptsTab.vue'
 import SettingsTab from '../tabs/SettingsTab.vue'
+
+const { t } = useI18n()
 
 interface Props {
   currentTheme: string
@@ -141,16 +144,16 @@ function testPopup() {
 
         <!-- Tab组件 -->
         <n-tabs v-model:value="activeTab" type="segment" size="small" justify-content="center" data-guide="tabs">
-          <n-tab-pane name="intro" tab="介绍">
+          <n-tab-pane name="intro" :tab="t('tabs.intro')">
             <IntroTab />
           </n-tab-pane>
-          <n-tab-pane name="mcp-tools" tab="MCP 工具">
+          <n-tab-pane name="mcp-tools" :tab="t('tabs.mcpTools')">
             <McpToolsTab />
           </n-tab-pane>
-          <n-tab-pane name="prompts" tab="参考提示词">
+          <n-tab-pane name="prompts" :tab="t('tabs.prompts')">
             <PromptsTab />
           </n-tab-pane>
-          <n-tab-pane name="settings" tab="设置" data-guide="settings-tab">
+          <n-tab-pane name="settings" :tab="t('tabs.settings')" data-guide="settings-tab">
             <SettingsTab
               :current-theme="currentTheme"
               :always-on-top="alwaysOnTop"

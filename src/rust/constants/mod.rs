@@ -6,7 +6,6 @@ pub mod audio;
 pub mod font;
 pub mod mcp;
 pub mod network;
-pub mod telegram;
 pub mod theme;
 pub mod ui;
 pub mod validation;
@@ -24,4 +23,3 @@ pub use window::*;
 // 这些模块有重复的常量名，使用模块限定访问
 // pub use mcp::*;
 // pub use network::*;
-// pub use telegram::*;

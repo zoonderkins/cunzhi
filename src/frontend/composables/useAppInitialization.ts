@@ -1,4 +1,5 @@
 import { ref } from 'vue'
+import { loadLocale } from '../i18n'
 import { useFontManager } from './useFontManager'
 import { initMcpTools } from './useMcpTools'
 import { useSettings } from './useSettings'
@@ -40,8 +41,9 @@ export function useAppInitialization(mcpHandler: ReturnType<typeof import('./use
 
       // 主题已在useTheme初始化时加载，这里不需要重复加载
 
-      // 加载字体设置
+      // 加载语言设置和字体设置
       await Promise.all([
+        loadLocale(),
         loadFontConfig(),
         loadFontOptions(),
       ])

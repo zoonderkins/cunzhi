@@ -1,3 +1,15 @@
+# Global
+context_portal/
+push-to-fork.sh
+# Claude
+claude/
+.claude/
+
+CLAUDE*
+docs/
+RELEASE_NOTES*
+.cunzhi-*
+
 # Rust
 target/
 Cargo.lock
@@ -41,6 +53,11 @@ logs/
 
 # Test files
 test_client.py
+test_mcp*.py
+test_mcp*.sh
+test_*.html
+test_*.json
+tests_archive/
 
 # Temporary files
 *.tmp

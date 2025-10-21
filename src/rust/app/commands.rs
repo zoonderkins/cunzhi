@@ -3,10 +3,6 @@
 // MCP 命令
 pub use crate::mcp::commands::*;
 
-// Telegram 命令
-pub use crate::telegram::commands::*;
-pub use crate::telegram::handle_telegram_only_mcp_request;
-
 // UI 命令
 pub use crate::ui::{
     commands::*,

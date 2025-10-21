@@ -9,13 +9,11 @@ interface Props {
   submitting?: boolean
   canSubmit?: boolean
   connectionStatus?: string
-  continueReplyEnabled?: boolean
   inputStatusText?: string
 }
 
 interface Emits {
   submit: []
-  continue: []
   enhance: []
 }
 
@@ -24,7 +22,6 @@ const props = withDefaults(defineProps<Props>(), {
   submitting: false,
   canSubmit: false,
   connectionStatus: '已连接',
-  continueReplyEnabled: true,
   inputStatusText: '',
 })
 
@@ -34,10 +31,8 @@ const emit = defineEmits<Emits>()
 const {
   quickSubmitShortcutText,
   enhanceShortcutText,
-  continueShortcutText,
   useQuickSubmitShortcut,
   useEnhanceShortcut,
-  useContinueShortcut,
   loadShortcutConfig,
 } = useShortcuts()
 
@@ -74,21 +69,9 @@ useEnhanceShortcut(() => {
   }
 })
 
-useContinueShortcut(() => {
-  if (!props.submitting) {
-    handleContinue()
-  }
-})
-
 function handleSubmit() {
   if (props.canSubmit && !props.submitting) {
     emit('submit')
-  }
-}
-
-function handleContinue() {
-  if (!props.submitting) {
-    emit('continue')
   }
 }
 
@@ -137,26 +120,6 @@ onMounted(() => {
               </n-button>
             </template>
             {{ enhanceShortcutText }}
-          </n-tooltip>
-
-          <!-- 继续按钮 -->
-          <n-tooltip v-if="continueReplyEnabled" trigger="hover" placement="top">
-            <template #trigger>
-              <n-button
-                :disabled="submitting"
-                :loading="submitting"
-                size="medium"
-                type="default"
-                data-guide="continue-button"
-                @click="handleContinue"
-              >
-                <template #icon>
-                  <div class="i-carbon-play w-4 h-4" />
-                </template>
-                继续
-              </n-button>
-            </template>
-            {{ continueShortcutText }}
           </n-tooltip>
 
           <!-- 发送按钮 -->

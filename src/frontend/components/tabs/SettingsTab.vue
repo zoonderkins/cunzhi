@@ -3,15 +3,18 @@ import { invoke } from '@tauri-apps/api/core'
 import { listen } from '@tauri-apps/api/event'
 import { useMessage } from 'naive-ui'
 import { onMounted, onUnmounted, ref } from 'vue'
+import { useI18n } from '../../i18n'
 import AudioSettings from '../settings/AudioSettings.vue'
 import CustomPromptSettings from '../settings/CustomPromptSettings.vue'
 import FontSettings from '../settings/FontSettings.vue'
+import LanguageSettings from '../settings/LanguageSettings.vue'
 import ReplySettings from '../settings/ReplySettings.vue'
 import ShortcutSettings from '../settings/ShortcutSettings.vue'
-import TelegramSettings from '../settings/TelegramSettings.vue'
 import ThemeSettings from '../settings/ThemeSettings.vue'
 import VersionChecker from '../settings/VersionChecker.vue'
 import WindowSettings from '../settings/WindowSettings.vue'
+
+const { t } = useI18n()
 
 interface Props {
   currentTheme: string
@@ -39,11 +42,11 @@ async function reloadConfig() {
   try {
     // 触发重新加载设置的事件
     emit('configReloaded')
-    message.success('配置已重新加载')
+    message.success(t('settings.reload.success'))
   }
   catch (error) {
     console.error('重新加载配置失败:', error)
-    message.error('重新加载配置失败')
+    message.error(t('settings.reload.error'))
   }
   finally {
     isReloading.value = false
@@ -118,10 +121,10 @@ function handleWindowSizeUpdate(size: { width: number, height: number, fixed: bo
               </div>
               <div>
                 <div class="text-lg font-medium tracking-tight mb-1">
-                  主题设置
+                  {{ t('settings.theme.title') }}
                 </div>
                 <div class="text-sm opacity-60 font-normal">
-                  选择您喜欢的界面主题
+                  {{ t('settings.theme.description') }}
                 </div>
               </div>
             </div>
@@ -129,6 +132,30 @@ function handleWindowSizeUpdate(size: { width: number, height: number, fixed: bo
         </template>
         <div class="setting-content">
           <ThemeSettings :current-theme="currentTheme" @theme-change="$emit('themeChange', $event)" />
+        </div>
+      </n-collapse-item>
+
+      <!-- 语言设置 -->
+      <n-collapse-item name="language">
+        <template #header>
+          <div class="flex items-center justify-between w-full">
+            <div class="flex items-center">
+              <div class="w-10 h-10 rounded-lg bg-purple-100 dark:bg-purple-900 flex items-center justify-center mr-4">
+                <div class="i-carbon-language text-lg text-purple-600 dark:text-purple-400" />
+              </div>
+              <div>
+                <div class="text-lg font-medium tracking-tight mb-1">
+                  {{ t('settings.language.title') }}
+                </div>
+                <div class="text-sm opacity-60 font-normal">
+                  {{ t('settings.language.description') }}
+                </div>
+              </div>
+            </div>
+          </div>
+        </template>
+        <div class="setting-content">
+          <LanguageSettings />
         </div>
       </n-collapse-item>
 
@@ -142,10 +169,10 @@ function handleWindowSizeUpdate(size: { width: number, height: number, fixed: bo
               </div>
               <div>
                 <div class="text-lg font-medium tracking-tight mb-1">
-                  字体设置
+                  {{ t('settings.font.title') }}
                 </div>
                 <div class="text-sm opacity-60 font-normal">
-                  自定义应用字体系列和大小
+                  {{ t('settings.font.description') }}
                 </div>
               </div>
             </div>
@@ -166,10 +193,10 @@ function handleWindowSizeUpdate(size: { width: number, height: number, fixed: bo
               </div>
               <div>
                 <div class="text-lg font-medium tracking-tight mb-1">
-                  继续回复设置
+                  {{ t('settings.reply.title') }}
                 </div>
                 <div class="text-sm opacity-60 font-normal">
-                  配置AI继续回复的行为
+                  {{ t('settings.reply.description') }}
                 </div>
               </div>
             </div>
@@ -190,10 +217,10 @@ function handleWindowSizeUpdate(size: { width: number, height: number, fixed: bo
               </div>
               <div>
                 <div class="text-lg font-medium tracking-tight mb-1">
-                  窗口设置
+                  {{ t('settings.window.title') }}
                 </div>
                 <div class="text-sm opacity-60 font-normal">
-                  调整窗口显示和行为
+                  {{ t('settings.window.description') }}
                 </div>
               </div>
             </div>
@@ -221,10 +248,10 @@ function handleWindowSizeUpdate(size: { width: number, height: number, fixed: bo
               </div>
               <div>
                 <div class="text-lg font-medium tracking-tight mb-1">
-                  音频设置
+                  {{ t('settings.audio.title') }}
                 </div>
                 <div class="text-sm opacity-60 font-normal">
-                  配置音频通知和提示音
+                  {{ t('settings.audio.description') }}
                 </div>
               </div>
             </div>
@@ -243,29 +270,7 @@ function handleWindowSizeUpdate(size: { width: number, height: number, fixed: bo
         </div>
       </n-collapse-item>
 
-      <!-- Telegram设置 -->
-      <n-collapse-item name="telegram">
-        <template #header>
-          <div class="flex items-center justify-between w-full">
-            <div class="flex items-center">
-              <div class="w-10 h-10 rounded-lg bg-cyan-100 dark:bg-cyan-900 flex items-center justify-center mr-4">
-                <div class="i-carbon-send text-lg text-cyan-600 dark:text-cyan-400" />
-              </div>
-              <div>
-                <div class="text-lg font-medium tracking-tight mb-1">
-                  Telegram设置
-                </div>
-                <div class="text-sm opacity-60 font-normal">
-                  配置Telegram机器人集成
-                </div>
-              </div>
-            </div>
-          </div>
-        </template>
-        <div class="setting-content">
-          <TelegramSettings />
-        </div>
-      </n-collapse-item>
+      <!-- Telegram 功能已移除 -->
 
       <!-- 快捷模板设置 -->
       <n-collapse-item name="custom-prompt">
@@ -277,10 +282,10 @@ function handleWindowSizeUpdate(size: { width: number, height: number, fixed: bo
               </div>
               <div>
                 <div class="text-lg font-medium tracking-tight mb-1">
-                  提示词模板
+                  {{ t('settings.customPrompt.title') }}
                 </div>
                 <div class="text-sm opacity-60 font-normal">
-                  管理快捷模板和上下文追加
+                  {{ t('settings.customPrompt.description') }}
                 </div>
               </div>
             </div>
@@ -301,10 +306,10 @@ function handleWindowSizeUpdate(size: { width: number, height: number, fixed: bo
               </div>
               <div>
                 <div class="text-lg font-medium tracking-tight mb-1">
-                  快捷键设置
+                  {{ t('settings.shortcut.title') }}
                 </div>
                 <div class="text-sm opacity-60 font-normal">
-                  自定义应用快捷键绑定
+                  {{ t('settings.shortcut.description') }}
                 </div>
               </div>
             </div>

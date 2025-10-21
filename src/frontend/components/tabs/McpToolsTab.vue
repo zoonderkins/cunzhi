@@ -2,6 +2,7 @@
 import { useMessage } from 'naive-ui'
 import { onMounted, ref } from 'vue'
 import { useMcpToolsReactive } from '../../composables/useMcpTools'
+import { useI18n } from '../../i18n'
 
 // 使用全局MCP工具状态
 const {
@@ -17,6 +18,9 @@ const needsReconnect = ref(false)
 // Naive UI 消息实例
 const message = useMessage()
 
+// i18n
+const { t } = useI18n()
+
 // 切换工具启用状态（包装全局方法）
 async function toggleTool(toolId: string) {
   try {
@@ -28,12 +32,12 @@ async function toggleTool(toolId: string) {
     }
 
     if (message) {
-      message.warning('MCP工具配置已更新，请在MCP客户端中重连服务')
+      message.warning(t('mcpTools.reconnectWarning'))
     }
   }
   catch (err) {
     if (message) {
-      message.error(`更新MCP工具状态失败: ${err}`)
+      message.error(`${t('mcpTools.updateError')}: ${err}`)
     }
   }
 }
@@ -44,7 +48,7 @@ onMounted(async () => {
   }
   catch (err) {
     if (message) {
-      message.error(`加载MCP工具配置失败: ${err}`)
+      message.error(`${t('mcpTools.loadError')}: ${err}`)
     }
   }
 })
@@ -56,7 +60,7 @@ onMounted(async () => {
       <!-- MCP服务重连提示 -->
       <n-alert
         v-if="needsReconnect"
-        title="需要重连MCP服务"
+        :title="t('mcpTools.reconnectTitle')"
         type="warning"
         closable
         @close="needsReconnect = false"
@@ -64,14 +68,14 @@ onMounted(async () => {
         <template #icon>
           <div class="i-carbon-connection-signal text-lg" />
         </template>
-        MCP工具配置已更改，请在您的MCP客户端中重新连接寸止服务以使更改生效。
+        {{ t('mcpTools.reconnectMessage') }}
       </n-alert>
 
       <!-- 加载状态 -->
       <div v-if="loading" class="text-center py-8">
         <n-spin size="medium" />
         <div class="mt-2 text-sm opacity-60">
-          加载MCP工具配置中...
+          {{ t('mcpTools.loading') }}
         </div>
       </div>
 
@@ -164,7 +168,7 @@ onMounted(async () => {
             :class="tool.enabled ? 'bg-green-500' : 'bg-gray-400'"
           />
           <span class="opacity-90">
-            {{ tool.enabled ? 'MCP服务已启用此工具' : 'MCP服务已禁用此工具' }}
+            {{ tool.enabled ? t('mcpTools.toolEnabled') : t('mcpTools.toolDisabled') }}
           </span>
         </div>
       </n-card>
@@ -172,7 +176,7 @@ onMounted(async () => {
       <!-- 底部统计 - 增强可见性 -->
       <div class="text-center py-2">
         <span class="text-sm text-gray-500 dark:text-gray-400 font-medium">
-          {{ toolStats.enabled }} / {{ toolStats.total }} 个工具已启用
+          {{ t('mcpTools.stats', { enabled: toolStats.enabled, total: toolStats.total }) }}
         </span>
       </div>
     </n-space>

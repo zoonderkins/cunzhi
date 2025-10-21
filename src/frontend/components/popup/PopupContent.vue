@@ -327,9 +327,9 @@ onUpdated(() => {
           currentTheme === 'light' ? 'prose-slate' : 'prose-invert',
           currentTheme === 'light' ? 'prose-headings:text-gray-900' : 'prose-headings:text-white',
           currentTheme === 'light' ? 'prose-p:text-gray-700' : 'prose-p:text-white prose-p:opacity-85',
-          currentTheme === 'light' ? 'prose-ul:text-gray-700 prose-ol:text-gray-700 prose-li:text-gray-700' : 'prose-ul:text-white prose-ul:opacity-85 prose-ol:text-white prose-ol:opacity-85 prose-li:text-white prose-li:opacity-85',
+          currentTheme === 'light' ? 'prose-ul:text-gray-800 prose-ol:text-gray-800 prose-li:text-gray-800' : 'prose-ul:text-white prose-ul:opacity-95 prose-ol:text-white prose-ol:opacity-95 prose-li:text-white prose-li:opacity-95',
           currentTheme === 'light' ? 'prose-blockquote:text-gray-600' : 'prose-blockquote:text-gray-300 prose-blockquote:opacity-90',
-          currentTheme === 'light' ? 'prose-pre:bg-gray-50 prose-pre:border-gray-200' : 'prose-pre:bg-black prose-pre:border-gray-700',
+          currentTheme === 'light' ? 'prose-pre:bg-gray-50 prose-pre:border-gray-200 prose-pre:text-gray-900' : 'prose-pre:bg-black prose-pre:border-gray-700 prose-pre:text-gray-100',
           currentTheme === 'light' ? 'prose-strong:text-gray-900 prose-strong:font-semibold' : 'prose-strong:text-white prose-strong:font-semibold',
           currentTheme === 'light' ? 'prose-em:text-gray-600 prose-em:italic' : 'prose-em:text-gray-300 prose-em:italic',
         ]"

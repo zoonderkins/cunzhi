@@ -1,4 +1,4 @@
-use crate::config::{save_config, load_config, AppState, ReplyConfig, WindowConfig, CustomPrompt, CustomPromptConfig, ShortcutConfig, ShortcutBinding};
+use crate::config::{save_config, load_config as load_config_from_file, AppState, ReplyConfig, WindowConfig, CustomPrompt, CustomPromptConfig, ShortcutConfig, ShortcutBinding, AppConfig};
 use crate::constants::{window, ui, validation};
 use crate::mcp::types::{build_continue_response, build_send_response, ImageAttachment, PopupRequest};
 use crate::mcp::handlers::create_tauri_popup;
@@ -73,6 +73,46 @@ pub async fn sync_window_state(
     Ok(())
 }
 
+/// 載入配置（返回完整配置對象）
+#[tauri::command]
+pub async fn load_config(state: State<'_, AppState>) -> Result<serde_json::Value, String> {
+    let config = state
+        .config
+        .lock()
+        .map_err(|e| format!("获取配置失败: {}", e))?;
+
+    serde_json::to_value(&*config)
+        .map_err(|e| format!("序列化配置失败: {}", e))
+}
+
+/// 保存配置（接收完整配置對象）
+#[tauri::command]
+pub async fn save_config_cmd(
+    config_value: serde_json::Value,
+    state: State<'_, AppState>,
+    app: tauri::AppHandle,
+) -> Result<(), String> {
+    // 解析配置
+    let new_config: AppConfig = serde_json::from_value(config_value)
+        .map_err(|e| format!("解析配置失败: {}", e))?;
+
+    // 更新內存中的配置
+    {
+        let mut config = state
+            .config
+            .lock()
+            .map_err(|e| format!("获取配置失败: {}", e))?;
+        *config = new_config;
+    }
+
+    // 保存到文件
+    save_config(&state, &app)
+        .await
+        .map_err(|e| format!("保存配置失败: {}", e))?;
+
+    Ok(())
+}
+
 /// 重新加载配置文件到内存
 #[tauri::command]
 pub async fn reload_config(
@@ -80,7 +120,7 @@ pub async fn reload_config(
     app: tauri::AppHandle,
 ) -> Result<(), String> {
     // 从文件重新加载配置到内存
-    load_config(&state, &app)
+    load_config_from_file(&state, &app)
         .await
         .map_err(|e| format!("重新加载配置失败: {}", e))?;
 
@@ -891,4 +931,15 @@ pub async fn reset_shortcuts_to_default(
         .map_err(|e| format!("保存配置失败: {}", e))?;
 
     Ok(())
+}
+
+/// 打開 DevTools（調試用）
+#[tauri::command]
+pub async fn open_devtools(app: AppHandle) -> Result<(), String> {
+    if let Some(window) = app.get_webview_window("main") {
+        window.open_devtools();
+        Ok(())
+    } else {
+        Err("找不到主視窗".to_string())
+    }
 }

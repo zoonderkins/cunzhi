@@ -1,8 +1,8 @@
 {
   "$schema": "https://schema.tauri.app/config/2.0.0",
   "productName": "寸止",
-  "version": "0.3.8",
-  "identifier": "com.imhuso.cunzhi",
+  "version": "0.4.2",
+  "identifier": "com.zoonderkins.cunzhi",
   "build": {
     "beforeDevCommand": "pnpm dev",
     "beforeBuildCommand": "pnpm build",
@@ -78,7 +78,7 @@
     "updater": {
       "active": true,
       "endpoints": [
-        "https://api.github.com/repos/imhuso/cunzhi/releases/latest"
+        "https://api.github.com/repos/zoonderkins/cunzhi/releases/latest"
       ],
       "dialog": false,
       "pubkey": ""

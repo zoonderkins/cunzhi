@@ -83,6 +83,20 @@ const naive = create({
   ],
 })
 
+console.log('[main.ts] 開始創建 Vue 應用...')
+
 const app = createApp(App)
+console.log('[main.ts] Vue 應用已創建')
+
 app.use(naive)
+console.log('[main.ts] Naive UI 已註冊')
+
+// 添加全局錯誤處理
+app.config.errorHandler = (err, instance, info) => {
+  console.error('[Vue Error]', err)
+  console.error('[Vue Error Info]', info)
+  console.error('[Vue Instance]', instance)
+}
+
 app.mount('#app')
+console.log('[main.ts] Vue 應用已掛載到 #app')

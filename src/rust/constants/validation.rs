@@ -3,7 +3,6 @@
 use super::window;
 use super::audio;
 use super::theme;
-use super::telegram;
 use super::network;
 
 // 通用验证函数
@@ -63,8 +62,7 @@ pub fn is_valid_volume(volume: f32) -> bool {
 // 主题验证函数
 pub use theme::is_valid_theme;
 
-// Telegram 验证函数
-pub use telegram::{is_valid_bot_token, is_valid_chat_id};
+// Telegram 功能已移除
 
 // 网络验证函数
 

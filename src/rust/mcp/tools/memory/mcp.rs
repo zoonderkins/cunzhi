@@ -27,7 +27,7 @@ impl MemoryTool {
             .map_err(|e| McpError::internal_error(format!("创建记忆管理器失败: {}", e), None))?;
 
         let result = match request.action.as_str() {
-            "记忆" => {
+            "记忆" | "記憶" => {
                 if request.content.trim().is_empty() {
                     return Err(McpError::invalid_params("缺少记忆内容".to_string(), None));
                 }
@@ -45,13 +45,13 @@ impl MemoryTool {
 
                 format!("✅ 记忆已添加，ID: {}\n📝 内容: {}\n📂 分类: {:?}", id, request.content, category)
             }
-            "回忆" => {
+            "回忆" | "回憶" => {
                 manager.get_project_info()
                     .map_err(|e| McpError::internal_error(format!("获取项目信息失败: {}", e), None))?
             }
             _ => {
                 return Err(McpError::invalid_params(
-                    format!("未知的操作类型: {}", request.action),
+                    format!("未知的操作类型: {}（支援：记忆/記憶、回忆/回憶）", request.action),
                     None
                 ));
             }

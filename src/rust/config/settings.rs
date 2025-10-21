@@ -1,7 +1,7 @@
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::sync::Mutex;
-use crate::constants::{window, theme, audio, mcp, telegram, font};
+use crate::constants::{window, theme, audio, mcp, font};
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct AppConfig {
@@ -13,8 +13,6 @@ pub struct AppConfig {
     pub reply_config: ReplyConfig, // 继续回复配置
     #[serde(default = "default_mcp_config")]
     pub mcp_config: McpConfig, // MCP工具配置
-    #[serde(default = "default_telegram_config")]
-    pub telegram_config: TelegramConfig, // Telegram Bot配置
     #[serde(default = "default_custom_prompt_config")]
     pub custom_prompt_config: CustomPromptConfig, // 自定义prompt配置
     #[serde(default = "default_shortcut_config")]
@@ -26,6 +24,10 @@ pub struct UiConfig {
     // 主题设置
     #[serde(default = "default_theme")]
     pub theme: String, // "light", "dark"
+
+    // 语言设置
+    #[serde(default = "default_language")]
+    pub language: String, // "zh-CN", "zh-TW"
 
     // 字体设置
     #[serde(default = "default_font_config")]
@@ -170,19 +172,7 @@ pub struct ShortcutKey {
     pub meta: bool, // macOS的Cmd键
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone)]
-pub struct TelegramConfig {
-    #[serde(default = "default_telegram_enabled")]
-    pub enabled: bool, // 是否启用Telegram Bot
-    #[serde(default = "default_telegram_bot_token")]
-    pub bot_token: String, // Bot Token
-    #[serde(default = "default_telegram_chat_id")]
-    pub chat_id: String, // Chat ID
-    #[serde(default = "default_telegram_hide_frontend_popup")]
-    pub hide_frontend_popup: bool, // 是否隐藏前端弹窗，仅使用Telegram交互
-    #[serde(default = "default_telegram_api_base_url")]
-    pub api_base_url: String, // Telegram API基础URL
-}
+// Telegram 功能已移除
 
 #[derive(Debug)]
 pub struct AppState {
@@ -200,7 +190,6 @@ impl Default for AppConfig {
             audio_config: default_audio_config(),
             reply_config: default_reply_config(),
             mcp_config: default_mcp_config(),
-            telegram_config: default_telegram_config(),
             custom_prompt_config: default_custom_prompt_config(),
             shortcut_config: default_shortcut_config(),
         }
@@ -222,6 +211,7 @@ impl Default for AppState {
 pub fn default_ui_config() -> UiConfig {
     UiConfig {
         theme: default_theme(),
+        language: default_language(),
         font_config: default_font_config(),
         window_config: default_window_config(),
         always_on_top: default_always_on_top(),
@@ -241,15 +231,7 @@ pub fn default_mcp_config() -> McpConfig {
     }
 }
 
-pub fn default_telegram_config() -> TelegramConfig {
-    TelegramConfig {
-        enabled: default_telegram_enabled(),
-        bot_token: default_telegram_bot_token(),
-        chat_id: default_telegram_chat_id(),
-        hide_frontend_popup: default_telegram_hide_frontend_popup(),
-        api_base_url: default_telegram_api_base_url(),
-    }
-}
+// Telegram 功能已移除
 
 pub fn default_custom_prompt_config() -> CustomPromptConfig {
     CustomPromptConfig {
@@ -269,6 +251,10 @@ pub fn default_audio_notification_enabled() -> bool {
 
 pub fn default_theme() -> String {
     theme::DEFAULT.to_string()
+}
+
+pub fn default_language() -> String {
+    "zh-TW".to_string()
 }
 
 pub fn default_audio_url() -> String {
@@ -365,25 +351,7 @@ pub fn default_free_height() -> f64 {
     window::DEFAULT_HEIGHT
 }
 
-pub fn default_telegram_enabled() -> bool {
-    telegram::DEFAULT_ENABLED
-}
-
-pub fn default_telegram_bot_token() -> String {
-    telegram::DEFAULT_BOT_TOKEN.to_string()
-}
-
-pub fn default_telegram_chat_id() -> String {
-    telegram::DEFAULT_CHAT_ID.to_string()
-}
-
-pub fn default_telegram_hide_frontend_popup() -> bool {
-    telegram::DEFAULT_HIDE_FRONTEND_POPUP
-}
-
-pub fn default_telegram_api_base_url() -> String {
-    telegram::API_BASE_URL.to_string()
-}
+// Telegram 功能已移除
 
 impl WindowConfig {
     // 获取当前模式的宽度

@@ -1,4 +1,8 @@
 <script setup>
+import { useI18n } from '../../i18n'
+
+const { t } = useI18n()
+
 defineProps({
   currentTheme: {
     type: String,
@@ -16,10 +20,10 @@ defineEmits(['themeChange'])
       <div class="w-1.5 h-1.5 bg-primary-500 rounded-full mr-3 flex-shrink-0" />
       <div>
         <div class="text-sm font-medium leading-relaxed">
-          界面主题
+          {{ t('settings.theme.label') }}
         </div>
         <div class="text-xs opacity-60">
-          选择浅色或深色主题
+          {{ t('settings.theme.hint') }}
         </div>
       </div>
     </div>
@@ -39,7 +43,7 @@ defineEmits(['themeChange'])
             }"
           />
         </template>
-        浅色
+        {{ t('settings.theme.light') }}
       </n-button>
 
       <!-- 深色主题 -->
@@ -57,7 +61,7 @@ defineEmits(['themeChange'])
             }"
           />
         </template>
-        深色
+        {{ t('settings.theme.dark') }}
       </n-button>
     </n-space>
   </div>

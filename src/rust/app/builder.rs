@@ -22,6 +22,8 @@ pub fn build_tauri_app() -> Builder<tauri::Wry> {
             get_always_on_top,
             set_always_on_top,
             sync_window_state,
+            load_config,
+            save_config_cmd,
             reload_config,
 
             // 音频命令
@@ -89,13 +91,6 @@ pub fn build_tauri_app() -> Builder<tauri::Wry> {
             // 配置管理命令
             get_config_file_path,
 
-            // Telegram 命令
-            get_telegram_config,
-            set_telegram_config,
-            test_telegram_connection_cmd,
-            auto_get_chat_id,
-            start_telegram_sync,
-
             // 系统命令
             open_external_url,
             exit_app,
@@ -107,7 +102,10 @@ pub fn build_tauri_app() -> Builder<tauri::Wry> {
             check_for_updates,
             download_and_install_update,
             get_current_version,
-            restart_app
+            restart_app,
+
+            // 調試命令
+            open_devtools
         ])
         .setup(|app| {
             let app_handle = app.handle().clone();

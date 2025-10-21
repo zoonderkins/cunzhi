@@ -2,9 +2,13 @@
 import { computed, onMounted, ref } from 'vue'
 import { useMcpToolsReactive } from '../../composables/useMcpTools'
 import { generateFullPrompt } from '../../constants/prompts'
+import { useI18n } from '../../i18n'
 
 // 使用全局MCP工具状态
 const { mcpTools, loading: mcpLoading, loadMcpTools, enabledTools } = useMcpToolsReactive()
+
+// i18n
+const { t } = useI18n()
 
 // 根据MCP工具状态动态生成提示词
 const promptContent = computed(() => {
@@ -79,10 +83,10 @@ onMounted(async () => {
               <!-- 标题信息 -->
               <div>
                 <div class="text-lg font-medium mb-1 tracking-tight">
-                  参考提示词
+                  {{ t('prompts.title') }}
                 </div>
                 <div class="text-sm opacity-60 font-normal">
-                  基于MCP工具配置动态生成的系统提示词
+                  {{ t('prompts.description') }}
                 </div>
               </div>
             </n-space>
@@ -121,7 +125,7 @@ onMounted(async () => {
         <!-- 启用工具列表 -->
         <div class="mb-4">
           <div class="text-sm font-medium mb-2 opacity-80">
-            已启用的工具模块：
+            {{ t('prompts.enabledTools') }}
           </div>
           <n-space v-if="!mcpLoading && enabledTools.length > 0">
             <n-tag
@@ -144,7 +148,7 @@ onMounted(async () => {
             v-else-if="!mcpLoading && enabledTools.length === 0"
             class="text-sm opacity-60"
           >
-            暂无启用的工具
+            {{ t('prompts.noEnabledTools') }}
           </div>
           <n-skeleton
             v-else
