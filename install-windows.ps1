@@ -111,7 +111,7 @@ try {
     $Shortcut = $WshShell.CreateShortcut($ShortcutPath)
     $Shortcut.TargetPath = $MainExe
     $Shortcut.WorkingDirectory = $InstallDir
-    $Shortcut.Description = "寸止 - 告别AI提前终止烦恼，助力AI更加持久"
+    $Shortcut.Description = "寸止 - 讓 AI Great Again! 持久"
     # 图标已移除，使用默认图标
     $Shortcut.Save()
     Write-Host "✅ 开始菜单快捷方式已创建" -ForegroundColor Green
