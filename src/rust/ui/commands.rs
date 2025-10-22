@@ -14,7 +14,7 @@ pub async fn get_always_on_top(state: State<'_, AppState>) -> Result<bool, Strin
     let config = state
         .config
         .lock()
-        .map_err(|e| format!("获取配置失败: {}", e))?;
+        .map_err(|e| format!("獲取設定失敗: {}", e))?;
     Ok(config.ui_config.always_on_top)
 }
 
@@ -28,22 +28,22 @@ pub async fn set_always_on_top(
         let mut config = state
             .config
             .lock()
-            .map_err(|e| format!("获取配置失败: {}", e))?;
+            .map_err(|e| format!("獲取設定失敗: {}", e))?;
         config.ui_config.always_on_top = enabled;
     }
 
-    // 保存配置到文件
+    // 儲存設定到檔案
     save_config(&state, &app)
         .await
-        .map_err(|e| format!("保存配置失败: {}", e))?;
+        .map_err(|e| format!("儲存設定失敗: {}", e))?;
 
-    // 应用到当前窗口
+    // 應用到当前視窗
     if let Some(window) = app.get_webview_window("main") {
         window
             .set_always_on_top(enabled)
-            .map_err(|e| format!("设置窗口置顶失败: {}", e))?;
+            .map_err(|e| format!("設定視窗置顶失敗: {}", e))?;
 
-        log::info!("用户切换窗口置顶状态为: {} (已保存配置)", enabled);
+        log::info!("用户切换視窗置顶狀態为: {} (已儲存設定)", enabled);
     }
 
     Ok(())
@@ -54,75 +54,75 @@ pub async fn sync_window_state(
     state: State<'_, AppState>,
     app: tauri::AppHandle,
 ) -> Result<(), String> {
-    // 根据配置同步窗口状态
+    // 根据設定同步視窗狀態
     let always_on_top = {
         let config = state
             .config
             .lock()
-            .map_err(|e| format!("获取配置失败: {}", e))?;
+            .map_err(|e| format!("獲取設定失敗: {}", e))?;
         config.ui_config.always_on_top
     };
 
-    // 应用到当前窗口
+    // 應用到当前視窗
     if let Some(window) = app.get_webview_window("main") {
         window
             .set_always_on_top(always_on_top)
-            .map_err(|e| format!("同步窗口状态失败: {}", e))?;
+            .map_err(|e| format!("同步視窗狀態失敗: {}", e))?;
     }
 
     Ok(())
 }
 
-/// 載入配置（返回完整配置對象）
+/// 載入設定（傳回完整設定對象）
 #[tauri::command]
 pub async fn load_config(state: State<'_, AppState>) -> Result<serde_json::Value, String> {
     let config = state
         .config
         .lock()
-        .map_err(|e| format!("获取配置失败: {}", e))?;
+        .map_err(|e| format!("獲取設定失敗: {}", e))?;
 
     serde_json::to_value(&*config)
-        .map_err(|e| format!("序列化配置失败: {}", e))
+        .map_err(|e| format!("序列化設定失敗: {}", e))
 }
 
-/// 保存配置（接收完整配置對象）
+/// 儲存設定（接收完整設定對象）
 #[tauri::command]
 pub async fn save_config_cmd(
     config_value: serde_json::Value,
     state: State<'_, AppState>,
     app: tauri::AppHandle,
 ) -> Result<(), String> {
-    // 解析配置
+    // 解析設定
     let new_config: AppConfig = serde_json::from_value(config_value)
-        .map_err(|e| format!("解析配置失败: {}", e))?;
+        .map_err(|e| format!("解析設定失敗: {}", e))?;
 
-    // 更新內存中的配置
+    // 更新內存中的設定
     {
         let mut config = state
             .config
             .lock()
-            .map_err(|e| format!("获取配置失败: {}", e))?;
+            .map_err(|e| format!("獲取設定失敗: {}", e))?;
         *config = new_config;
     }
 
-    // 保存到文件
+    // 儲存到檔案
     save_config(&state, &app)
         .await
-        .map_err(|e| format!("保存配置失败: {}", e))?;
+        .map_err(|e| format!("儲存設定失敗: {}", e))?;
 
     Ok(())
 }
 
-/// 重新加载配置文件到内存
+/// 重新載入設定檔案到記憶體
 #[tauri::command]
 pub async fn reload_config(
     state: State<'_, AppState>,
     app: tauri::AppHandle,
 ) -> Result<(), String> {
-    // 从文件重新加载配置到内存
+    // 从檔案重新載入設定到記憶體
     load_config_from_file(&state, &app)
         .await
-        .map_err(|e| format!("重新加载配置失败: {}", e))?;
+        .map_err(|e| format!("重新載入設定失敗: {}", e))?;
 
     Ok(())
 }
@@ -132,7 +132,7 @@ pub async fn get_theme(state: State<'_, AppState>) -> Result<String, String> {
     let config = state
         .config
         .lock()
-        .map_err(|e| format!("获取配置失败: {}", e))?;
+        .map_err(|e| format!("獲取設定失敗: {}", e))?;
     Ok(config.ui_config.theme.clone())
 }
 
@@ -142,23 +142,23 @@ pub async fn set_theme(
     state: State<'_, AppState>,
     app: tauri::AppHandle,
 ) -> Result<(), String> {
-    // 验证主题值
+    // 驗證主題值
     if !["light", "dark"].contains(&theme.as_str()) {
-        return Err("无效的主题值，只支持 light、dark".to_string());
+        return Err("无效的主題值，只支持 light、dark".to_string());
     }
 
     {
         let mut config = state
             .config
             .lock()
-            .map_err(|e| format!("获取配置失败: {}", e))?;
+            .map_err(|e| format!("獲取設定失敗: {}", e))?;
         config.ui_config.theme = theme;
     }
 
-    // 保存配置到文件
+    // 儲存設定到檔案
     save_config(&state, &app)
         .await
-        .map_err(|e| format!("保存配置失败: {}", e))?;
+        .map_err(|e| format!("儲存設定失敗: {}", e))?;
 
     Ok(())
 }
@@ -168,7 +168,7 @@ pub async fn get_window_config(state: State<'_, AppState>) -> Result<WindowConfi
     let config = state
         .config
         .lock()
-        .map_err(|e| format!("获取配置失败: {}", e))?;
+        .map_err(|e| format!("獲取設定失敗: {}", e))?;
     Ok(config.ui_config.window_config.clone())
 }
 
@@ -182,14 +182,14 @@ pub async fn set_window_config(
         let mut config = state
             .config
             .lock()
-            .map_err(|e| format!("获取配置失败: {}", e))?;
+            .map_err(|e| format!("獲取設定失敗: {}", e))?;
         config.ui_config.window_config = window_config;
     }
 
-    // 保存配置到文件
+    // 儲存設定到檔案
     save_config(&state, &app)
         .await
-        .map_err(|e| format!("保存配置失败: {}", e))?;
+        .map_err(|e| format!("儲存設定失敗: {}", e))?;
 
     Ok(())
 }
@@ -199,7 +199,7 @@ pub async fn get_reply_config(state: State<'_, AppState>) -> Result<ReplyConfig,
     let config = state
         .config
         .lock()
-        .map_err(|e| format!("获取配置失败: {}", e))?;
+        .map_err(|e| format!("獲取設定失敗: {}", e))?;
     Ok(config.reply_config.clone())
 }
 
@@ -213,14 +213,14 @@ pub async fn set_reply_config(
         let mut config = state
             .config
             .lock()
-            .map_err(|e| format!("获取配置失败: {}", e))?;
+            .map_err(|e| format!("獲取設定失敗: {}", e))?;
         config.reply_config = reply_config;
     }
 
-    // 保存配置到文件
+    // 儲存設定到檔案
     save_config(&state, &app)
         .await
-        .map_err(|e| format!("保存配置失败: {}", e))?;
+        .map_err(|e| format!("儲存設定失敗: {}", e))?;
 
     Ok(())
 }
@@ -230,9 +230,9 @@ pub async fn get_window_settings(state: State<'_, AppState>) -> Result<serde_jso
     let config = state
         .config
         .lock()
-        .map_err(|e| format!("获取配置失败: {}", e))?;
+        .map_err(|e| format!("獲取設定失敗: {}", e))?;
 
-    // 返回窗口设置，包含两种模式的独立尺寸
+    // 傳回視窗設定，包含两种模式的独立尺寸
     let window_settings = serde_json::json!({
         "fixed": config.ui_config.window_config.fixed,
         "current_width": config.ui_config.window_config.current_width(),
@@ -254,9 +254,9 @@ pub async fn get_window_settings_for_mode(
     let config = state
         .config
         .lock()
-        .map_err(|e| format!("获取配置失败: {}", e))?;
+        .map_err(|e| format!("獲取設定失敗: {}", e))?;
 
-    // 返回指定模式的窗口设置
+    // 傳回指定模式的視窗設定
     let (width, height) = if fixed {
         (
             config.ui_config.window_config.fixed_width,
@@ -296,16 +296,16 @@ pub async fn get_window_constraints_cmd() -> Result<serde_json::Value, String> {
 #[tauri::command]
 pub async fn get_current_window_size(app: tauri::AppHandle) -> Result<serde_json::Value, String> {
     if let Some(window) = app.get_webview_window("main") {
-        // 检查窗口是否最小化
+        // 檢查視窗是否最小化
         if let Ok(is_minimized) = window.is_minimized() {
             if is_minimized {
-                return Err("窗口已最小化，跳过尺寸获取".to_string());
+                return Err("視窗已最小化，跳過尺寸獲取".to_string());
             }
         }
 
-        // 获取逻辑尺寸而不是物理尺寸
+        // 獲取逻辑尺寸而不是物理尺寸
         if let Ok(logical_size) = window.inner_size().map(|physical_size| {
-            // 获取缩放因子
+            // 獲取缩放因子
             let scale_factor = window.scale_factor().unwrap_or(1.0);
 
             // 转换为逻辑尺寸
@@ -317,13 +317,13 @@ pub async fn get_current_window_size(app: tauri::AppHandle) -> Result<serde_json
             let width = logical_size.width.round() as u32;
             let height = logical_size.height.round() as u32;
 
-            // 验证并调整尺寸到有效范围
+            // 驗證并调整尺寸到有效范围
             let (clamped_width, clamped_height) = crate::constants::window::clamp_window_size(width as f64, height as f64);
             let final_width = clamped_width as u32;
             let final_height = clamped_height as u32;
 
             if final_width != width || final_height != height {
-                log::info!("窗口尺寸已调整: {}x{} -> {}x{}", width, height, final_width, final_height);
+                log::info!("視窗尺寸已调整: {}x{} -> {}x{}", width, height, final_width, final_height);
             }
 
             let window_size = serde_json::json!({
@@ -334,7 +334,7 @@ pub async fn get_current_window_size(app: tauri::AppHandle) -> Result<serde_json
         }
     }
 
-    Err("无法获取当前窗口大小".to_string())
+    Err("无法獲取当前視窗大小".to_string())
 }
 
 #[tauri::command]
@@ -347,14 +347,14 @@ pub async fn set_window_settings(
         let mut config = state
             .config
             .lock()
-            .map_err(|e| format!("获取配置失败: {}", e))?;
+            .map_err(|e| format!("獲取設定失敗: {}", e))?;
 
-        // 更新窗口配置
+        // 更新視窗設定
         if let Some(fixed) = window_settings.get("fixed").and_then(|v| v.as_bool()) {
             config.ui_config.window_config.fixed = fixed;
         }
 
-        // 更新固定模式尺寸（添加尺寸验证）
+        // 更新固定模式尺寸（新增尺寸驗證）
         if let Some(width) = window_settings.get("fixed_width").and_then(|v| v.as_f64()) {
             if let Some(height) = window_settings.get("fixed_height").and_then(|v| v.as_f64()) {
                 if validation::is_valid_window_size(width, height) {
@@ -370,7 +370,7 @@ pub async fn set_window_settings(
             }
         }
 
-        // 更新自由拉伸模式尺寸（添加尺寸验证）
+        // 更新自由拉伸模式尺寸（新增尺寸驗證）
         if let Some(width) = window_settings.get("free_width").and_then(|v| v.as_f64()) {
             if let Some(height) = window_settings.get("free_height").and_then(|v| v.as_f64()) {
                 if validation::is_valid_window_size(width, height) {
@@ -386,7 +386,7 @@ pub async fn set_window_settings(
             }
         }
 
-        // 兼容旧的width/height参数，更新当前模式的尺寸（添加尺寸验证）
+        // 兼容旧的width/height參數，更新目前模式的尺寸（新增尺寸驗證）
         if let (Some(width), Some(height)) = (
             window_settings.get("width").and_then(|v| v.as_f64()),
             window_settings.get("height").and_then(|v| v.as_f64()),
@@ -400,10 +400,10 @@ pub async fn set_window_settings(
         }
     }
 
-    // 保存配置到文件
+    // 儲存設定到檔案
     save_config(&state, &app)
         .await
-        .map_err(|e| format!("保存配置失败: {}", e))?;
+        .map_err(|e| format!("儲存設定失敗: {}", e))?;
 
     Ok(())
 }
@@ -415,28 +415,28 @@ pub async fn send_mcp_response(
 ) -> Result<(), String> {
     // 将响应序列化为JSON字符串
     let response_str =
-        serde_json::to_string(&response).map_err(|e| format!("序列化响应失败: {}", e))?;
+        serde_json::to_string(&response).map_err(|e| format!("序列化响应失敗: {}", e))?;
 
     if response_str.trim().is_empty() {
         return Err("响应内容不能为空".to_string());
     }
 
-    // 检查是否为MCP模式
+    // 檢查是否为MCP模式
     let args: Vec<String> = std::env::args().collect();
     let is_mcp_mode = args.len() >= 3 && args[1] == "--mcp-request";
 
     if is_mcp_mode {
-        // MCP模式：直接输出到stdout（MCP协议要求）
+        // MCP模式：直接輸出到stdout（MCP协议要求）
         println!("{}", response_str);
         std::io::Write::flush(&mut std::io::stdout())
-            .map_err(|e| format!("刷新stdout失败: {}", e))?;
+            .map_err(|e| format!("重新整理stdout失敗: {}", e))?;
     } else {
         // 通过channel发送响应（如果有的话）
         let sender = {
             let mut channel = state
                 .response_channel
                 .lock()
-                .map_err(|e| format!("获取响应通道失败: {}", e))?;
+                .map_err(|e| format!("獲取响应通道失敗: {}", e))?;
             channel.take()
         };
 
@@ -453,7 +453,7 @@ pub fn get_cli_args() -> Result<serde_json::Value, String> {
     let args: Vec<String> = std::env::args().collect();
     let mut result = serde_json::Map::new();
 
-    // 检查是否有 --mcp-request 参数
+    // 檢查是否有 --mcp-request 參數
     if args.len() >= 3 && args[1] == "--mcp-request" {
         result.insert(
             "mcp_request".to_string(),
@@ -467,27 +467,27 @@ pub fn get_cli_args() -> Result<serde_json::Value, String> {
 #[tauri::command]
 pub fn read_mcp_request(file_path: String) -> Result<serde_json::Value, String> {
     if !std::path::Path::new(&file_path).exists() {
-        return Err(format!("文件不存在: {}", file_path));
+        return Err(format!("檔案不存在: {}", file_path));
     }
 
     match std::fs::read_to_string(&file_path) {
         Ok(content) => {
             if content.trim().is_empty() {
-                return Err("文件内容为空".to_string());
+                return Err("檔案内容为空".to_string());
             }
             match serde_json::from_str(&content) {
                 Ok(json) => Ok(json),
-                Err(e) => Err(format!("解析JSON失败: {}", e)),
+                Err(e) => Err(format!("解析JSON失敗: {}", e)),
             }
         }
-        Err(e) => Err(format!("读取文件失败: {}", e)),
+        Err(e) => Err(format!("讀取檔案失敗: {}", e)),
     }
 }
 
 #[tauri::command]
 pub async fn select_image_files() -> Result<Vec<String>, String> {
-    // 简化版本：返回测试图片数据
-    // 在实际应用中，这里应该调用系统文件对话框
+    // 简化版本：傳回測試图片資料
+    // 在实际應用中，这里应该呼叫系統檔案对话框
     let test_image_base64 = "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KICA8cmVjdCB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgZmlsbD0iIzMzNzNkYyIvPgogIDx0ZXh0IHg9IjUwIiB5PSI1NSIgZm9udC1mYW1pbHk9IkFyaWFsIiBmb250LXNpemU9IjE0IiBmaWxsPSJ3aGl0ZSIgdGV4dC1hbmNob3I9Im1pZGRsZSI+VGF1cmk8L3RleHQ+Cjwvc3ZnPg==";
 
     Ok(vec![test_image_base64.to_string()])
@@ -497,9 +497,9 @@ pub async fn select_image_files() -> Result<Vec<String>, String> {
 pub async fn open_external_url(url: String) -> Result<(), String> {
     use std::process::Command;
 
-    // 移除不重要的调试信息
+    // 移除不重要的偵錯訊息
 
-    // 根据操作系统选择合适的命令
+    // 根据操作系統選擇合适的命令
     let result = if cfg!(target_os = "windows") {
         Command::new("cmd")
             .args(["/C", "start", &url])
@@ -509,7 +509,7 @@ pub async fn open_external_url(url: String) -> Result<(), String> {
             .arg(&url)
             .spawn()
     } else {
-        // Linux 和其他 Unix 系统
+        // Linux 和其他 Unix 系統
         Command::new("xdg-open")
             .arg(&url)
             .spawn()
@@ -517,25 +517,25 @@ pub async fn open_external_url(url: String) -> Result<(), String> {
 
     match result {
         Ok(_) => Ok(()),
-        Err(e) => Err(format!("无法打开链接: {}", e))
+        Err(e) => Err(format!("无法開啟連結: {}", e))
     }
 }
 
 #[tauri::command]
 pub async fn exit_app(app: AppHandle) -> Result<(), String> {
-    // 直接调用强制退出，用于程序内部的退出操作（如MCP响应后退出）
+    // 直接呼叫強制退出，用于程序内部的退出操作（如MCP响应后退出）
     crate::ui::exit::force_exit_app(app).await
 }
 
 
 
-/// 处理应用退出请求（用于前端退出快捷键）
+/// 處理應用退出请求（用于前端退出快捷键）
 #[tauri::command]
 pub async fn handle_app_exit_request(app: AppHandle) -> Result<bool, String> {
     crate::ui::exit_handler::handle_exit_request_internal(app).await
 }
 
-/// 构建发送操作的MCP响应
+/// 建構发送操作的MCP响应
 #[tauri::command]
 pub fn build_mcp_send_response(
     user_input: Option<String>,
@@ -553,7 +553,7 @@ pub fn build_mcp_send_response(
     ))
 }
 
-/// 构建继续操作的MCP响应
+/// 建構繼續操作的MCP响应
 #[tauri::command]
 pub fn build_mcp_continue_response(
     request_id: Option<String>,
@@ -562,33 +562,33 @@ pub fn build_mcp_continue_response(
     Ok(build_continue_response(request_id, &source))
 }
 
-/// 创建测试popup窗口
+/// 建立測試popup視窗
 #[tauri::command]
 pub async fn create_test_popup(request: serde_json::Value) -> Result<String, String> {
     // 将JSON值转换为PopupRequest
     let popup_request: PopupRequest = serde_json::from_value(request)
-        .map_err(|e| format!("解析请求参数失败: {}", e))?;
+        .map_err(|e| format!("解析请求參數失敗: {}", e))?;
 
-    // 调用现有的popup创建函数
+    // 呼叫现有的popup建立函數
     match create_tauri_popup(&popup_request) {
         Ok(response) => Ok(response),
-        Err(e) => Err(format!("创建测试popup失败: {}", e))
+        Err(e) => Err(format!("建立測試popup失敗: {}", e))
     }
 }
 
-// 自定义prompt相关命令
+// 自訂prompt相关命令
 
-/// 获取自定义prompt配置
+/// 獲取自訂prompt設定
 #[tauri::command]
 pub async fn get_custom_prompt_config(state: State<'_, AppState>) -> Result<CustomPromptConfig, String> {
     let config = state
         .config
         .lock()
-        .map_err(|e| format!("获取配置失败: {}", e))?;
+        .map_err(|e| format!("獲取設定失敗: {}", e))?;
     Ok(config.custom_prompt_config.clone())
 }
 
-/// 添加自定义prompt
+/// 新增自訂prompt
 #[tauri::command]
 pub async fn add_custom_prompt(
     prompt: CustomPrompt,
@@ -599,14 +599,14 @@ pub async fn add_custom_prompt(
         let mut config = state
             .config
             .lock()
-            .map_err(|e| format!("获取配置失败: {}", e))?;
+            .map_err(|e| format!("獲取設定失敗: {}", e))?;
 
-        // 检查是否超过最大数量限制
+        // 檢查是否超过最大数量限制
         if config.custom_prompt_config.prompts.len() >= config.custom_prompt_config.max_prompts as usize {
-            return Err(format!("自定义prompt数量已达到上限: {}", config.custom_prompt_config.max_prompts));
+            return Err(format!("自訂prompt数量已达到上限: {}", config.custom_prompt_config.max_prompts));
         }
 
-        // 检查ID是否已存在
+        // 檢查ID是否已存在
         if config.custom_prompt_config.prompts.iter().any(|p| p.id == prompt.id) {
             return Err("prompt ID已存在".to_string());
         }
@@ -614,15 +614,15 @@ pub async fn add_custom_prompt(
         config.custom_prompt_config.prompts.push(prompt);
     }
 
-    // 保存配置到文件
+    // 儲存設定到檔案
     save_config(&state, &app)
         .await
-        .map_err(|e| format!("保存配置失败: {}", e))?;
+        .map_err(|e| format!("儲存設定失敗: {}", e))?;
 
     Ok(())
 }
 
-/// 更新自定义prompt
+/// 更新自訂prompt
 #[tauri::command]
 pub async fn update_custom_prompt(
     prompt: CustomPrompt,
@@ -633,7 +633,7 @@ pub async fn update_custom_prompt(
         let mut config = state
             .config
             .lock()
-            .map_err(|e| format!("获取配置失败: {}", e))?;
+            .map_err(|e| format!("獲取設定失敗: {}", e))?;
 
         // 查找并更新prompt
         if let Some(existing_prompt) = config.custom_prompt_config.prompts.iter_mut().find(|p| p.id == prompt.id) {
@@ -643,15 +643,15 @@ pub async fn update_custom_prompt(
         }
     }
 
-    // 保存配置到文件
+    // 儲存設定到檔案
     save_config(&state, &app)
         .await
-        .map_err(|e| format!("保存配置失败: {}", e))?;
+        .map_err(|e| format!("儲存設定失敗: {}", e))?;
 
     Ok(())
 }
 
-/// 删除自定义prompt
+/// 刪除自訂prompt
 #[tauri::command]
 pub async fn delete_custom_prompt(
     prompt_id: String,
@@ -662,9 +662,9 @@ pub async fn delete_custom_prompt(
         let mut config = state
             .config
             .lock()
-            .map_err(|e| format!("获取配置失败: {}", e))?;
+            .map_err(|e| format!("獲取設定失敗: {}", e))?;
 
-        // 查找并删除prompt
+        // 查找并刪除prompt
         let initial_len = config.custom_prompt_config.prompts.len();
         config.custom_prompt_config.prompts.retain(|p| p.id != prompt_id);
 
@@ -673,15 +673,15 @@ pub async fn delete_custom_prompt(
         }
     }
 
-    // 保存配置到文件
+    // 儲存設定到檔案
     save_config(&state, &app)
         .await
-        .map_err(|e| format!("保存配置失败: {}", e))?;
+        .map_err(|e| format!("儲存設定失敗: {}", e))?;
 
     Ok(())
 }
 
-/// 设置自定义prompt启用状态
+/// 設定自訂prompt启用狀態
 #[tauri::command]
 pub async fn set_custom_prompt_enabled(
     enabled: bool,
@@ -692,19 +692,19 @@ pub async fn set_custom_prompt_enabled(
         let mut config = state
             .config
             .lock()
-            .map_err(|e| format!("获取配置失败: {}", e))?;
+            .map_err(|e| format!("獲取設定失敗: {}", e))?;
         config.custom_prompt_config.enabled = enabled;
     }
 
-    // 保存配置到文件
+    // 儲存設定到檔案
     save_config(&state, &app)
         .await
-        .map_err(|e| format!("保存配置失败: {}", e))?;
+        .map_err(|e| format!("儲存設定失敗: {}", e))?;
 
     Ok(())
 }
 
-/// 更新自定义prompt排序
+/// 更新自訂prompt排序
 #[tauri::command]
 pub async fn update_custom_prompt_order(
     prompt_ids: Vec<String>,
@@ -717,7 +717,7 @@ pub async fn update_custom_prompt_order(
         let mut config = state
             .config
             .lock()
-            .map_err(|e| format!("获取配置失败: {}", e))?;
+            .map_err(|e| format!("獲取設定失敗: {}", e))?;
 
         log::debug!("更新前的prompt顺序:");
         for prompt in &config.custom_prompt_config.prompts {
@@ -743,21 +743,21 @@ pub async fn update_custom_prompt_order(
         }
     }
 
-    log::debug!("开始保存配置文件...");
+    log::debug!("开始儲存設定檔案...");
     let save_start = std::time::Instant::now();
 
-    // 保存配置到文件
+    // 儲存設定到檔案
     save_config(&state, &app)
         .await
-        .map_err(|e| format!("保存配置失败: {}", e))?;
+        .map_err(|e| format!("儲存設定失敗: {}", e))?;
 
     let save_duration = save_start.elapsed();
-    log::debug!("配置保存完成，耗时: {:?}", save_duration);
+    log::debug!("設定儲存完成，耗时: {:?}", save_duration);
 
     Ok(())
 }
 
-/// 更新条件性prompt状态
+/// 更新条件性prompt狀態
 #[tauri::command]
 pub async fn update_conditional_prompt_state(
     prompt_id: String,
@@ -769,7 +769,7 @@ pub async fn update_conditional_prompt_state(
         let mut config = state
             .config
             .lock()
-            .map_err(|e| format!("获取配置失败: {}", e))?;
+            .map_err(|e| format!("獲取設定失敗: {}", e))?;
 
         // 查找并更新指定prompt的current_state
         if let Some(prompt) = config.custom_prompt_config.prompts.iter_mut().find(|p| p.id == prompt_id) {
@@ -780,10 +780,10 @@ pub async fn update_conditional_prompt_state(
         }
     }
 
-    // 保存配置到文件
+    // 儲存設定到檔案
     save_config(&state, &app)
         .await
-        .map_err(|e| format!("保存配置失败: {}", e))?;
+        .map_err(|e| format!("儲存設定失敗: {}", e))?;
 
     Ok(())
 }
@@ -792,17 +792,17 @@ pub async fn update_conditional_prompt_state(
 
 
 
-/// 获取配置文件的真实路径
+/// 獲取設定檔案的真实路径
 #[tauri::command]
 pub async fn get_config_file_path(app: AppHandle) -> Result<String, String> {
     let config_path = crate::config::get_config_path(&app)
-        .map_err(|e| format!("获取配置文件路径失败: {}", e))?;
+        .map_err(|e| format!("獲取設定檔案路径失敗: {}", e))?;
 
-    // 获取绝对路径
+    // 獲取绝对路径
     let absolute_path = if config_path.is_absolute() {
         config_path
     } else {
-        // 如果是相对路径，获取当前工作目录并拼接
+        // 如果是相对路径，獲取当前工作目录并拼接
         std::env::current_dir()
             .unwrap_or_else(|_| std::path::PathBuf::from("."))
             .join(&config_path)
@@ -816,7 +816,7 @@ pub async fn get_config_file_path(app: AppHandle) -> Result<String, String> {
 
 /// 跨平台路径显示规范化
 fn normalize_path_display(path: &std::path::Path) -> String {
-    // 如果文件存在，尝试获取规范路径
+    // 如果檔案存在，尝试獲取规范路径
     let canonical_path = if path.exists() {
         match path.canonicalize() {
             Ok(canonical) => Some(canonical),
@@ -829,7 +829,7 @@ fn normalize_path_display(path: &std::path::Path) -> String {
     let display_path = canonical_path.as_ref().map(|p| p.as_path()).unwrap_or(path);
     let path_str = display_path.to_string_lossy();
 
-    // 处理不同平台的路径格式
+    // 處理不同平台的路径格式
     #[cfg(target_os = "windows")]
     {
         // Windows: 移除长路径前缀 \\?\
@@ -842,48 +842,48 @@ fn normalize_path_display(path: &std::path::Path) -> String {
 
     #[cfg(target_os = "macos")]
     {
-        // macOS: 处理可能的符号链接和特殊路径
+        // macOS: 處理可能的符号連結和特殊路径
         path_str.to_string()
     }
 
     #[cfg(target_os = "linux")]
     {
-        // Linux: 标准Unix路径处理
+        // Linux: 標準Unix路径處理
         path_str.to_string()
     }
 
     #[cfg(target_os = "ios")]
     {
-        // iOS: 类似macOS的处理
+        // iOS: 类似macOS的處理
         path_str.to_string()
     }
 
     #[cfg(target_os = "android")]
     {
-        // Android: 类似Linux的处理
+        // Android: 类似Linux的處理
         path_str.to_string()
     }
 
     #[cfg(not(any(target_os = "windows", target_os = "macos", target_os = "linux", target_os = "ios", target_os = "android")))]
     {
-        // 其他平台: 通用处理
+        // 其他平台: 通用處理
         path_str.to_string()
     }
 }
 
 // 快捷键相关命令
 
-/// 获取快捷键配置
+/// 獲取快捷鍵設定
 #[tauri::command]
 pub async fn get_shortcut_config(state: State<'_, AppState>) -> Result<ShortcutConfig, String> {
     let config = state
         .config
         .lock()
-        .map_err(|e| format!("获取配置失败: {}", e))?;
+        .map_err(|e| format!("獲取設定失敗: {}", e))?;
     Ok(config.shortcut_config.clone())
 }
 
-/// 更新快捷键绑定
+/// 更新快捷鍵綁定
 #[tauri::command]
 pub async fn update_shortcut_binding(
     shortcut_id: String,
@@ -895,23 +895,23 @@ pub async fn update_shortcut_binding(
         let mut config = state
             .config
             .lock()
-            .map_err(|e| format!("获取配置失败: {}", e))?;
+            .map_err(|e| format!("獲取設定失敗: {}", e))?;
 
-        // 更新指定的快捷键绑定
+        // 更新指定的快捷鍵綁定
         config.shortcut_config.shortcuts.insert(shortcut_id, binding);
     }
 
-    // 保存配置到文件
+    // 儲存設定到檔案
     save_config(&state, &app)
         .await
-        .map_err(|e| format!("保存配置失败: {}", e))?;
+        .map_err(|e| format!("儲存設定失敗: {}", e))?;
 
     Ok(())
 }
 
 
 
-/// 重置快捷键为默认值
+/// 重置快捷键为預設值
 #[tauri::command]
 pub async fn reset_shortcuts_to_default(
     state: State<'_, AppState>,
@@ -921,19 +921,19 @@ pub async fn reset_shortcuts_to_default(
         let mut config = state
             .config
             .lock()
-            .map_err(|e| format!("获取配置失败: {}", e))?;
+            .map_err(|e| format!("獲取設定失敗: {}", e))?;
         config.shortcut_config = crate::config::default_shortcut_config();
     }
 
-    // 保存配置到文件
+    // 儲存設定到檔案
     save_config(&state, &app)
         .await
-        .map_err(|e| format!("保存配置失败: {}", e))?;
+        .map_err(|e| format!("儲存設定失敗: {}", e))?;
 
     Ok(())
 }
 
-/// 打開 DevTools（調試用）
+/// 開啟 DevTools（調試用）
 #[tauri::command]
 pub async fn open_devtools(app: AppHandle) -> Result<(), String> {
     if let Some(window) = app.get_webview_window("main") {

@@ -24,7 +24,7 @@ const props = withDefaults(defineProps<Props>(), {
 const emit = defineEmits<Emits>()
 
 function handleThemeChange() {
-  // 切换到下一个主题
+  // 切换到下一个主題
   const nextTheme = props.currentTheme === 'light' ? 'dark' : 'light'
   emit('themeChange', nextTheme)
 }
@@ -56,7 +56,7 @@ function handleToggleAlwaysOnTop() {
           size="small"
           quaternary
           circle
-          :title="props.alwaysOnTop ? '取消置顶' : '窗口置顶'"
+          :title="props.alwaysOnTop ? '取消置顶' : '視窗置顶'"
           @click="handleToggleAlwaysOnTop"
         >
           <template #icon>
@@ -70,7 +70,7 @@ function handleToggleAlwaysOnTop() {
           size="small"
           quaternary
           circle
-          :title="props.showMainLayout ? '返回聊天' : '打开设置'"
+          :title="props.showMainLayout ? '傳回聊天' : '開啟設定'"
           @click="handleOpenMainLayout"
         >
           <template #icon>
@@ -84,7 +84,7 @@ function handleToggleAlwaysOnTop() {
           size="small"
           quaternary
           circle
-          :title="`切换到${props.currentTheme === 'light' ? '深色' : '浅色'}主题`"
+          :title="`切换到${props.currentTheme === 'light' ? '深色' : '浅色'}主題`"
           @click="handleThemeChange"
         >
           <template #icon>

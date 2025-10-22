@@ -12,7 +12,7 @@ const props = withDefaults(defineProps<Props>(), {
 
 const emit = defineEmits<Emits>()
 
-// 预处理引用内容，移除增强prompt格式标记
+// 预處理引用内容，移除增强prompt格式标记
 function preprocessQuoteContent(content: string): string {
   let processedContent = content
 
@@ -41,15 +41,15 @@ function preprocessQuoteContent(content: string): string {
 // 引用消息内容
 function quoteMessage() {
   if (props.request?.message) {
-    // 预处理内容，移除增强prompt格式标记
+    // 预處理内容，移除增强prompt格式标记
     const processedContent = preprocessQuoteContent(props.request.message)
     emit('quoteMessage', processedContent)
   }
 }
 
-// 动态导入代码高亮样式，根据主题切换
+// 动态匯入代码高亮样式，根据主題切换
 
-// 动态加载代码高亮样式
+// 动态載入代码高亮样式
 function loadHighlightStyle(theme: string) {
   // 移除现有的highlight.js样式
   const existingStyle = document.querySelector('link[data-highlight-theme]')
@@ -57,10 +57,10 @@ function loadHighlightStyle(theme: string) {
     existingStyle.remove()
   }
 
-  // 根据主题选择样式
+  // 根据主題選擇样式
   const styleName = theme === 'light' ? 'github' : 'github-dark'
 
-  // 动态创建样式链接
+  // 动态建立样式連結
   const link = document.createElement('link')
   link.rel = 'stylesheet'
   link.href = `https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/${styleName}.min.css`
@@ -80,7 +80,7 @@ interface Emits {
 
 const message = useMessage()
 
-// 创建 Markdown 实例 - 保持代码高亮功能
+// 建立 Markdown 实例 - 保持代码高亮功能
 const md = new MarkdownIt({
   html: true,
   xhtmlOut: false,
@@ -95,61 +95,61 @@ const md = new MarkdownIt({
         return hljs.highlight(str, { language: lang }).value
       }
       catch {
-        // 忽略错误
+        // 忽略錯誤
       }
     }
     return ''
   },
 })
 
-// 自定义链接渲染器 - 移除外链的点击功能，保持视觉样式
+// 自訂連結渲染器 - 移除外链的点击功能，保持视觉样式
 md.renderer.rules.link_open = function (tokens, idx, options, env, renderer) {
   const token = tokens[idx]
   const href = token.attrGet('href')
 
-  // 检查是否是外部链接
+  // 檢查是否是外部連結
   if (href && (href.startsWith('http://') || href.startsWith('https://'))) {
     // 移除href属性，保持其他属性
     token.attrSet('href', '#')
     token.attrSet('onclick', 'return false;')
     token.attrSet('style', 'cursor: default; text-decoration: none;')
-    token.attrSet('title', `外部链接已禁用: ${href}`)
+    token.attrSet('title', `外部連結已禁用: ${href}`)
   }
 
   return renderer.renderToken(tokens, idx, options)
 }
 
-// 自定义自动链接渲染器 - 处理linkify生成的链接
+// 自訂自動連結渲染器 - 處理linkify生成的連結
 md.renderer.rules.autolink_open = function (tokens, idx, options, env, renderer) {
   const token = tokens[idx]
   const href = token.attrGet('href')
 
-  // 检查是否是外部链接
+  // 檢查是否是外部連結
   if (href && (href.startsWith('http://') || href.startsWith('https://'))) {
     // 移除href属性，保持其他属性
     token.attrSet('href', '#')
     token.attrSet('onclick', 'return false;')
     token.attrSet('style', 'cursor: default; text-decoration: none;')
-    token.attrSet('title', `外部链接已禁用: ${href}`)
+    token.attrSet('title', `外部連結已禁用: ${href}`)
   }
 
   return renderer.renderToken(tokens, idx, options)
 }
 
-// Markdown 渲染函数
+// Markdown 渲染函數
 function renderMarkdown(content: string) {
   try {
     return md.render(content)
   }
   catch (error) {
-    console.error('Markdown 渲染失败:', error)
+    console.error('Markdown 渲染失敗:', error)
     return content
   }
 }
 
-// 创建复制按钮
+// 建立複製按钮
 function createCopyButton(preEl: Element) {
-  // 检查是否已经有复制按钮
+  // 檢查是否已经有複製按钮
   if (preEl.querySelector('.copy-button'))
     return
 
@@ -199,7 +199,7 @@ function createCopyButton(preEl: Element) {
       const textContent = codeEl?.textContent || preEl.textContent || ''
       await navigator.clipboard.writeText(textContent)
 
-      // 更新为成功状态
+      // 更新为成功狀態
       const icon = button.querySelector('div')!
       icon.className = 'i-carbon-checkmark'
       icon.style.cssText = 'width: 16px; height: 16px; color: #22c55e; display: block;'
@@ -208,10 +208,10 @@ function createCopyButton(preEl: Element) {
         icon.className = 'i-carbon-copy'
         icon.style.cssText = 'width: 16px; height: 16px; display: block;'
       }, 2000)
-      message.success('代码已复制到剪贴板')
+      message.success('代码已複製到剪贴板')
     }
     catch {
-      message.error('复制失败')
+      message.error('複製失敗')
     }
   })
 
@@ -225,23 +225,23 @@ function createCopyButton(preEl: Element) {
   preElement.appendChild(copyButton)
 }
 
-// 设置内联代码复制
+// 設定内联代码複製
 function setupInlineCodeCopy() {
   const inlineCodeElements = document.querySelectorAll('.markdown-content p code, .markdown-content li code')
   inlineCodeElements.forEach((codeEl) => {
     codeEl.addEventListener('click', async () => {
       try {
         await navigator.clipboard.writeText(codeEl.textContent || '')
-        message.success('代码已复制到剪贴板')
+        message.success('代码已複製到剪贴板')
       }
       catch {
-        message.error('复制失败')
+        message.error('複製失敗')
       }
     })
   })
 }
 
-// 设置代码复制功能
+// 設定代码複製功能
 let setupCodeCopyTimer: number | null = null
 function setupCodeCopy() {
   if (setupCodeCopyTimer) {
@@ -251,9 +251,9 @@ function setupCodeCopy() {
   // 增加延迟时间，确保DOM完全渲染
   setupCodeCopyTimer = window.setTimeout(() => {
     nextTick(() => {
-      // 确保选择正确的 pre 元素
+      // 确保選擇正确的 pre 元素
       const preElements = document.querySelectorAll('.markdown-content pre')
-      console.log('设置代码复制按钮，找到', preElements.length, '个代码块')
+      console.log('設定代码複製按钮，找到', preElements.length, '个代码块')
       preElements.forEach((preEl) => {
         createCopyButton(preEl)
       })
@@ -263,7 +263,7 @@ function setupCodeCopy() {
       if (preElements.length === 0) {
         setTimeout(() => {
           const retryElements = document.querySelectorAll('.markdown-content pre')
-          console.log('重试设置代码复制按钮，找到', retryElements.length, '个代码块')
+          console.log('重试設定代码複製按钮，找到', retryElements.length, '个代码块')
           retryElements.forEach((preEl) => {
             createCopyButton(preEl)
           })
@@ -273,14 +273,14 @@ function setupCodeCopy() {
   }, 300)
 }
 
-// 监听request变化，重新设置代码复制
+// 監聽request变化，重新設定代码複製
 watch(() => props.request, () => {
   if (props.request) {
     setupCodeCopy()
   }
 }, { deep: true })
 
-// 监听loading状态变化
+// 監聽loading狀態变化
 watch(() => props.loading, (newLoading) => {
   if (!newLoading && props.request) {
     setupCodeCopy()
@@ -295,12 +295,12 @@ onMounted(() => {
   }
 })
 
-// 监听主题变化
+// 監聽主題变化
 watch(() => props.currentTheme, (newTheme) => {
   loadHighlightStyle(newTheme)
 }, { immediate: false })
 
-// 在DOM更新后也尝试设置
+// 在DOM更新后也尝试設定
 onUpdated(() => {
   if (props.request && !props.loading) {
     setupCodeCopy()
@@ -310,11 +310,11 @@ onUpdated(() => {
 
 <template>
   <div class="text-white">
-    <!-- 加载状态 -->
+    <!-- 載入狀態 -->
     <div v-if="loading" class="flex flex-col items-center justify-center py-8">
       <n-spin size="medium" />
       <p class="text-sm mt-3 text-white opacity-60">
-        加载中...
+        載入中...
       </p>
     </div>
 
@@ -342,7 +342,7 @@ onUpdated(() => {
       <!-- 引用原文按钮 - 位于右下角 -->
       <div class="flex justify-end mt-4 pt-3 border-t border-gray-600/30" data-guide="quote-message">
         <div
-          title="点击将AI的消息内容引用到输入框中"
+          title="点击将AI的消息内容引用到輸入框中"
           class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium bg-blue-500/20 hover:bg-blue-500/30 text-white rounded-md transition-all duration-200 cursor-pointer border border-blue-500/50 hover:border-blue-500/70 shadow-sm hover:shadow-md"
           @click="quoteMessage"
         >
@@ -352,10 +352,10 @@ onUpdated(() => {
       </div>
     </div>
 
-    <!-- 错误状态 -->
-    <n-alert v-else type="error" title="数据加载错误">
+    <!-- 錯誤狀態 -->
+    <n-alert v-else type="error" title="資料載入錯誤">
       <div class="text-white">
-        Request对象: {{ JSON.stringify(request) }}
+        Request物件: {{ JSON.stringify(request) }}
       </div>
     </n-alert>
   </div>

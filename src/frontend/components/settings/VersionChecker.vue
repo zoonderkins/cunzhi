@@ -21,12 +21,12 @@ const {
   restartApp,
 } = useVersionCheck()
 
-// 格式化最后检查时间
+// 格式化最后檢查时间
 const formattedLastCheckTime = computed(() => {
   return lastCheckTime.value ? lastCheckTime.value.toLocaleString('zh-CN') : ''
 })
 
-// 手动检查更新
+// 手動檢查更新
 async function handleCheckUpdate() {
   try {
     const info = await manualCheckUpdate()
@@ -39,8 +39,8 @@ async function handleCheckUpdate() {
     }
   }
   catch (error) {
-    console.error('检查版本更新失败:', error)
-    message.error(`检查版本更新失败: ${error}`)
+    console.error('檢查版本更新失敗:', error)
+    message.error(`檢查版本更新失敗: ${error}`)
   }
 }
 
@@ -48,11 +48,11 @@ async function handleCheckUpdate() {
 async function handleDownloadUpdate() {
   try {
     await openDownloadPage()
-    message.success('正在打开下载页面...')
+    message.success('正在開啟下载页面...')
   }
   catch (error) {
-    const errorMsg = error instanceof Error ? error.message : '打开下载页面失败，请手动访问GitHub'
-    if (errorMsg.includes('已复制到剪贴板')) {
+    const errorMsg = error instanceof Error ? error.message : '開啟下载页面失敗，请手動访问GitHub'
+    if (errorMsg.includes('已複製到剪贴板')) {
       message.warning(errorMsg)
     }
     else {
@@ -61,15 +61,15 @@ async function handleDownloadUpdate() {
   }
 }
 
-// 查看更新日志
+// 查看更新日誌
 async function handleViewReleaseNotes() {
   try {
     await openReleasePage()
-    message.success('正在打开更新日志...')
+    message.success('正在開啟更新日誌...')
   }
   catch (error) {
-    const errorMsg = error instanceof Error ? error.message : '打开更新日志失败，请手动访问GitHub'
-    if (errorMsg.includes('已复制到剪贴板')) {
+    const errorMsg = error instanceof Error ? error.message : '開啟更新日誌失敗，请手動访问GitHub'
+    if (errorMsg.includes('已複製到剪贴板')) {
       message.warning(errorMsg)
     }
     else {
@@ -85,35 +85,35 @@ async function handleOneClickUpdate() {
     await performOneClickUpdate()
 
     if (updateStatus.value === 'completed') {
-      message.success('更新完成！点击重启按钮应用更新')
+      message.success('更新完成！点击重新啟動按钮應用更新')
     }
   }
   catch (error) {
-    console.error('一键更新失败:', error)
-    const errorMsg = error instanceof Error ? error.message : '更新失败，请稍后重试或手动下载'
+    console.error('一键更新失敗:', error)
+    const errorMsg = error instanceof Error ? error.message : '更新失敗，请稍后重试或手動下载'
     message.error(errorMsg)
   }
 }
 
-// 重启应用
+// 重新啟動應用
 async function handleRestartApp() {
   try {
     await restartApp()
   }
   catch (error) {
-    console.error('重启失败:', error)
-    message.error('重启失败，请手动重启应用')
+    console.error('重新啟動失敗:', error)
+    message.error('重新啟動失敗，请手動重新啟動應用')
   }
 }
 
-// 组件挂载时初始化版本信息
+// 元件挂载时初始化版本訊息
 onMounted(async () => {
   loading.value = true
   try {
     await getVersionInfo()
   }
   catch (error) {
-    console.error('初始化版本信息失败:', error)
+    console.error('初始化版本訊息失敗:', error)
   }
   finally {
     loading.value = false
@@ -123,7 +123,7 @@ onMounted(async () => {
 
 <template>
   <div class="space-y-4">
-    <!-- 版本信息显示 -->
+    <!-- 版本訊息显示 -->
     <div
       v-if="!loading && versionInfo"
       class="space-y-3"
@@ -178,7 +178,7 @@ onMounted(async () => {
           <div class="flex items-center gap-2">
             <n-spin size="small" />
             <span class="text-sm font-medium text-on-surface dark:text-on-surface">
-              {{ updateStatus === 'checking' ? '检查更新中...'
+              {{ updateStatus === 'checking' ? '檢查更新中...'
                 : updateStatus === 'downloading' ? '下载更新中...'
                   : updateStatus === 'installing' ? '安装更新中...'
                     : updateStatus === 'completed' ? '更新完成' : '更新中...' }}
@@ -207,22 +207,22 @@ onMounted(async () => {
         </div>
       </div>
 
-      <!-- 最后检查时间 -->
+      <!-- 最后檢查时间 -->
       <div
         v-if="formattedLastCheckTime"
         class="text-xs text-on-surface-muted dark:text-on-surface-muted"
       >
-        最后检查: {{ formattedLastCheckTime }}
+        最后檢查: {{ formattedLastCheckTime }}
       </div>
     </div>
 
-    <!-- 加载状态 -->
+    <!-- 載入狀態 -->
     <div
       v-else-if="loading"
       class="flex items-center justify-center py-4"
     >
       <n-spin size="small" />
-      <span class="ml-2 text-sm text-on-surface-secondary">加载版本信息...</span>
+      <span class="ml-2 text-sm text-on-surface-secondary">載入版本訊息...</span>
     </div>
 
     <!-- 操作按钮 -->
@@ -236,7 +236,7 @@ onMounted(async () => {
         <template #icon>
           <div class="i-carbon-renew" />
         </template>
-        检查更新
+        檢查更新
       </n-button>
 
       <!-- 立即更新按钮 -->
@@ -253,7 +253,7 @@ onMounted(async () => {
         立即更新
       </n-button>
 
-      <!-- 重启按钮 -->
+      <!-- 重新啟動按钮 -->
       <n-button
         v-if="updateStatus === 'completed'"
         type="success"
@@ -263,10 +263,10 @@ onMounted(async () => {
         <template #icon>
           <div class="i-carbon-restart" />
         </template>
-        重启应用
+        重新啟動應用
       </n-button>
 
-      <!-- 手动下载按钮（备选方案） -->
+      <!-- 手動下载按钮（备选方案） -->
       <n-button
         v-if="versionInfo?.hasUpdate"
         secondary
@@ -277,7 +277,7 @@ onMounted(async () => {
         <template #icon>
           <div class="i-carbon-download" />
         </template>
-        手动下载
+        手動下载
       </n-button>
 
       <n-button
@@ -290,7 +290,7 @@ onMounted(async () => {
         <template #icon>
           <div class="i-carbon-document" />
         </template>
-        更新日志
+        更新日誌
       </n-button>
     </div>
   </div>

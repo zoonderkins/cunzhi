@@ -64,7 +64,7 @@ const features = computed(() => [
 
 <template>
   <div class="tab-content">
-    <!-- 项目信息卡片 -->
+    <!-- 專案訊息卡片 -->
     <div class="mb-5">
       <ProjectInfoCard />
     </div>

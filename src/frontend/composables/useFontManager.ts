@@ -20,10 +20,10 @@ export interface FontSizeOption {
 }
 
 /**
- * 字体管理组合式函数
+ * 字型管理组合式函數
  */
 export function useFontManager() {
-  // 响应式状态
+  // 響應式狀態
   const fontConfig = ref<FontInfo>({
     font_family: 'inter',
     font_size: 'medium',
@@ -33,7 +33,7 @@ export function useFontManager() {
   const fontFamilyOptions = ref<FontFamilyOption[]>([])
   const fontSizeOptions = ref<FontSizeOption[]>([])
 
-  // 计算当前字体CSS值
+  // 计算当前字型CSS值
   const currentFontFamily = computed(() => {
     if (fontConfig.value.font_family === 'custom') {
       return fontConfig.value.custom_font_family
@@ -43,25 +43,25 @@ export function useFontManager() {
     return option?.css_value || fontFamilyOptions.value[0]?.css_value || 'Inter, sans-serif'
   })
 
-  // 计算当前字体大小比例
+  // 计算当前字型大小比例
   const currentFontScale = computed(() => {
     const option = fontSizeOptions.value.find(opt => opt.id === fontConfig.value.font_size)
     return option?.scale || 1.0
   })
 
   /**
-   * 应用字体变量到DOM
+   * 應用字型變數到DOM
    */
   function applyFontVariables() {
     const root = document.documentElement
 
-    // 设置字体系列CSS变量
+    // 設定字型系列CSS變數
     root.style.setProperty('--font-family', currentFontFamily.value)
 
-    // 设置字体大小比例CSS变量
+    // 設定字型大小比例CSS變數
     root.style.setProperty('--font-size-scale', currentFontScale.value.toString())
 
-    // 应用字体大小到各个尺寸级别
+    // 應用字型大小到各个尺寸级别
     const baseSizes = [
       { name: 'xs', base: 0.75 },
       { name: 'sm', base: 0.875 },
@@ -77,15 +77,15 @@ export function useFontManager() {
       root.style.setProperty(`--font-size-${name}`, `${scaledSize}rem`)
     })
 
-    // 设置body字体
+    // 設定body字型
     root.style.setProperty('--body-font-family', currentFontFamily.value)
 
-    // 强制更新body元素的字体
+    // 強制更新body元素的字型
     document.body.style.fontFamily = currentFontFamily.value
   }
 
   /**
-   * 加载字体配置
+   * 載入字型設定
    */
   async function loadFontConfig() {
     try {
@@ -94,12 +94,12 @@ export function useFontManager() {
       applyFontVariables()
     }
     catch (error) {
-      console.error('加载字体配置失败:', error)
+      console.error('載入字型設定失敗:', error)
     }
   }
 
   /**
-   * 加载字体选项
+   * 載入字型選項
    */
   async function loadFontOptions() {
     try {
@@ -112,12 +112,12 @@ export function useFontManager() {
       fontSizeOptions.value = sizeOptions
     }
     catch (error) {
-      console.error('加载字体选项失败:', error)
+      console.error('載入字型選項失敗:', error)
     }
   }
 
   /**
-   * 设置字体系列
+   * 設定字型系列
    */
   async function setFontFamily(fontFamily: string) {
     try {
@@ -126,13 +126,13 @@ export function useFontManager() {
       applyFontVariables()
     }
     catch (error) {
-      console.error('设置字体系列失败:', error)
+      console.error('設定字型系列失敗:', error)
       throw error
     }
   }
 
   /**
-   * 设置字体大小
+   * 設定字型大小
    */
   async function setFontSize(fontSize: string) {
     try {
@@ -141,13 +141,13 @@ export function useFontManager() {
       applyFontVariables()
     }
     catch (error) {
-      console.error('设置字体大小失败:', error)
+      console.error('設定字型大小失敗:', error)
       throw error
     }
   }
 
   /**
-   * 设置自定义字体系列
+   * 設定自訂字型系列
    */
   async function setCustomFontFamily(customFontFamily: string) {
     try {
@@ -156,13 +156,13 @@ export function useFontManager() {
       applyFontVariables()
     }
     catch (error) {
-      console.error('设置自定义字体系列失败:', error)
+      console.error('設定自訂字型系列失敗:', error)
       throw error
     }
   }
 
   /**
-   * 重置字体配置
+   * 重置字型設定
    */
   async function resetFontConfig() {
     try {
@@ -170,23 +170,23 @@ export function useFontManager() {
       await loadFontConfig()
     }
     catch (error) {
-      console.error('重置字体配置失败:', error)
+      console.error('重置字型設定失敗:', error)
       throw error
     }
   }
 
-  // 监听字体配置变化，自动应用
+  // 監聽字型設定变化，自動應用
   watch([currentFontFamily, currentFontScale], () => {
     applyFontVariables()
   }, { immediate: true })
 
-  // 监听字体配置对象变化
+  // 監聽字型設定物件变化
   watch(fontConfig, () => {
     applyFontVariables()
   }, { deep: true })
 
   return {
-    // 状态
+    // 狀態
     fontConfig,
     fontFamilyOptions,
     fontSizeOptions,

@@ -27,7 +27,7 @@ const props = withDefaults(defineProps<Props>(), {
 
 const emit = defineEmits<Emits>()
 
-// 使用自定义快捷键系统
+// 使用自訂快捷键系統
 const {
   quickSubmitShortcutText,
   enhanceShortcutText,
@@ -44,19 +44,19 @@ const statusText = computed(() => {
     return shortcutText.value
   }
 
-  // 如果有输入状态文本且不是默认状态，显示输入状态
-  if (props.inputStatusText && props.inputStatusText !== '等待输入...') {
+  // 如果有輸入狀態文本且不是預設狀態，显示輸入狀態
+  if (props.inputStatusText && props.inputStatusText !== '等待輸入...') {
     return props.inputStatusText
   }
 
-  // 根据请求类型显示不同的提示
+  // 根据请求類型显示不同的提示
   if (props.request?.predefined_options) {
-    return '选择选项或输入文本'
+    return '選擇選項或輸入文本'
   }
-  return '请输入内容'
+  return '请輸入内容'
 })
 
-// 处理快捷键
+// 處理快捷键
 useQuickSubmitShortcut(() => {
   if (props.canSubmit && !props.submitting) {
     handleSubmit()
@@ -81,7 +81,7 @@ function handleEnhance() {
   }
 }
 
-// 组件挂载时加载快捷键配置
+// 元件挂载时載入快捷鍵設定
 onMounted(() => {
   loadShortcutConfig()
 })
@@ -90,7 +90,7 @@ onMounted(() => {
 <template>
   <div class="px-4 py-3 bg-gray-100 min-h-[60px] select-none">
     <div v-if="!loading" class="flex justify-between items-center">
-      <!-- 左侧状态信息 -->
+      <!-- 左侧狀態訊息 -->
       <div class="flex items-center">
         <div class="flex items-center gap-2 text-xs text-gray-600">
           <div class="w-2 h-2 rounded-full bg-primary-500" />

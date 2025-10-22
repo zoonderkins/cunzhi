@@ -1,82 +1,82 @@
-// 验证相关常量和函数
+// 驗證相关常量和函數
 
 use super::window;
 use super::audio;
 use super::theme;
 use super::network;
 
-// 通用验证函数
+// 通用驗證函數
 
-/// 验证字符串是否为空
+/// 驗證字符串是否为空
 pub fn is_empty_string(s: &str) -> bool {
     s.trim().is_empty()
 }
 
-/// 验证字符串长度是否在范围内
+/// 驗證字符串长度是否在范围内
 pub fn is_valid_string_length(s: &str, min: usize, max: usize) -> bool {
     let len = s.len();
     len >= min && len <= max
 }
 
-/// 验证数值是否在范围内
+/// 驗證数值是否在范围内
 pub fn is_in_range<T: PartialOrd>(value: T, min: T, max: T) -> bool {
     value >= min && value <= max
 }
 
-/// 验证 URL 格式是否有效
+/// 驗證 URL 格式是否有效
 pub fn is_valid_url(url: &str) -> bool {
     if url.is_empty() {
-        return true; // 空 URL 被认为是有效的（使用默认值）
+        return true; // 空 URL 被认为是有效的（使用預設值）
     }
     
     url.starts_with("http://") || url.starts_with("https://") || url.starts_with("file://")
 }
 
-/// 验证文件路径是否有效
+/// 驗證檔案路径是否有效
 pub fn is_valid_file_path(path: &str) -> bool {
     !path.is_empty() && !path.contains('\0')
 }
 
-/// 验证端口号是否有效
+/// 驗證端口号是否有效
 pub fn is_valid_port(port: u16) -> bool {
     port > 0
 }
 
-// 窗口验证函数
+// 視窗驗證函數
 pub use window::is_valid_window_size;
 
-/// 验证窗口位置是否有效
+/// 驗證視窗位置是否有效
 pub fn is_valid_window_position(x: i32, y: i32) -> bool {
     // 允许负值，因为多显示器环境下可能有负坐标
     (-10000..=10000).contains(&x) && (-10000..=10000).contains(&y)
 }
 
-// 音频验证函数
+// 音訊驗證函數
 pub use audio::{is_supported_audio_format, is_valid_audio_file_size};
 
-/// 验证音量是否有效
+/// 驗證音量是否有效
 pub fn is_valid_volume(volume: f32) -> bool {
     is_in_range(volume, 0.0, 1.0)
 }
 
-// 主题验证函数
+// 主題驗證函數
 pub use theme::is_valid_theme;
 
 // Telegram 功能已移除
 
-// 网络验证函数
+// 網路驗證函數
 
-/// 验证超时时间是否有效
+/// 驗證超时时间是否有效
 pub fn is_valid_timeout(timeout_ms: u64) -> bool {
     is_in_range(timeout_ms, 100, 300000) // 100ms 到 5分钟
 }
 
-/// 验证重试次数是否有效
+/// 驗證重试次数是否有效
 pub fn is_valid_retry_count(count: u32) -> bool {
     count <= network::MAX_RETRY_COUNT
 }
 
-// 配置验证结构体
+// 設定驗證结构体
 #[derive(Debug, Clone)]
 pub struct ValidationResult {
     pub is_valid: bool,
@@ -110,9 +110,9 @@ impl Default for ValidationResult {
     }
 }
 
-// 综合验证函数
+// 综合驗證函數
 
-/// 验证窗口配置
+/// 驗證視窗設定
 pub fn validate_window_config(
     width: f64,
     height: f64,
@@ -122,24 +122,24 @@ pub fn validate_window_config(
     let mut result = ValidationResult::new();
 
     if !is_valid_window_size(width, height) {
-        result.add_error(format!("无效的窗口尺寸: {}x{}", width, height));
+        result.add_error(format!("无效的視窗尺寸: {}x{}", width, height));
     }
 
     if let (Some(x), Some(y)) = (x, y) {
         if !is_valid_window_position(x, y) {
-            result.add_error(format!("无效的窗口位置: ({}, {})", x, y));
+            result.add_error(format!("无效的視窗位置: ({}, {})", x, y));
         }
     }
 
     result
 }
 
-/// 验证音频配置
+/// 驗證音訊設定
 pub fn validate_audio_config(url: &str, volume: f32, enabled: bool) -> ValidationResult {
     let mut result = ValidationResult::new();
 
     if enabled && !url.is_empty() && !is_valid_url(url) {
-        result.add_error(format!("无效的音频 URL: {}", url));
+        result.add_error(format!("无效的音訊 URL: {}", url));
     }
 
     if !is_valid_volume(volume) {
@@ -149,7 +149,7 @@ pub fn validate_audio_config(url: &str, volume: f32, enabled: bool) -> Validatio
     result
 }
 
-/// 验证网络配置
+/// 驗證網路設定
 pub fn validate_network_config(
     timeout_ms: u64,
     retry_count: u32,

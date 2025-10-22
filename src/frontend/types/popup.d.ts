@@ -1,4 +1,4 @@
-// 弹窗系统类型定义
+// 弹窗系統類型定义
 
 export interface McpRequest {
   id: string
@@ -7,7 +7,7 @@ export interface McpRequest {
   is_markdown?: boolean
 }
 
-// 自定义prompt类型定义
+// 自訂prompt類型定义
 export interface CustomPrompt {
   id: string
   name: string
@@ -17,14 +17,14 @@ export interface CustomPrompt {
   created_at: string
   updated_at: string
   type: 'normal' | 'conditional'
-  // 条件性prompt专用字段
-  condition_text?: string // 条件描述文本
-  template_true?: string // 开关为true时的模板
-  template_false?: string // 开关为false时的模板
-  current_state?: boolean // 当前开关状态
+  // 條件性prompt專用欄位
+  condition_text?: string // 條件描述文字
+  template_true?: string // 開關為true時的範本
+  template_false?: string // 開關為false時的範本
+  current_state?: boolean // 目前開關狀態
 }
 
-// 自定义prompt配置
+// 自訂prompt設定
 export interface CustomPromptConfig {
   prompts: CustomPrompt[]
   enabled: boolean
@@ -39,7 +39,7 @@ export interface PopupState {
   request: McpRequest | null
 }
 
-// 快捷键相关类型定义
+// 快捷键相关類型定义
 export interface ShortcutConfig {
   shortcuts: Record<string, ShortcutBinding>
 }
@@ -82,7 +82,7 @@ export interface ResponseMetadata {
   source: string | null
 }
 
-// 旧格式兼容性支持
+// 旧格式相容性支持
 export interface PopupResponse {
   type: 'text' | 'image' | 'option'
   text?: string
@@ -99,7 +99,7 @@ export interface ImageData {
   }
 }
 
-// 事件类型
+// 事件類型
 export type PopupEvent
   = | { type: 'show', payload: McpRequest }
     | { type: 'hide' }

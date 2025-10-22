@@ -7,14 +7,14 @@ import { onMounted, ref } from 'vue'
 
 const message = useMessage()
 
-// 配置状态
+// 設定狀態
 const config = ref<CustomPromptConfig>({
   prompts: [],
   enabled: true,
   maxPrompts: 50,
 })
 
-// UI状态
+// UI狀態
 const loading = ref(false)
 const showAddDialog = ref(false)
 const showEditDialog = ref(false)
@@ -34,7 +34,7 @@ const newPrompt = ref({
   current_state: false,
 })
 
-// 加载配置
+// 載入設定
 async function loadConfig() {
   try {
     loading.value = true
@@ -44,40 +44,40 @@ async function loadConfig() {
     config.value.prompts.sort((a, b) => a.sort_order - b.sort_order)
   }
   catch (error) {
-    console.error('加载自定义prompt配置失败:', error)
-    message.error('加载配置失败')
+    console.error('載入自訂prompt設定失敗:', error)
+    message.error('載入設定失敗')
   }
   finally {
     loading.value = false
   }
 }
 
-// 切换启用状态
+// 切换启用狀態
 async function toggleEnabled() {
   try {
     await invoke('set_custom_prompt_enabled', { enabled: config.value.enabled })
 
-    // 发送事件通知其他组件更新
+    // 发送事件通知其他元件更新
     await emit('custom-prompt-updated')
 
     message.success(config.value.enabled ? '已启用快捷模板功能' : '已禁用快捷模板功能')
   }
   catch (error) {
-    console.error('更新启用状态失败:', error)
-    message.error('更新失败')
-    // 回滚状态
+    console.error('更新启用狀態失敗:', error)
+    message.error('更新失敗')
+    // 回滚狀態
     config.value.enabled = !config.value.enabled
   }
 }
 
-// 添加prompt
+// 新增prompt
 async function addPrompt() {
   if (!newPrompt.value.name.trim()) {
     message.warning('请填写名称')
     return
   }
 
-  // 上下文追加的验证
+  // 上下文追加的驗證
   if (newPrompt.value.type === 'conditional') {
     if (!newPrompt.value.condition_text.trim()) {
       message.warning('请填写条件描述')
@@ -108,7 +108,7 @@ async function addPrompt() {
     await invoke('add_custom_prompt', { prompt })
     config.value.prompts.push(prompt)
 
-    // 发送事件通知其他组件更新
+    // 发送事件通知其他元件更新
     await emit('custom-prompt-updated')
 
     // 重置表单
@@ -123,15 +123,15 @@ async function addPrompt() {
       current_state: false,
     }
     showAddDialog.value = false
-    message.success('添加成功')
+    message.success('新增成功')
   }
   catch (error) {
-    console.error('添加prompt失败:', error)
-    message.error(`添加失败: ${error}`)
+    console.error('新增prompt失敗:', error)
+    message.error(`新增失敗: ${error}`)
   }
 }
 
-// 编辑prompt
+// 編輯prompt
 function editPrompt(prompt: CustomPrompt) {
   editingPrompt.value = { ...prompt }
   showEditDialog.value = true
@@ -142,7 +142,7 @@ async function updatePrompt() {
   if (!editingPrompt.value)
     return
 
-  // 上下文追加的验证
+  // 上下文追加的驗證
   if (editingPrompt.value.type === 'conditional') {
     if (!editingPrompt.value.condition_text?.trim()) {
       message.warning('请填写条件描述')
@@ -158,13 +158,13 @@ async function updatePrompt() {
     editingPrompt.value.updated_at = new Date().toISOString()
     await invoke('update_custom_prompt', { prompt: editingPrompt.value })
 
-    // 更新本地状态
+    // 更新本地狀態
     const index = config.value.prompts.findIndex(p => p.id === editingPrompt.value!.id)
     if (index !== -1) {
       config.value.prompts[index] = { ...editingPrompt.value }
     }
 
-    // 发送事件通知其他组件更新
+    // 发送事件通知其他元件更新
     await emit('custom-prompt-updated')
 
     showEditDialog.value = false
@@ -172,18 +172,18 @@ async function updatePrompt() {
     message.success('更新成功')
   }
   catch (error) {
-    console.error('更新prompt失败:', error)
-    message.error(`更新失败: ${error}`)
+    console.error('更新prompt失敗:', error)
+    message.error(`更新失敗: ${error}`)
   }
 }
 
-// 显示删除确认对话框
+// 显示刪除確認对话框
 function showDeleteConfirm(promptId: string) {
   deletingPromptId.value = promptId
   showDeleteDialog.value = true
 }
 
-// 删除prompt
+// 刪除prompt
 async function deletePrompt() {
   if (!deletingPromptId.value)
     return
@@ -192,14 +192,14 @@ async function deletePrompt() {
     await invoke('delete_custom_prompt', { promptId: deletingPromptId.value })
     config.value.prompts = config.value.prompts.filter(p => p.id !== deletingPromptId.value)
 
-    // 发送事件通知其他组件更新
+    // 发送事件通知其他元件更新
     await emit('custom-prompt-updated')
 
-    message.success('删除成功')
+    message.success('刪除成功')
   }
   catch (error) {
-    console.error('删除prompt失败:', error)
-    message.error(`删除失败: ${error}`)
+    console.error('刪除prompt失敗:', error)
+    message.error(`刪除失敗: ${error}`)
   }
   finally {
     showDeleteDialog.value = false
@@ -207,13 +207,13 @@ async function deletePrompt() {
   }
 }
 
-// 取消编辑
+// 取消編輯
 function cancelEdit() {
   showEditDialog.value = false
   editingPrompt.value = null
 }
 
-// 组件挂载时加载配置
+// 元件挂载时載入設定
 onMounted(() => {
   loadConfig()
 })
@@ -235,10 +235,10 @@ onMounted(() => {
     </div>
 
     <div v-if="config.enabled" data-guide="custom-prompt-settings">
-      <!-- 添加按钮 -->
+      <!-- 新增按钮 -->
       <div class="flex justify-between items-center mb-4">
         <div class="text-sm opacity-60">
-          已创建 {{ config.prompts.length }} 个模板
+          已建立 {{ config.prompts.length }} 个模板
         </div>
         <n-button
           type="primary"
@@ -250,7 +250,7 @@ onMounted(() => {
           <template #icon>
             <div class="i-carbon-add w-4 h-4" />
           </template>
-          添加模板
+          新增模板
         </n-button>
       </div>
 
@@ -275,7 +275,7 @@ onMounted(() => {
               <div class="flex-1">
                 <div class="flex items-center gap-2 mb-1">
                   <span class="font-medium text-white">{{ prompt.name }}</span>
-                  <!-- 类型标识 -->
+                  <!-- 類型标识 -->
                   <n-tag v-if="prompt.type === 'conditional'" size="small" type="info">
                     上下文追加
                   </n-tag>
@@ -290,7 +290,7 @@ onMounted(() => {
                 <!-- 快捷模板内容显示 -->
                 <div v-if="prompt.type !== 'conditional'" class="text-sm bg-black-100 p-2 rounded border border-black-200">
                   <span v-if="prompt.content.trim()">{{ prompt.content }}</span>
-                  <span v-else class="italic opacity-60">（空内容 - 清空输入框）</span>
+                  <span v-else class="italic opacity-60">（空内容 - 清空輸入框）</span>
                 </div>
 
                 <!-- 上下文追加内容显示 -->
@@ -304,10 +304,10 @@ onMounted(() => {
                         <span class="text-green-400">✓ 开启：</span>{{ prompt.template_true }}
                       </div>
                       <div v-if="prompt.template_false">
-                        <span class="text-red-400">✗ 关闭：</span>{{ prompt.template_false }}
+                        <span class="text-red-400">✗ 關閉：</span>{{ prompt.template_false }}
                       </div>
                       <div class="text-gray-700 dark:text-white">
-                        当前状态：{{ prompt.current_state ? '开启' : '关闭' }}
+                        当前狀態：{{ prompt.current_state ? '开启' : '關閉' }}
                       </div>
                     </div>
                   </div>
@@ -331,18 +331,18 @@ onMounted(() => {
       </div>
     </div>
 
-    <!-- 添加对话框 -->
-    <n-modal v-model:show="showAddDialog" preset="card" title="添加快捷模板" style="width: 600px">
+    <!-- 新增对话框 -->
+    <n-modal v-model:show="showAddDialog" preset="card" title="新增快捷模板" style="width: 600px">
       <n-form :model="newPrompt" label-placement="top">
         <n-form-item label="名称" required>
-          <n-input v-model:value="newPrompt.name" placeholder="输入模板名称" />
+          <n-input v-model:value="newPrompt.name" placeholder="輸入模板名称" />
         </n-form-item>
         <n-form-item label="描述">
           <n-input v-model:value="newPrompt.description" placeholder="简短描述这个模板的用途" />
         </n-form-item>
 
-        <!-- 模板类型选择 -->
-        <n-form-item label="类型">
+        <!-- 模板類型選擇 -->
+        <n-form-item label="類型">
           <n-radio-group v-model:value="newPrompt.type">
             <n-radio value="normal">
               快捷模板
@@ -358,7 +358,7 @@ onMounted(() => {
           <n-input
             v-model:value="newPrompt.content"
             type="textarea"
-            placeholder="输入模板内容（留空可实现清空输入框效果）"
+            placeholder="輸入模板内容（留空可實作清空輸入框效果）"
             :autosize="{ minRows: 4, maxRows: 8 }"
           />
         </n-form-item>
@@ -376,7 +376,7 @@ onMounted(() => {
               :autosize="{ minRows: 2, maxRows: 4 }"
             />
           </n-form-item>
-          <n-form-item label="关闭时的内容">
+          <n-form-item label="關閉时的内容">
             <n-input
               v-model:value="newPrompt.template_false"
               type="textarea"
@@ -384,13 +384,13 @@ onMounted(() => {
               :autosize="{ minRows: 2, maxRows: 4 }"
             />
           </n-form-item>
-          <n-form-item label="当前状态">
+          <n-form-item label="当前狀態">
             <n-switch v-model:value="newPrompt.current_state">
               <template #checked>
                 开启
               </template>
               <template #unchecked>
-                关闭
+                關閉
               </template>
             </n-switch>
           </n-form-item>
@@ -402,24 +402,24 @@ onMounted(() => {
             取消
           </n-button>
           <n-button type="primary" @click="addPrompt">
-            添加
+            新增
           </n-button>
         </div>
       </template>
     </n-modal>
 
-    <!-- 编辑对话框 -->
-    <n-modal v-model:show="showEditDialog" preset="card" title="编辑快捷模板" style="width: 600px">
+    <!-- 編輯对话框 -->
+    <n-modal v-model:show="showEditDialog" preset="card" title="編輯快捷模板" style="width: 600px">
       <n-form v-if="editingPrompt" :model="editingPrompt" label-placement="top">
         <n-form-item label="名称" required>
-          <n-input v-model:value="editingPrompt.name" placeholder="输入模板名称" />
+          <n-input v-model:value="editingPrompt.name" placeholder="輸入模板名称" />
         </n-form-item>
         <n-form-item label="描述">
           <n-input v-model:value="editingPrompt.description" placeholder="简短描述这个模板的用途" />
         </n-form-item>
 
-        <!-- 模板类型选择 -->
-        <n-form-item label="类型">
+        <!-- 模板類型選擇 -->
+        <n-form-item label="類型">
           <n-radio-group v-model:value="editingPrompt.type">
             <n-radio value="normal">
               快捷模板
@@ -435,7 +435,7 @@ onMounted(() => {
           <n-input
             v-model:value="editingPrompt.content"
             type="textarea"
-            placeholder="输入模板内容（留空可实现清空输入框效果）"
+            placeholder="輸入模板内容（留空可實作清空輸入框效果）"
             :autosize="{ minRows: 4, maxRows: 8 }"
           />
         </n-form-item>
@@ -453,7 +453,7 @@ onMounted(() => {
               :autosize="{ minRows: 2, maxRows: 4 }"
             />
           </n-form-item>
-          <n-form-item label="关闭时的内容">
+          <n-form-item label="關閉时的内容">
             <n-input
               v-model:value="editingPrompt.template_false"
               type="textarea"
@@ -461,13 +461,13 @@ onMounted(() => {
               :autosize="{ minRows: 2, maxRows: 4 }"
             />
           </n-form-item>
-          <n-form-item label="当前状态">
+          <n-form-item label="当前狀態">
             <n-switch v-model:value="editingPrompt.current_state">
               <template #checked>
                 开启
               </template>
               <template #unchecked>
-                关闭
+                關閉
               </template>
             </n-switch>
           </n-form-item>
@@ -479,22 +479,22 @@ onMounted(() => {
             取消
           </n-button>
           <n-button type="primary" @click="updatePrompt">
-            保存
+            儲存
           </n-button>
         </div>
       </template>
     </n-modal>
 
-    <!-- 删除确认对话框 -->
-    <n-modal v-model:show="showDeleteDialog" preset="dialog" title="确认删除">
-      <div>确定要删除这个模板吗？此操作无法撤销。</div>
+    <!-- 刪除確認对话框 -->
+    <n-modal v-model:show="showDeleteDialog" preset="dialog" title="確認刪除">
+      <div>确定要刪除这个模板吗？此操作无法復原。</div>
       <template #action>
         <div class="flex justify-end gap-2">
           <n-button @click="showDeleteDialog = false">
             取消
           </n-button>
           <n-button type="error" @click="deletePrompt">
-            确定删除
+            确定刪除
           </n-button>
         </div>
       </template>

@@ -49,7 +49,7 @@ function t(key: string, params?: Record<string, string | number>): string {
     }
   }
 
-  // 如果最終值不是字符串，返回鍵本身
+  // 如果最終值不是字符串，傳回鍵本身
   if (typeof value !== 'string') {
     console.warn(`Translation value is not a string: ${key}`)
     return key
@@ -72,7 +72,7 @@ function t(key: string, params?: Record<string, string | number>): string {
 async function setLocale(locale: Locale) {
   currentLocale.value = locale
 
-  // 保存到配置
+  // 儲存到設定
   try {
     const config = await invoke('load_config') as any
     config.ui_config.language = locale
@@ -84,7 +84,7 @@ async function setLocale(locale: Locale) {
 }
 
 /**
- * 從配置加載語言設置
+ * 從設定加載語言設置
  */
 async function loadLocale() {
   try {

@@ -1,7 +1,7 @@
-// UI 常量配置
-// 这些常量与后端配置保持同步，通过 get_window_constraints 命令动态获取
+// UI 常量設定
+// 这些常量与后端設定保持同步，通过 get_window_constraints 命令动态獲取
 
-// 默认窗口约束（后备值）
+// 預設視窗约束（后备值）
 export const DEFAULT_WINDOW_CONSTRAINTS = {
   min_width: 600,
   min_height: 400,
@@ -13,7 +13,7 @@ export const DEFAULT_WINDOW_CONSTRAINTS = {
   size_check_delay_ms: 100,
 } as const
 
-// 默认窗口尺寸
+// 預設視窗尺寸
 export const DEFAULT_WINDOW_SIZE = {
   width: 600,
   height: 900,
@@ -27,7 +27,7 @@ export const TRANSITION_DURATIONS = {
   slow: 800,
 } as const
 
-// 过渡缓动函数
+// 过渡缓动函數
 export const TRANSITION_EASINGS = {
   ease: 'ease',
   easeIn: 'ease-in',
@@ -37,26 +37,26 @@ export const TRANSITION_EASINGS = {
   bounce: 'cubic-bezier(0.34, 1.56, 0.64, 1)',
 } as const
 
-// 主题常量
+// 主題常量
 export const THEMES = {
   light: 'light',
   dark: 'dark',
 } as const
 
-// 默认主题
+// 預設主題
 export const DEFAULT_THEME = THEMES.dark
 
-// 音频配置常量
+// 音訊設定常量
 export const AUDIO_CONFIG = {
   defaultUrl: '',
   defaultEnabled: false,
 } as const
 
-// 继续回复配置常量
+// 繼續回覆設定常量
 export const REPLY_CONFIG = {
   defaultEnabled: true,
   defaultThreshold: 1000,
-  defaultPrompt: '请按照最佳实践继续',
+  defaultPrompt: '请按照最佳实践繼續',
 } as const
 
 // MCP 工具常量
@@ -65,7 +65,7 @@ export const MCP_TOOLS = {
   ji: 'ji',
 } as const
 
-// 字体大小常量
+// 字型大小常量
 export const FONT_SIZES = {
   'xs': '0.75rem',
   'sm': '0.875rem',
@@ -124,7 +124,7 @@ export const BREAKPOINTS = {
   '2xl': '1536px',
 } as const
 
-// 类型定义
+// 類型定义
 export type WindowConstraints = typeof DEFAULT_WINDOW_CONSTRAINTS
 export type WindowSize = typeof DEFAULT_WINDOW_SIZE
 export type TransitionDuration = keyof typeof TRANSITION_DURATIONS

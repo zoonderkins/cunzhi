@@ -1,16 +1,16 @@
 import { listen } from '@tauri-apps/api/event'
 
 /**
- * 退出警告监听器管理
+ * 退出警告監聽器管理
  */
 class ExitWarningManager {
   private unlistenExitWarning: (() => void) | null = null
 
   /**
-   * 设置退出警告监听器
+   * 設定退出警告監聽器
    */
   async setupListener(messageInstance: any): Promise<void> {
-    // 先移除已存在的监听器
+    // 先移除已存在的監聽器
     this.removeListener()
 
     if (typeof window !== 'undefined') {
@@ -31,13 +31,13 @@ class ExitWarningManager {
         })
       }
       catch (error) {
-        console.error('设置退出警告监听器失败:', error)
+        console.error('設定退出警告監聽器失敗:', error)
       }
     }
   }
 
   /**
-   * 移除退出警告监听器
+   * 移除退出警告監聽器
    */
   removeListener(): void {
     if (this.unlistenExitWarning) {
@@ -51,21 +51,21 @@ class ExitWarningManager {
 const exitWarningManager = new ExitWarningManager()
 
 /**
- * 设置退出警告监听器（独立函数，不依赖Vue）
+ * 設定退出警告監聽器（独立函數，不依赖Vue）
  */
 export async function setupExitWarningListener(messageInstance: any): Promise<void> {
   await exitWarningManager.setupListener(messageInstance)
 }
 
 /**
- * 移除退出警告监听器（独立函数，不依赖Vue）
+ * 移除退出警告監聽器（独立函數，不依赖Vue）
  */
 export function removeExitWarningListener(): void {
   exitWarningManager.removeListener()
 }
 
 /**
- * 退出警告处理组合式函数（保留向后兼容性）
+ * 退出警告處理组合式函數（保留向后相容性）
  * @deprecated 推荐直接使用 setupExitWarningListener 和 removeExitWarningListener
  */
 export function useExitWarning() {

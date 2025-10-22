@@ -14,7 +14,7 @@ defineEmits(['themeChange'])
 </script>
 
 <template>
-  <!-- 设置内容 -->
+  <!-- 設定内容 -->
   <div class="flex items-center justify-between">
     <div class="flex items-center">
       <div class="w-1.5 h-1.5 bg-primary-500 rounded-full mr-3 flex-shrink-0" />
@@ -28,7 +28,7 @@ defineEmits(['themeChange'])
       </div>
     </div>
     <n-space>
-      <!-- 浅色主题 -->
+      <!-- 浅色主題 -->
       <n-button
         :type="currentTheme === 'light' ? 'primary' : 'default'"
         size="small"
@@ -46,7 +46,7 @@ defineEmits(['themeChange'])
         {{ t('settings.theme.light') }}
       </n-button>
 
-      <!-- 深色主题 -->
+      <!-- 深色主題 -->
       <n-button
         :type="currentTheme === 'dark' ? 'primary' : 'default'"
         size="small"

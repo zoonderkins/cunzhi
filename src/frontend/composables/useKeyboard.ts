@@ -2,10 +2,10 @@ import { invoke } from '@tauri-apps/api/core'
 import { computed } from 'vue'
 
 /**
- * 跨平台键盘快捷键处理
+ * 跨平台键盘快捷键處理
  */
 export function useKeyboard() {
-  // 检测操作系统
+  // 检测操作系統
   const isMac = computed(() => {
     if (typeof navigator !== 'undefined') {
       return navigator.platform.toUpperCase().includes('MAC')
@@ -13,23 +13,23 @@ export function useKeyboard() {
     return false
   })
 
-  // 获取修饰键名称
+  // 獲取修饰键名称
   const modifierKey = computed(() => {
     return isMac.value ? 'Cmd' : 'Ctrl'
   })
 
-  // 获取粘贴快捷键描述
+  // 獲取貼上快捷键描述
   const pasteShortcut = computed(() => {
     return isMac.value ? '⌘+V' : 'Ctrl+V'
   })
 
-  // 检查是否按下了粘贴快捷键
+  // 檢查是否按下了貼上快捷键
   function isPasteShortcut(event: KeyboardEvent): boolean {
     const isModifierPressed = isMac.value ? event.metaKey : event.ctrlKey
     return isModifierPressed && event.key.toLowerCase() === 'v'
   }
 
-  // 检查是否按下了退出快捷键
+  // 檢查是否按下了退出快捷键
   function isExitShortcut(event: KeyboardEvent): boolean {
     // macOS: Cmd+Q 或 Cmd+W
     if (isMac.value) {
@@ -45,23 +45,23 @@ export function useKeyboard() {
     return event.ctrlKey && event.key.toLowerCase() === 'q'
   }
 
-  // 处理退出快捷键
+  // 處理退出快捷键
   async function handleExitShortcut(event: KeyboardEvent) {
     if (isExitShortcut(event)) {
       event.preventDefault()
       event.stopPropagation()
 
       try {
-        // 调用后端退出处理逻辑
+        // 呼叫后端退出處理逻辑
         await invoke('handle_app_exit_request')
       }
       catch (error) {
-        console.error('处理退出快捷键失败:', error)
+        console.error('處理退出快捷键失敗:', error)
       }
     }
   }
 
-  // 获取常用快捷键描述
+  // 獲取常用快捷键描述
   function getShortcutText(action: 'paste' | 'copy' | 'cut' | 'save' | 'undo' | 'redo' | 'exit'): string {
     const prefix = isMac.value ? '⌘' : 'Ctrl'
 

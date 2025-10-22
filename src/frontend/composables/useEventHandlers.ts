@@ -1,6 +1,6 @@
 /**
- * 事件处理器封装
- * 将复杂的事件传递简化为可复用的处理器
+ * 事件處理器封裝
+ * 将复杂的事件传递简化为可复用的處理器
  */
 export function useEventHandlers(actions: any) {
   return {
@@ -8,10 +8,10 @@ export function useEventHandlers(actions: any) {
     onMcpResponse: actions.mcp.handleResponse,
     onMcpCancel: actions.mcp.handleCancel,
 
-    // 主题事件
+    // 主題事件
     onThemeChange: actions.theme.setTheme,
 
-    // 设置事件
+    // 設定事件
     onToggleAlwaysOnTop: actions.settings.toggleAlwaysOnTop,
     onToggleAudioNotification: actions.settings.toggleAudioNotification,
     onUpdateAudioUrl: actions.settings.updateAudioUrl,
@@ -21,10 +21,10 @@ export function useEventHandlers(actions: any) {
     onUpdateReplyConfig: actions.settings.updateReplyConfig,
     onMessageReady: actions.settings.setMessageInstance,
 
-    // 音频事件
+    // 音訊事件
     onTestAudioError: actions.audio.handleTestError,
 
-    // 配置事件
+    // 設定事件
     onConfigReloaded: actions.settings.reloadAllSettings,
   }
 }

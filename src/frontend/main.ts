@@ -91,7 +91,7 @@ console.log('[main.ts] Vue 應用已創建')
 app.use(naive)
 console.log('[main.ts] Naive UI 已註冊')
 
-// 添加全局錯誤處理
+// 新增全局錯誤處理
 app.config.errorHandler = (err, instance, info) => {
   console.error('[Vue Error]', err)
   console.error('[Vue Error Info]', info)

@@ -18,7 +18,7 @@ export default defineConfig({
   },
   root: __dirname,
   server: {
-    port: 5174, // 使用不同的端口避免冲突
+    port: 5174, // 使用不同的端口避免衝突
     open: true,
   },
   build: {

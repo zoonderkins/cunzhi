@@ -1,21 +1,21 @@
-// 音频相关常量
+// 音訊相关常量
 
-/// 默认音频 URL（空字符串表示使用内置音效）
+/// 預設音訊 URL（空字符串表示使用内置音效）
 pub const DEFAULT_URL: &str = "";
 
-/// 默认音频通知启用状态
+/// 預設音訊通知启用狀態
 pub const DEFAULT_NOTIFICATION_ENABLED: bool = false;
 
-/// 音频文件支持的格式
+/// 音訊檔案支持的格式
 pub const SUPPORTED_FORMATS: &[&str] = &["mp3", "wav", "ogg", "m4a"];
 
-/// 默认音量 (0.0 - 1.0)
+/// 預設音量 (0.0 - 1.0)
 pub const DEFAULT_VOLUME: f32 = 0.8;
 
-/// 最大音频文件大小 (bytes) - 10MB
+/// 最大音訊檔案大小 (bytes) - 10MB
 pub const MAX_FILE_SIZE: u64 = 10 * 1024 * 1024;
 
-// 音频配置结构体
+// 音訊設定结构体
 #[derive(Debug, Clone)]
 pub struct AudioConfig {
     pub default_url: String,
@@ -38,17 +38,17 @@ impl Default for AudioConfig {
 }
 
 impl AudioConfig {
-    /// 验证音频格式是否支持
+    /// 驗證音訊格式是否支持
     pub fn is_supported_format(&self, format: &str) -> bool {
         self.supported_formats.contains(&format.to_lowercase())
     }
 
-    /// 验证音频文件大小是否有效
+    /// 驗證音訊檔案大小是否有效
     pub fn is_valid_file_size(&self, size: u64) -> bool {
         size <= self.max_file_size
     }
 
-    /// 验证音量是否有效
+    /// 驗證音量是否有效
     pub fn is_valid_volume(&self, volume: f32) -> bool {
         (0.0..=1.0).contains(&volume)
     }
@@ -65,18 +65,18 @@ impl AudioConfig {
     }
 }
 
-// 便捷函数
-/// 获取默认音频配置
+// 便捷函數
+/// 獲取預設音訊設定
 pub fn get_default_audio_config() -> AudioConfig {
     AudioConfig::default()
 }
 
-/// 验证音频格式是否支持
+/// 驗證音訊格式是否支持
 pub fn is_supported_audio_format(format: &str) -> bool {
     SUPPORTED_FORMATS.contains(&format.to_lowercase().as_str())
 }
 
-/// 验证音频文件大小是否有效
+/// 驗證音訊檔案大小是否有效
 pub fn is_valid_audio_file_size(size: u64) -> bool {
     size <= MAX_FILE_SIZE
 }

@@ -4,7 +4,7 @@ import AppContent from './components/AppContent.vue'
 import { useAppManager } from './composables/useAppManager'
 import { useEventHandlers } from './composables/useEventHandlers'
 
-// 使用封装的应用管理器
+// 使用封裝的應用管理器
 const {
   naiveTheme,
   mcpRequest,
@@ -14,10 +14,10 @@ const {
   actions,
 } = useAppManager()
 
-// 创建事件处理器
+// 建立事件處理器
 const handlers = useEventHandlers(actions)
 
-// 主题应用由useTheme统一管理，移除重复的主题应用逻辑
+// 主題應用由useTheme统一管理，移除重复的主題應用逻辑
 
 // 初始化
 onMounted(async () => {
@@ -25,7 +25,7 @@ onMounted(async () => {
     await actions.app.initialize()
   }
   catch (error) {
-    console.error('应用初始化失败:', error)
+    console.error('應用初始化失敗:', error)
   }
 })
 

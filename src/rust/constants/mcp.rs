@@ -3,20 +3,20 @@
 /// 寸止工具标识符
 pub const TOOL_ZHI: &str = "zhi";
 
-/// 记忆管理工具标识符
+/// 記憶管理工具标识符
 pub const TOOL_JI: &str = "ji";
 
-/// 默认启用的工具列表
+/// 預設启用的工具列表
 pub const DEFAULT_ENABLED_TOOLS: &[&str] = &[TOOL_ZHI, TOOL_JI];
 
-/// 继续回复默认启用状态
+/// 繼續回复預設启用狀態
 pub const DEFAULT_CONTINUE_REPLY_ENABLED: bool = true;
 
-/// 默认自动继续阈值
+/// 預設自動繼續阈值
 pub const DEFAULT_AUTO_CONTINUE_THRESHOLD: u32 = 1000;
 
-/// 默认继续提示词
-pub const DEFAULT_CONTINUE_PROMPT: &str = "请按照最佳实践继续";
+/// 預設繼續提示词
+pub const DEFAULT_CONTINUE_PROMPT: &str = "请按照最佳实践繼續";
 
 /// MCP 请求超时时间 (ms)
 pub const REQUEST_TIMEOUT_MS: u64 = 30000;
@@ -24,7 +24,7 @@ pub const REQUEST_TIMEOUT_MS: u64 = 30000;
 /// MCP 重试次数
 pub const MAX_RETRY_COUNT: u32 = 3;
 
-// MCP 工具配置结构体
+// MCP 工具設定结构体
 #[derive(Debug, Clone)]
 pub struct McpToolConfig {
     pub tool_id: String,
@@ -42,7 +42,7 @@ impl McpToolConfig {
     }
 }
 
-// MCP 配置结构体
+// MCP 設定结构体
 #[derive(Debug, Clone)]
 pub struct McpConfig {
     pub tools: Vec<McpToolConfig>,
@@ -58,7 +58,7 @@ impl Default for McpConfig {
         Self {
             tools: vec![
                 McpToolConfig::new(TOOL_ZHI, true, false), // 寸止工具不可禁用
-                McpToolConfig::new(TOOL_JI, true, true),   // 记忆管理工具可禁用
+                McpToolConfig::new(TOOL_JI, true, true),   // 記憶管理工具可禁用
             ],
             continue_reply_enabled: DEFAULT_CONTINUE_REPLY_ENABLED,
             auto_continue_threshold: DEFAULT_AUTO_CONTINUE_THRESHOLD,
@@ -70,19 +70,19 @@ impl Default for McpConfig {
 }
 
 impl McpConfig {
-    /// 获取工具配置
+    /// 獲取工具設定
     pub fn get_tool_config(&self, tool_id: &str) -> Option<&McpToolConfig> {
         self.tools.iter().find(|tool| tool.tool_id == tool_id)
     }
 
-    /// 检查工具是否启用
+    /// 檢查工具是否启用
     pub fn is_tool_enabled(&self, tool_id: &str) -> bool {
         self.get_tool_config(tool_id)
             .map(|tool| tool.enabled)
             .unwrap_or(false)
     }
 
-    /// 设置工具启用状态
+    /// 設定工具启用狀態
     pub fn set_tool_enabled(&mut self, tool_id: &str, enabled: bool) -> bool {
         if let Some(tool) = self.tools.iter_mut().find(|tool| tool.tool_id == tool_id) {
             if tool.can_disable || enabled {
@@ -112,13 +112,13 @@ impl McpConfig {
     }
 }
 
-// 便捷函数
-/// 获取默认 MCP 配置
+// 便捷函數
+/// 獲取預設 MCP 設定
 pub fn get_default_mcp_config() -> McpConfig {
     McpConfig::default()
 }
 
-/// 检查是否为有效的工具 ID
+/// 檢查是否为有效的工具 ID
 pub fn is_valid_tool_id(tool_id: &str) -> bool {
     matches!(tool_id, TOOL_ZHI | TOOL_JI)
 }

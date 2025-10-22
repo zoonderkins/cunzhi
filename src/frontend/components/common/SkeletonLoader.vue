@@ -36,7 +36,7 @@ const _props = withDefaults(defineProps<Props>(), {
         />
       </div>
 
-      <!-- 输入区域骨架 -->
+      <!-- 輸入区域骨架 -->
       <div class="p-4 border-t border-gray-200 dark:border-gray-700">
         <div class="bg-gray-200 dark:bg-gray-700 animate-pulse rounded w-24 h-4 mb-2" />
         <div class="bg-gray-200 dark:bg-gray-700 animate-pulse rounded-md w-full h-20" />
@@ -60,7 +60,7 @@ const _props = withDefaults(defineProps<Props>(), {
         <div class="bg-gray-200 dark:bg-gray-700 animate-pulse rounded w-32 h-8" />
       </div>
 
-      <!-- 状态标签 -->
+      <!-- 狀態标签 -->
       <div class="flex justify-center">
         <div class="bg-gray-200 dark:bg-gray-700 animate-pulse rounded-full w-24 h-6" />
       </div>

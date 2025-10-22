@@ -4,7 +4,7 @@ import { onMounted, ref } from 'vue'
 import { useMcpToolsReactive } from '../../composables/useMcpTools'
 import { useI18n } from '../../i18n'
 
-// 使用全局MCP工具状态
+// 使用全局MCP工具狀態
 const {
   mcpTools,
   loading,
@@ -21,7 +21,7 @@ const message = useMessage()
 // i18n
 const { t } = useI18n()
 
-// 切换工具启用状态（包装全局方法）
+// 切换工具启用狀態（包装全局方法）
 async function toggleTool(toolId: string) {
   try {
     const result = await globalToggleTool(toolId)
@@ -71,7 +71,7 @@ onMounted(async () => {
         {{ t('mcpTools.reconnectMessage') }}
       </n-alert>
 
-      <!-- 加载状态 -->
+      <!-- 載入狀態 -->
       <div v-if="loading" class="text-center py-8">
         <n-spin size="medium" />
         <div class="mt-2 text-sm opacity-60">
@@ -79,7 +79,7 @@ onMounted(async () => {
         </div>
       </div>
 
-      <!-- MCP工具配置卡片 -->
+      <!-- MCP工具設定卡片 -->
       <n-card
         v-for="tool in mcpTools"
         v-else
@@ -109,7 +109,7 @@ onMounted(async () => {
                   <div class="text-lg font-medium tracking-tight">
                     {{ tool.name }}
                   </div>
-                  <!-- 状态标签 -->
+                  <!-- 狀態标签 -->
                   <n-tag
                     v-if="!tool.can_disable"
                     type="info"
@@ -161,7 +161,7 @@ onMounted(async () => {
           </div>
         </template>
 
-        <!-- 工具状态说明 -->
+        <!-- 工具狀態说明 -->
         <div class="flex items-center text-sm leading-relaxed">
           <div
             class="w-1.5 h-1.5 rounded-full mr-3 flex-shrink-0"

@@ -33,19 +33,19 @@ const isReloading = ref(false)
 const configFilePath = ref('config.json')
 let unlistenConfigReloaded: (() => void) | null = null
 
-// 重新加载配置（通过重新加载设置实现）
+// 重新載入設定（通过重新載入設定實作）
 async function reloadConfig() {
   if (isReloading.value)
     return
 
   isReloading.value = true
   try {
-    // 触发重新加载设置的事件
+    // 触发重新載入設定的事件
     emit('configReloaded')
     message.success(t('settings.reload.success'))
   }
   catch (error) {
-    console.error('重新加载配置失败:', error)
+    console.error('重新載入設定失敗:', error)
     message.error(t('settings.reload.error'))
   }
   finally {
@@ -53,34 +53,34 @@ async function reloadConfig() {
   }
 }
 
-// 获取配置文件路径
+// 獲取設定檔案路径
 async function loadConfigFilePath() {
   try {
     const path = await invoke('get_config_file_path')
     configFilePath.value = path as string
-    console.log('配置文件路径:', configFilePath.value)
+    console.log('設定檔案路径:', configFilePath.value)
   }
   catch (error) {
-    console.error('获取配置文件路径失败:', error)
-    configFilePath.value = 'config.json' // 使用默认值
+    console.error('獲取設定檔案路径失敗:', error)
+    configFilePath.value = 'config.json' // 使用預設值
   }
 }
 
-// 监听配置重载事件
+// 監聽設定重新載入事件
 onMounted(async () => {
   try {
-    // 获取配置文件路径
+    // 獲取設定檔案路径
     await loadConfigFilePath()
 
     unlistenConfigReloaded = await listen('config_reloaded', () => {
-      // 配置重载后，重新加载设置而不是刷新整个页面
-      console.log('收到配置重载事件，重新加载设置')
-      // 触发重新加载设置的事件
+      // 設定重新載入后，重新載入設定而不是重新整理整个页面
+      console.log('收到設定重新載入事件，重新載入設定')
+      // 触发重新載入設定的事件
       emit('configReloaded')
     })
   }
   catch (error) {
-    console.error('设置配置重载监听器失败:', error)
+    console.error('設定設定重新載入監聽器失敗:', error)
   }
 })
 
@@ -102,7 +102,7 @@ interface Emits {
   configReloaded: []
 }
 
-// 处理窗口尺寸更新
+// 處理視窗尺寸更新
 function handleWindowSizeUpdate(size: { width: number, height: number, fixed: boolean }) {
   emit('updateWindowSize', size)
 }
@@ -111,7 +111,7 @@ function handleWindowSizeUpdate(size: { width: number, height: number, fixed: bo
 <template>
   <div class="max-w-3xl mx-auto tab-content">
     <n-collapse size="large" :default-expanded-names="[]" arrow-placement="right">
-      <!-- 主题设置 -->
+      <!-- 主題設定 -->
       <n-collapse-item name="theme">
         <template #header>
           <div class="flex items-center justify-between w-full">
@@ -135,7 +135,7 @@ function handleWindowSizeUpdate(size: { width: number, height: number, fixed: bo
         </div>
       </n-collapse-item>
 
-      <!-- 语言设置 -->
+      <!-- 語言設定 -->
       <n-collapse-item name="language">
         <template #header>
           <div class="flex items-center justify-between w-full">
@@ -159,7 +159,7 @@ function handleWindowSizeUpdate(size: { width: number, height: number, fixed: bo
         </div>
       </n-collapse-item>
 
-      <!-- 字体设置 -->
+      <!-- 字型設定 -->
       <n-collapse-item name="font">
         <template #header>
           <div class="flex items-center justify-between w-full">
@@ -183,7 +183,7 @@ function handleWindowSizeUpdate(size: { width: number, height: number, fixed: bo
         </div>
       </n-collapse-item>
 
-      <!-- 继续回复设置 -->
+      <!-- 繼續回复設定 -->
       <n-collapse-item name="reply">
         <template #header>
           <div class="flex items-center justify-between w-full">
@@ -207,7 +207,7 @@ function handleWindowSizeUpdate(size: { width: number, height: number, fixed: bo
         </div>
       </n-collapse-item>
 
-      <!-- 窗口设置 -->
+      <!-- 視窗設定 -->
       <n-collapse-item name="window">
         <template #header>
           <div class="flex items-center justify-between w-full">
@@ -238,7 +238,7 @@ function handleWindowSizeUpdate(size: { width: number, height: number, fixed: bo
         </div>
       </n-collapse-item>
 
-      <!-- 音频设置 -->
+      <!-- 音訊設定 -->
       <n-collapse-item name="audio">
         <template #header>
           <div class="flex items-center justify-between w-full">
@@ -272,7 +272,7 @@ function handleWindowSizeUpdate(size: { width: number, height: number, fixed: bo
 
       <!-- Telegram 功能已移除 -->
 
-      <!-- 快捷模板设置 -->
+      <!-- 快捷模板設定 -->
       <n-collapse-item name="custom-prompt">
         <template #header>
           <div class="flex items-center justify-between w-full">
@@ -296,7 +296,7 @@ function handleWindowSizeUpdate(size: { width: number, height: number, fixed: bo
         </div>
       </n-collapse-item>
 
-      <!-- 快捷键设置 -->
+      <!-- 快捷键設定 -->
       <n-collapse-item name="shortcuts">
         <template #header>
           <div class="flex items-center justify-between w-full">
@@ -320,7 +320,7 @@ function handleWindowSizeUpdate(size: { width: number, height: number, fixed: bo
         </div>
       </n-collapse-item>
 
-      <!-- 配置管理 -->
+      <!-- 設定管理 -->
       <n-collapse-item name="config">
         <template #header>
           <div class="flex items-center justify-between w-full">
@@ -330,10 +330,10 @@ function handleWindowSizeUpdate(size: { width: number, height: number, fixed: bo
               </div>
               <div>
                 <div class="text-lg font-medium tracking-tight mb-1">
-                  配置管理
+                  設定管理
                 </div>
                 <div class="text-sm opacity-60 font-normal">
-                  重新加载配置文件和管理设置
+                  重新載入設定檔案和管理設定
                 </div>
               </div>
             </div>
@@ -341,16 +341,16 @@ function handleWindowSizeUpdate(size: { width: number, height: number, fixed: bo
         </template>
         <div class="setting-content">
           <n-space vertical size="large">
-            <!-- 重新加载配置 -->
+            <!-- 重新載入設定 -->
             <div class="flex items-center justify-between">
               <div class="flex items-center">
                 <div class="w-1.5 h-1.5 bg-info rounded-full mr-3 flex-shrink-0" />
                 <div>
                   <div class="text-sm font-medium leading-relaxed">
-                    重新加载配置文件
+                    重新載入設定檔案
                   </div>
                   <div class="text-xs opacity-60">
-                    从 config.json 重新加载所有配置设置
+                    从 config.json 重新載入所有設定設定
                   </div>
                 </div>
               </div>
@@ -363,21 +363,21 @@ function handleWindowSizeUpdate(size: { width: number, height: number, fixed: bo
                 <template #icon>
                   <div class="i-carbon-restart w-4 h-4" />
                 </template>
-                重新加载
+                重新載入
               </n-button>
             </div>
 
-            <!-- 配置文件位置说明 -->
+            <!-- 設定檔案位置说明 -->
             <div class="flex items-start">
               <div class="w-1.5 h-1.5 bg-warning rounded-full mr-3 flex-shrink-0 mt-2" />
               <div>
                 <div class="text-sm font-medium leading-relaxed mb-1">
-                  配置文件位置
+                  設定檔案位置
                 </div>
                 <div class="text-xs opacity-60 leading-relaxed">
-                  配置文件路径：<br>
+                  設定檔案路径：<br>
                   <code class="bg-black-100 px-1 rounded text-xs break-all">{{ configFilePath }}</code><br>
-                  您可以直接编辑该文件，然后点击"重新加载"按钮使更改生效
+                  您可以直接編輯该檔案，然后点击"重新載入"按钮使更改生效
                 </div>
               </div>
             </div>
@@ -385,7 +385,7 @@ function handleWindowSizeUpdate(size: { width: number, height: number, fixed: bo
         </div>
       </n-collapse-item>
 
-      <!-- 版本检查 -->
+      <!-- 版本檢查 -->
       <n-collapse-item name="version">
         <template #header>
           <div class="flex items-center justify-between w-full">
@@ -395,10 +395,10 @@ function handleWindowSizeUpdate(size: { width: number, height: number, fixed: bo
               </div>
               <div>
                 <div class="text-lg font-medium tracking-tight mb-1">
-                  版本检查
+                  版本檢查
                 </div>
                 <div class="text-sm opacity-60 font-normal">
-                  检查应用更新和版本信息
+                  檢查應用更新和版本訊息
                 </div>
               </div>
             </div>
@@ -413,7 +413,7 @@ function handleWindowSizeUpdate(size: { width: number, height: number, fixed: bo
 </template>
 
 <style>
-/* 移除子组件的卡片样式，因为现在由折叠面板提供容器 */
+/* 移除子元件的卡片样式，因为现在由折叠面板提供容器 */
 .setting-content :deep(.n-card) {
   background: transparent;
   border: none;

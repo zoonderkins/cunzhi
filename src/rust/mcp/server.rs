@@ -1,6 +1,6 @@
 use anyhow::Result;
 use rmcp::{
-    Error as McpError, ServerHandler, ServiceExt, RoleServer,
+    ErrorData as McpError, ServerHandler, ServiceExt, RoleServer,
     model::*,
     transport::stdio,
     service::RequestContext,
@@ -25,11 +25,11 @@ impl Default for ZhiServer {
 
 impl ZhiServer {
     pub fn new() -> Self {
-        // 尝试加载配置，如果失败则使用默认配置
+        // 尝试載入設定，如果失敗则使用預設設定
         let enabled_tools = match load_standalone_config() {
             Ok(config) => config.mcp_config.tools,
             Err(e) => {
-                log_important!(warn, "无法加载配置文件，使用默认工具配置: {}", e);
+                log_important!(warn, "无法載入設定檔案，使用預設工具設定: {}", e);
                 crate::config::default_mcp_tools()
             }
         };
@@ -37,18 +37,18 @@ impl ZhiServer {
         Self { enabled_tools }
     }
 
-    /// 检查工具是否启用 - 动态读取最新配置
+    /// 檢查工具是否启用 - 动态讀取最新設定
     fn is_tool_enabled(&self, tool_name: &str) -> bool {
-        // 每次都重新读取配置，确保获取最新状态
+        // 每次都重新讀取設定，确保獲取最新狀態
         match load_standalone_config() {
             Ok(config) => {
                 let enabled = config.mcp_config.tools.get(tool_name).copied().unwrap_or(true);
-                log_debug!("工具 {} 当前状态: {}", tool_name, enabled);
+                log_debug!("工具 {} 当前狀態: {}", tool_name, enabled);
                 enabled
             }
             Err(e) => {
-                log_important!(warn, "读取配置失败，使用缓存状态: {}", e);
-                // 如果读取失败，使用缓存的配置
+                log_important!(warn, "讀取設定失敗，使用快取狀態: {}", e);
+                // 如果讀取失敗，使用快取的設定
                 self.enabled_tools.get(tool_name).copied().unwrap_or(true)
             }
         }
@@ -67,7 +67,7 @@ impl ServerHandler for ZhiServer {
                 website_url: Some("https://github.com/zoonderkins/cunzhi".to_string()),
                 icons: None,
             },
-            instructions: Some("Zhi 智能代码审查工具，支持交互式对话和记忆管理".to_string()),
+            instructions: Some("Zhi 智慧程式碼審查工具，支持交互式对话和記憶管理".to_string()),
         }
     }
 
@@ -100,11 +100,11 @@ impl ServerHandler for ZhiServer {
                 "predefined_options": {
                     "type": "array",
                     "items": {"type": "string"},
-                    "description": "预定义的选项列表（可选）"
+                    "description": "预定义的選項列表（可选）"
                 },
                 "is_markdown": {
                     "type": "boolean",
-                    "description": "消息是否为Markdown格式，默认为true"
+                    "description": "消息是否为Markdown格式，預設为true"
                 }
             },
             "required": ["message"]
@@ -114,7 +114,7 @@ impl ServerHandler for ZhiServer {
             tools.push(Tool {
                 name: Cow::Borrowed("zhi"),
                 title: Some("寸止互動工具".to_string()),
-                description: Some(Cow::Borrowed("智能代码审查交互工具，支持预定义选项、自由文本输入和图片上传")),
+                description: Some(Cow::Borrowed("智能代码审查交互工具，支持预定义選項、自由文本輸入和图片上传")),
                 input_schema: Arc::new(schema_map),
                 output_schema: None,
                 icons: None,
@@ -122,26 +122,26 @@ impl ServerHandler for ZhiServer {
             });
         }
 
-        // 记忆管理工具 - 仅在启用时添加
+        // 記憶管理工具 - 仅在启用时新增
         if self.is_tool_enabled("ji") {
             let ji_schema = serde_json::json!({
                 "type": "object",
                 "properties": {
                     "action": {
                         "type": "string",
-                        "description": "操作类型：记忆(添加记忆), 回忆(获取项目信息)"
+                        "description": "操作類型：記憶(新增記憶), 回忆(獲取專案訊息)"
                     },
                     "project_path": {
                         "type": "string",
-                        "description": "项目路径（必需）"
+                        "description": "專案路径（必需）"
                     },
                     "content": {
                         "type": "string",
-                        "description": "记忆内容（记忆操作时必需）"
+                        "description": "記憶内容（記憶操作时必需）"
                     },
                     "category": {
                         "type": "string",
-                        "description": "记忆分类：rule(规范规则), preference(用户偏好), pattern(最佳实践), context(项目上下文)"
+                        "description": "記憶分类：rule(规范规则), preference(用户偏好), pattern(最佳实践), context(專案上下文)"
                     }
                 },
                 "required": ["action", "project_path"]
@@ -151,7 +151,7 @@ impl ServerHandler for ZhiServer {
                 tools.push(Tool {
                     name: Cow::Borrowed("ji"),
                     title: Some("記憶管理工具".to_string()),
-                    description: Some(Cow::Borrowed("全局记忆管理工具，用于存储和管理重要的开发规范、用户偏好和最佳实践")),
+                    description: Some(Cow::Borrowed("全局記憶管理工具，用于存储和管理重要的开发规范、用户偏好和最佳实践")),
                     input_schema: Arc::new(schema_map),
                     output_schema: None,
                     icons: None,
@@ -160,7 +160,7 @@ impl ServerHandler for ZhiServer {
             }
         }
 
-        log_debug!("返回给客户端的工具列表: {:?}", tools.iter().map(|t| &t.name).collect::<Vec<_>>());
+        log_debug!("傳回给客户端的工具列表: {:?}", tools.iter().map(|t| &t.name).collect::<Vec<_>>());
 
         Ok(ListToolsResult {
             tools,
@@ -173,39 +173,39 @@ impl ServerHandler for ZhiServer {
         request: CallToolRequestParam,
         _context: RequestContext<RoleServer>,
     ) -> Result<CallToolResult, McpError> {
-        log_debug!("收到工具调用请求: {}", request.name);
+        log_debug!("收到工具呼叫请求: {}", request.name);
 
         match request.name.as_ref() {
             "zhi" => {
-                // 解析请求参数
+                // 解析请求參數
                 let arguments_value = request.arguments
                     .map(serde_json::Value::Object)
                     .unwrap_or(serde_json::Value::Object(serde_json::Map::new()));
 
                 let zhi_request: ZhiRequest = serde_json::from_value(arguments_value)
-                    .map_err(|e| McpError::invalid_params(format!("参数解析失败: {}", e), None))?;
+                    .map_err(|e| McpError::invalid_params(format!("參數解析失敗: {}", e), None))?;
 
-                // 调用寸止工具
+                // 呼叫寸止工具
                 InteractionTool::zhi(zhi_request).await
             }
             "ji" => {
-                // 检查记忆管理工具是否启用
+                // 檢查記憶管理工具是否启用
                 if !self.is_tool_enabled("ji") {
                     return Err(McpError::internal_error(
-                        "记忆管理工具已被禁用".to_string(),
+                        "記憶管理工具已被禁用".to_string(),
                         None
                     ));
                 }
 
-                // 解析请求参数
+                // 解析请求參數
                 let arguments_value = request.arguments
                     .map(serde_json::Value::Object)
                     .unwrap_or(serde_json::Value::Object(serde_json::Map::new()));
 
                 let ji_request: JiyiRequest = serde_json::from_value(arguments_value)
-                    .map_err(|e| McpError::invalid_params(format!("参数解析失败: {}", e), None))?;
+                    .map_err(|e| McpError::invalid_params(format!("參數解析失敗: {}", e), None))?;
 
-                // 调用记忆工具
+                // 呼叫記憶工具
                 MemoryTool::jiyi(ji_request).await
             }
             _ => {
@@ -220,17 +220,17 @@ impl ServerHandler for ZhiServer {
 
 
 
-/// 启动MCP服务器
+/// 啟動MCP服务器
 pub async fn run_server() -> Result<(), Box<dyn std::error::Error>> {
-    // 创建并运行服务器
+    // 建立并執行服务器
     let service = ZhiServer::new()
         .serve(stdio())
         .await
         .inspect_err(|e| {
-            log_important!(error, "启动服务器失败: {}", e);
+            log_important!(error, "啟動服务器失敗: {}", e);
         })?;
 
-    // 等待服务器关闭
+    // 等待服务器關閉
     service.waiting().await?;
     Ok(())
 }

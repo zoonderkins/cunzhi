@@ -4,15 +4,15 @@ import { useMcpToolsReactive } from '../../composables/useMcpTools'
 import { generateFullPrompt } from '../../constants/prompts'
 import { useI18n } from '../../i18n'
 
-// 使用全局MCP工具状态
+// 使用全局MCP工具狀態
 const { mcpTools, loading: mcpLoading, loadMcpTools, enabledTools } = useMcpToolsReactive()
 
 // i18n
 const { t } = useI18n()
 
-// 根据MCP工具状态动态生成提示词
+// 根据MCP工具狀態动态生成提示词
 const promptContent = computed(() => {
-  // 将后端数据格式转换为前端格式
+  // 将后端資料格式转换为前端格式
   const frontendTools = mcpTools.value.map(tool => ({
     id: tool.id === 'ji' ? 'memory' : tool.id, // 后端用ji，前端用memory
     name: tool.name,
@@ -27,34 +27,34 @@ const promptContent = computed(() => {
   return generateFullPrompt(frontendTools)
 })
 
-const copyButtonText = ref('复制')
+const copyButtonText = ref('複製')
 
-// 复制参考提示词内容
+// 複製参考提示词内容
 async function copyPromptContent() {
   try {
     await navigator.clipboard.writeText(promptContent.value)
-    copyButtonText.value = '已复制'
+    copyButtonText.value = '已複製'
     setTimeout(() => {
-      copyButtonText.value = '复制'
+      copyButtonText.value = '複製'
     }, 2000)
   }
   catch (error) {
-    copyButtonText.value = '复制失败'
+    copyButtonText.value = '複製失敗'
     setTimeout(() => {
-      copyButtonText.value = '复制'
+      copyButtonText.value = '複製'
     }, 2000)
-    console.error('复制失败:', error)
+    console.error('複製失敗:', error)
   }
 }
 
-// 组件挂载时加载MCP工具配置
+// 元件挂载时載入MCP工具設定
 onMounted(async () => {
   if (mcpTools.value.length === 0) {
     try {
       await loadMcpTools()
     }
     catch (error) {
-      console.error('加载MCP工具配置失败:', error)
+      console.error('載入MCP工具設定失敗:', error)
     }
   }
 })
@@ -80,7 +80,7 @@ onMounted(async () => {
                 <div class="i-carbon-document text-lg text-orange-600 dark:text-orange-400" />
               </div>
 
-              <!-- 标题信息 -->
+              <!-- 标题訊息 -->
               <div>
                 <div class="text-lg font-medium mb-1 tracking-tight">
                   {{ t('prompts.title') }}
@@ -91,7 +91,7 @@ onMounted(async () => {
               </div>
             </n-space>
 
-            <!-- 复制按钮 -->
+            <!-- 複製按钮 -->
             <n-button
               type="primary"
               size="small"
@@ -105,7 +105,7 @@ onMounted(async () => {
           </n-space>
         </template>
 
-        <!-- 工具状态说明 -->
+        <!-- 工具狀態说明 -->
         <div class="flex items-center text-sm leading-relaxed mb-4">
           <div
             class="w-1.5 h-1.5 rounded-full mr-3 flex-shrink-0"
@@ -113,7 +113,7 @@ onMounted(async () => {
           />
           <span class="opacity-90">
             <template v-if="mcpLoading">
-              正在加载MCP工具配置...
+              正在載入MCP工具設定...
             </template>
             <template v-else>
               当前已启用 {{ enabledTools.length }} / {{ mcpTools.length }} 个MCP工具，
@@ -174,13 +174,13 @@ onMounted(async () => {
               <div class="i-carbon-information text-lg text-blue-600 dark:text-blue-400" />
             </div>
 
-            <!-- 标题信息 -->
+            <!-- 标题訊息 -->
             <div>
               <div class="text-lg font-medium mb-1 tracking-tight">
                 使用说明
               </div>
               <div class="text-sm opacity-60 font-normal">
-                如何使用和配置提示词
+                如何使用和設定提示词
               </div>
             </div>
           </n-space>
@@ -192,15 +192,15 @@ onMounted(async () => {
         >
           <div class="flex items-center text-sm leading-relaxed">
             <div class="w-1.5 h-1.5 bg-green-500 rounded-full mr-3 flex-shrink-0" />
-            <span class="opacity-90">将此提示词添加到您的AI助手系统提示中，以获得最佳的交互体验</span>
+            <span class="opacity-90">将此提示词新增到您的AI助手系統提示中，以获得最佳的交互体验</span>
           </div>
           <div class="flex items-center text-sm leading-relaxed">
             <div class="w-1.5 h-1.5 bg-blue-500 rounded-full mr-3 flex-shrink-0" />
-            <span class="opacity-90">提示词内容会根据"MCP工具"页面的开关设置自动更新</span>
+            <span class="opacity-90">提示词内容会根据"MCP工具"页面的开关設定自動更新</span>
           </div>
           <div class="flex items-center text-sm leading-relaxed">
             <div class="w-1.5 h-1.5 bg-purple-500 rounded-full mr-3 flex-shrink-0" />
-            <span class="opacity-90">关闭的工具不会包含在生成的提示词中，对应的MCP服务也不会启用</span>
+            <span class="opacity-90">關閉的工具不会包含在生成的提示词中，对应的MCP服务也不会启用</span>
           </div>
         </n-space>
       </n-card>

@@ -1,9 +1,9 @@
-// MCP工具注册模块
-// 工具实现按各自的模块目录组织
+// MCP工具註冊模組
+// 工具實作按各自的模組目录组织
 
 pub mod memory;
 pub mod interaction;
 
-// 重新导出工具以便访问
+// 重新匯出工具以便访问
 pub use memory::MemoryTool;
 pub use interaction::InteractionTool;

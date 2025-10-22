@@ -31,9 +31,9 @@ export default defineConfig({
   ],
   theme: {
     colors: {
-      // 语义化颜色系统 - 重新定义基础颜色让它们适配主题
+      // 语义化颜色系統 - 重新定义基础颜色让它们适配主題
       ...semanticColors,
-      // 添加表面色的直接映射
+      // 新增表面色的直接映射
       surface: 'var(--color-surface)',
     },
     fontSize: {
@@ -63,7 +63,7 @@ export default defineConfig({
     [/^fade-in$/, () => ({ opacity: '1' })],
   ],
   safelist: [
-    // 语义化颜色类名 - 基于新的颜色系统
+    // 语义化颜色类名 - 基于新的颜色系統
     'bg-surface',
     'text-surface',
     'border-surface',

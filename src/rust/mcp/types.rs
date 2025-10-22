@@ -5,10 +5,10 @@ use serde::{Deserialize, Serialize};
 pub struct ZhiRequest {
     #[schemars(description = "要显示给用户的消息")]
     pub message: String,
-    #[schemars(description = "预定义的选项列表（可选）")]
+    #[schemars(description = "预定义的選項列表（可选）")]
     #[serde(default)]
     pub predefined_options: Vec<String>,
-    #[schemars(description = "消息是否为Markdown格式，默认为true")]
+    #[schemars(description = "消息是否为Markdown格式，預設为true")]
     #[serde(default = "default_is_markdown")]
     pub is_markdown: bool,
 }
@@ -19,15 +19,15 @@ fn default_is_markdown() -> bool {
 
 #[derive(Debug, Deserialize, schemars::JsonSchema)]
 pub struct JiyiRequest {
-    #[schemars(description = "操作类型：记忆(添加记忆), 回忆(获取项目信息)")]
+    #[schemars(description = "操作類型：記憶(新增記憶), 回忆(獲取專案訊息)")]
     pub action: String,
-    #[schemars(description = "项目路径（必需）")]
+    #[schemars(description = "專案路径（必需）")]
     pub project_path: String,
-    #[schemars(description = "记忆内容（记忆操作时必需）")]
+    #[schemars(description = "記憶内容（記憶操作时必需）")]
     #[serde(default)]
     pub content: String,
     #[schemars(
-        description = "记忆分类：rule(规范规则), preference(用户偏好), pattern(最佳实践), context(项目上下文)"
+        description = "記憶分类：rule(规范规则), preference(用户偏好), pattern(最佳实践), context(專案上下文)"
     )]
     #[serde(default = "default_category")]
     pub category: String,
@@ -45,7 +45,7 @@ pub struct PopupRequest {
     pub is_markdown: bool,
 }
 
-/// 新的结构化响应数据格式
+/// 新的结构化响应資料格式
 #[derive(Debug, Deserialize)]
 pub struct McpResponse {
     pub user_input: Option<String>,
@@ -68,7 +68,7 @@ pub struct ResponseMetadata {
     pub source: Option<String>,
 }
 
-/// 旧格式兼容性支持
+/// 旧格式相容性支持
 #[derive(Debug, Deserialize)]
 pub struct McpResponseContent {
     #[serde(rename = "type")]
@@ -85,9 +85,9 @@ pub struct ImageSource {
     pub data: String,
 }
 
-/// 统一的响应构建函数
+/// 統一的响应建構函數
 ///
-/// 用于生成标准的JSON响应格式，确保无GUI和有GUI模式输出一致
+/// 用于生成標準的JSON响应格式，确保无GUI和有GUI模式輸出一致
 pub fn build_mcp_response(
     user_input: Option<String>,
     selected_options: Vec<String>,
@@ -107,7 +107,7 @@ pub fn build_mcp_response(
     })
 }
 
-/// 构建发送操作的响应
+/// 建構发送操作的响应
 pub fn build_send_response(
     user_input: Option<String>,
     selected_options: Vec<String>,
@@ -119,13 +119,13 @@ pub fn build_send_response(
     response.to_string()
 }
 
-/// 构建继续操作的响应
+/// 建構繼續操作的响应
 pub fn build_continue_response(request_id: Option<String>, source: &str) -> String {
-    // 动态获取继续提示词
+    // 动态獲取繼續提示词
     let continue_prompt = if let Ok(config) = crate::config::load_standalone_config() {
         config.reply_config.continue_prompt
     } else {
-        "请按照最佳实践继续".to_string()
+        "请按照最佳实践繼續".to_string()
     };
 
     let response = build_mcp_response(Some(continue_prompt), vec![], vec![], request_id, source);

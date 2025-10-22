@@ -5,8 +5,8 @@ import { semanticColors } from '../../theme/colors'
 const { currentTheme, setTheme } = useTheme()
 
 const themeOptions = [
-  { value: 'light', label: '浅色主题', icon: '☀️' },
-  { value: 'dark', label: '深色主题', icon: '🌙' },
+  { value: 'light', label: '浅色主題', icon: '☀️' },
+  { value: 'dark', label: '深色主題', icon: '🌙' },
 ]
 
 const colorPalettes = [
@@ -33,15 +33,15 @@ function getVariableValue(variable: string) {
 function copyColorValue(color: string) {
   navigator.clipboard.writeText(color)
   // 使用 console.log 替代 alert，避免阻塞用户界面
-  console.log(`已复制颜色值: ${color}`)
+  console.log(`已複製颜色值: ${color}`)
 }
 
-// 移除系统偏好相关代码
+// 移除系統偏好相关代码
 </script>
 
 <template>
   <div class="themes-test">
-    <n-card title="主题测试 - 真实主题系统">
+    <n-card title="主題測試 - 真实主題系統">
       <template #header-extra>
         <n-space>
           <n-tag size="small" type="info">
@@ -54,10 +54,10 @@ function copyColorValue(color: string) {
       </template>
 
       <n-space vertical size="large">
-        <!-- 主题切换 -->
+        <!-- 主題切换 -->
         <div class="theme-section">
           <h3 class="section-title">
-            主题切换
+            主題切换
           </h3>
 
           <n-card size="small">
@@ -76,8 +76,8 @@ function copyColorValue(color: string) {
 
             <div class="theme-info">
               <n-space vertical size="small">
-                <div><strong>当前主题:</strong> {{ currentTheme }}</div>
-                <div><strong>实际应用:</strong> {{ currentTheme }}</div>
+                <div><strong>当前主題:</strong> {{ currentTheme }}</div>
+                <div><strong>实际應用:</strong> {{ currentTheme }}</div>
               </n-space>
             </div>
           </n-card>
@@ -86,7 +86,7 @@ function copyColorValue(color: string) {
         <!-- 颜色调色板 -->
         <div class="theme-section">
           <h3 class="section-title">
-            颜色调色板 (真实配置)
+            颜色调色板 (真实設定)
           </h3>
 
           <n-space vertical>
@@ -108,10 +108,10 @@ function copyColorValue(color: string) {
           </n-space>
         </div>
 
-        <!-- CSS 变量 -->
+        <!-- CSS 變數 -->
         <div class="theme-section">
           <h3 class="section-title">
-            CSS 变量 (实时值)
+            CSS 變數 (实时值)
           </h3>
 
           <n-card size="small">
@@ -135,20 +135,20 @@ function copyColorValue(color: string) {
           </n-card>
         </div>
 
-        <!-- 组件主题预览 -->
+        <!-- 元件主題预览 -->
         <div class="theme-section">
           <h3 class="section-title">
-            组件主题预览
+            元件主題预览
           </h3>
 
           <n-card size="small">
             <n-space vertical>
               <!-- 按钮组 -->
               <div class="component-preview">
-                <h4>按钮组件</h4>
+                <h4>按钮元件</h4>
                 <n-space>
                   <n-button size="small">
-                    默认
+                    預設
                   </n-button>
                   <n-button type="primary" size="small">
                     主要
@@ -160,16 +160,16 @@ function copyColorValue(color: string) {
                     警告
                   </n-button>
                   <n-button type="error" size="small">
-                    错误
+                    錯誤
                   </n-button>
                 </n-space>
               </div>
 
-              <!-- 输入组件 -->
+              <!-- 輸入元件 -->
               <div class="component-preview">
-                <h4>输入组件</h4>
+                <h4>輸入元件</h4>
                 <n-space>
-                  <n-input size="small" placeholder="普通输入框" style="width: 150px;" />
+                  <n-input size="small" placeholder="普通輸入框" style="width: 150px;" />
                   <n-switch size="small" />
                   <n-checkbox size="small">
                     复选框
@@ -177,12 +177,12 @@ function copyColorValue(color: string) {
                 </n-space>
               </div>
 
-              <!-- 标签组件 -->
+              <!-- 标签元件 -->
               <div class="component-preview">
-                <h4>标签组件</h4>
+                <h4>标签元件</h4>
                 <n-space>
                   <n-tag size="small">
-                    默认
+                    預設
                   </n-tag>
                   <n-tag type="primary" size="small">
                     主要
@@ -194,16 +194,16 @@ function copyColorValue(color: string) {
                     警告
                   </n-tag>
                   <n-tag type="error" size="small">
-                    错误
+                    錯誤
                   </n-tag>
                 </n-space>
               </div>
 
-              <!-- 卡片组件 -->
+              <!-- 卡片元件 -->
               <div class="component-preview">
-                <h4>卡片组件</h4>
+                <h4>卡片元件</h4>
                 <n-card title="示例卡片" size="small" style="max-width: 300px;">
-                  <p>这是一个示例卡片，用于展示当前主题下的卡片样式。</p>
+                  <p>这是一个示例卡片，用于展示当前主題下的卡片样式。</p>
                   <template #footer>
                     <n-button size="small">
                       操作
@@ -215,18 +215,18 @@ function copyColorValue(color: string) {
           </n-card>
         </div>
 
-        <!-- 主题文件信息 -->
+        <!-- 主題檔案訊息 -->
         <div class="theme-section">
           <h3 class="section-title">
-            主题文件信息
+            主題檔案訊息
           </h3>
 
           <n-card size="small">
             <n-space vertical>
-              <div><strong>主题 Hook:</strong> src/frontend/hooks/useTheme.ts</div>
-              <div><strong>主题配置:</strong> src/frontend/theme/index.ts</div>
-              <div><strong>颜色配置:</strong> src/frontend/theme/colors.ts</div>
-              <div><strong>UnoCSS 配置:</strong> uno.config.ts</div>
+              <div><strong>主題 Hook:</strong> src/frontend/hooks/useTheme.ts</div>
+              <div><strong>主題設定:</strong> src/frontend/theme/index.ts</div>
+              <div><strong>颜色設定:</strong> src/frontend/theme/colors.ts</div>
+              <div><strong>UnoCSS 設定:</strong> uno.config.ts</div>
               <div>
                 <strong>当前使用:</strong> {{ currentTheme }}
               </div>

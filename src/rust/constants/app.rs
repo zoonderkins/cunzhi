@@ -1,49 +1,49 @@
-// 应用程序相关常量
+// 應用程序相关常量
 
-/// 应用程序名称
+/// 應用程序名称
 pub const NAME: &str = "寸止";
 
-/// 应用程序英文名称
+/// 應用程序英文名称
 pub const NAME_EN: &str = "cunzhi";
 
-/// 应用程序描述
-pub const DESCRIPTION: &str = "智能代码审查工具";
+/// 應用程序描述
+pub const DESCRIPTION: &str = "智慧程式碼審查工具";
 
-/// 应用程序版本（从 Cargo.toml 获取）
+/// 應用程序版本（从 Cargo.toml 獲取）
 pub const VERSION: &str = env!("CARGO_PKG_VERSION");
 
-/// 应用程序作者
+/// 應用程序作者
 pub const AUTHOR: &str = "zoonderkins";
 
-/// 应用程序主页
+/// 應用程序主页
 pub const HOMEPAGE: &str = "https://github.com/zoonderkins/cunzhi";
 
-/// 应用程序仓库
+/// 應用程序仓函式庫
 pub const REPOSITORY: &str = "https://github.com/zoonderkins/cunzhi";
 
-/// 应用程序许可证
+/// 應用程序许可证
 pub const LICENSE: &str = "MIT";
 
-/// 配置文件名
+/// 設定檔案名
 pub const CONFIG_FILE_NAME: &str = "config.json";
 
-/// 日志文件名前缀
+/// 日誌檔案名前缀
 pub const LOG_FILE_PREFIX: &str = "cunzhi";
 
-/// 应用程序标识符（用于系统集成）
+/// 應用程序标识符（用于系統集成）
 pub const APP_IDENTIFIER: &str = "com.zoonderkins.cunzhi";
 
 /// 用户代理字符串
 pub const USER_AGENT: &str = concat!(env!("CARGO_PKG_NAME"), "/", env!("CARGO_PKG_VERSION"));
 
 // 防误触退出相关常量
-/// 退出确认时间窗口（秒）
+/// 退出確認时间視窗（秒）
 pub const EXIT_CONFIRMATION_WINDOW_SECS: u64 = 3;
 
 /// 需要的连续退出尝试次数
 pub const REQUIRED_EXIT_ATTEMPTS: u32 = 2;
 
-// 应用程序信息结构体
+// 應用程序訊息结构体
 #[derive(Debug, Clone)]
 pub struct AppInfo {
     pub name: String,
@@ -76,12 +76,12 @@ impl Default for AppInfo {
 }
 
 impl AppInfo {
-    /// 获取完整的应用程序标题
+    /// 獲取完整的應用程序标题
     pub fn get_full_title(&self) -> String {
         format!("{} v{}", self.name, self.version)
     }
 
-    /// 获取窗口标题
+    /// 獲取視窗标题
     pub fn get_window_title(&self) -> String {
         self.name.clone()
     }
@@ -103,23 +103,23 @@ impl AppInfo {
     }
 }
 
-// 便捷函数
-/// 获取应用程序信息
+// 便捷函數
+/// 獲取應用程序訊息
 pub fn get_app_info() -> AppInfo {
     AppInfo::default()
 }
 
-/// 获取应用程序名称
+/// 獲取應用程序名称
 pub fn get_app_name() -> &'static str {
     NAME
 }
 
-/// 获取应用程序版本
+/// 獲取應用程序版本
 pub fn get_app_version() -> &'static str {
     VERSION
 }
 
-/// 获取用户代理字符串
+/// 獲取用户代理字符串
 pub fn get_user_agent() -> &'static str {
     USER_AGENT
 }

@@ -6,7 +6,7 @@ use std::sync::atomic::AtomicBool;
 use std::sync::Arc;
 use tauri::Builder;
 
-/// 构建Tauri应用
+/// 建構Tauri應用
 pub fn build_tauri_app() -> Builder<tauri::Wry> {
     tauri::Builder::default()
         .plugin(tauri_plugin_shell::init())
@@ -17,7 +17,7 @@ pub fn build_tauri_app() -> Builder<tauri::Wry> {
             should_stop: Arc::new(AtomicBool::new(false)),
         })
         .invoke_handler(tauri::generate_handler![
-            // 基础应用命令
+            // 基礎應用命令
             get_app_info,
             get_always_on_top,
             set_always_on_top,
@@ -26,7 +26,7 @@ pub fn build_tauri_app() -> Builder<tauri::Wry> {
             save_config_cmd,
             reload_config,
 
-            // 音频命令
+            // 音訊命令
             get_audio_notification_enabled,
             set_audio_notification_enabled,
             get_audio_url,
@@ -37,7 +37,7 @@ pub fn build_tauri_app() -> Builder<tauri::Wry> {
             get_available_audio_assets,
             refresh_audio_assets,
 
-            // 主题和窗口命令
+            // 主題和視窗命令
             get_theme,
             set_theme,
             get_window_config,
@@ -52,7 +52,7 @@ pub fn build_tauri_app() -> Builder<tauri::Wry> {
             apply_window_constraints,
             update_window_size,
 
-            // 字体命令
+            // 字型命令
             get_font_config,
             set_font_family,
             set_font_size,
@@ -74,7 +74,7 @@ pub fn build_tauri_app() -> Builder<tauri::Wry> {
             build_mcp_continue_response,
             create_test_popup,
 
-            // 自定义prompt命令
+            // 自訂prompt命令
             get_custom_prompt_config,
             add_custom_prompt,
             update_custom_prompt,
@@ -83,15 +83,15 @@ pub fn build_tauri_app() -> Builder<tauri::Wry> {
             update_custom_prompt_order,
             update_conditional_prompt_state,
 
-            // 快捷键命令
+            // 快捷鍵命令
             get_shortcut_config,
             update_shortcut_binding,
             reset_shortcuts_to_default,
 
-            // 配置管理命令
+            // 設定管理命令
             get_config_file_path,
 
-            // 系统命令
+            // 系統命令
             open_external_url,
             exit_app,
             handle_app_exit_request,
@@ -110,10 +110,10 @@ pub fn build_tauri_app() -> Builder<tauri::Wry> {
         .setup(|app| {
             let app_handle = app.handle().clone();
 
-            // 应用初始化
+            // 應用初始化
             tauri::async_runtime::block_on(async {
                 if let Err(e) = setup_application(&app_handle).await {
-                    log_important!(error, "应用初始化失败: {}", e);
+                    log_important!(error, "應用初始化失敗: {}", e);
                 }
             });
 
@@ -121,7 +121,7 @@ pub fn build_tauri_app() -> Builder<tauri::Wry> {
         })
 }
 
-/// 运行Tauri应用
+/// 執行Tauri應用
 pub fn run_tauri_app() {
     build_tauri_app()
         .run(tauri::generate_context!())

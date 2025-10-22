@@ -8,12 +8,12 @@ pub fn run() {
 }
 
 fn main() -> Result<()> {
-    // 初始化日志系统
+    // 初始化日誌系統
     if let Err(e) = auto_init_logger() {
-        eprintln!("初始化日志系统失败: {}", e);
+        eprintln!("初始化日誌系統失敗: {}", e);
     }
 
-    // 处理命令行参数
+    // 處理命令列參數
     handle_cli_args()
 }
 

@@ -4,7 +4,7 @@ import { useMagicKeys } from '@vueuse/core'
 import { computed, ref, watch } from 'vue'
 
 /**
- * 自定义快捷键管理
+ * 自訂快捷键管理
  */
 export function useShortcuts() {
   const shortcutConfig = ref<ShortcutConfig>({
@@ -13,7 +13,7 @@ export function useShortcuts() {
 
   const keys = useMagicKeys()
 
-  // 检测操作系统
+  // 检测操作系統
   const isMac = computed(() => {
     if (typeof navigator !== 'undefined') {
       return navigator.platform.toUpperCase().includes('MAC')
@@ -21,18 +21,18 @@ export function useShortcuts() {
     return false
   })
 
-  // 加载快捷键配置
+  // 載入快捷鍵設定
   async function loadShortcutConfig() {
     try {
       const config = await invoke<ShortcutConfig>('get_shortcut_config')
       shortcutConfig.value = config
     }
     catch (error) {
-      console.error('加载快捷键配置失败:', error)
+      console.error('載入快捷鍵設定失敗:', error)
     }
   }
 
-  // 保存快捷键配置
+  // 儲存快捷鍵設定
   async function saveShortcutBinding(shortcutId: string, binding: ShortcutBinding) {
     try {
       await invoke('update_shortcut_binding', {
@@ -42,24 +42,24 @@ export function useShortcuts() {
       shortcutConfig.value.shortcuts[shortcutId] = binding
     }
     catch (error) {
-      console.error('保存快捷键配置失败:', error)
+      console.error('儲存快捷鍵設定失敗:', error)
       throw error
     }
   }
 
-  // 重置快捷键为默认值
+  // 重置快捷键为預設值
   async function resetShortcutsToDefault() {
     try {
       await invoke('reset_shortcuts_to_default')
       await loadShortcutConfig()
     }
     catch (error) {
-      console.error('重置快捷键失败:', error)
+      console.error('重置快捷键失敗:', error)
       throw error
     }
   }
 
-  // 将快捷键组合转换为字符串表示
+  // 将快捷鍵組合转换为字符串表示
   function shortcutKeyToString(shortcutKey: ShortcutKey): string {
     const parts: string[] = []
 
@@ -88,7 +88,7 @@ export function useShortcuts() {
     return parts.join(isMac.value ? '' : '+')
   }
 
-  // 将快捷键组合转换为useMagicKeys格式
+  // 将快捷鍵組合转换为useMagicKeys格式
   function shortcutKeyToMagicKey(shortcutKey: ShortcutKey): string {
     const parts: string[] = []
 
@@ -105,7 +105,7 @@ export function useShortcuts() {
     return parts.join('+')
   }
 
-  // 检查快捷键是否冲突（全局唯一，不区分作用域）
+  // 檢查快捷键是否冲突（全局唯一，不区分作用域）
   function checkShortcutConflict(newBinding: ShortcutBinding, excludeId?: string): string | null {
     const newKeyStr = shortcutKeyToMagicKey(newBinding.key_combination)
 
@@ -122,7 +122,7 @@ export function useShortcuts() {
     return null
   }
 
-  // 获取指定动作的快捷键
+  // 獲取指定动作的快捷键
   function getShortcutByAction(action: string): ShortcutBinding | null {
     for (const binding of Object.values(shortcutConfig.value.shortcuts)) {
       if (binding.action === action) {
@@ -132,7 +132,7 @@ export function useShortcuts() {
     return null
   }
 
-  // 获取快速发送快捷键的显示文本
+  // 獲取快速發送快捷鍵的显示文本
   const quickSubmitShortcutText = computed(() => {
     const binding = getShortcutByAction('submit')
     if (!binding) {
@@ -141,7 +141,7 @@ export function useShortcuts() {
     return `${shortcutKeyToString(binding.key_combination)} ${binding.name}`
   })
 
-  // 获取增强快捷键的显示文本
+  // 獲取增強快捷鍵的显示文本
   const enhanceShortcutText = computed(() => {
     const binding = getShortcutByAction('enhance')
     if (!binding) {
@@ -150,16 +150,16 @@ export function useShortcuts() {
     return `${shortcutKeyToString(binding.key_combination)} ${binding.name}`
   })
 
-  // 获取继续快捷键的显示文本
+  // 獲取繼續快捷鍵的显示文本
   const continueShortcutText = computed(() => {
     const binding = getShortcutByAction('continue')
     if (!binding) {
-      return isMac.value ? '⌥+回车 继续' : 'Alt+回车 继续'
+      return isMac.value ? '⌥+回车 繼續' : 'Alt+回车 繼續'
     }
     return `${shortcutKeyToString(binding.key_combination)} ${binding.name}`
   })
 
-  // 监听快速发送快捷键
+  // 監聽快速發送快捷鍵
   function useQuickSubmitShortcut(callback: () => void) {
     const binding = computed(() => getShortcutByAction('submit'))
 
@@ -184,7 +184,7 @@ export function useShortcuts() {
     )
   }
 
-  // 监听增强快捷键
+  // 監聽增強快捷鍵
   function useEnhanceShortcut(callback: () => void) {
     const binding = computed(() => getShortcutByAction('enhance'))
 
@@ -209,7 +209,7 @@ export function useShortcuts() {
     )
   }
 
-  // 监听继续快捷键
+  // 監聽繼續快捷鍵
   function useContinueShortcut(callback: () => void) {
     const binding = computed(() => getShortcutByAction('continue'))
 

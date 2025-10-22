@@ -7,14 +7,14 @@ use env_logger::{Builder, Target};
 
 static INIT: Once = Once::new();
 
-/// 日志配置
+/// 日誌設定
 #[derive(Debug, Clone)]
 pub struct LogConfig {
-    /// 日志级别
+    /// 日誌级别
     pub level: LevelFilter,
-    /// 日志文件路径（None 表示不输出到文件）
+    /// 日誌檔案路径（None 表示不輸出到檔案）
     pub file_path: Option<String>,
-    /// 是否为 MCP 模式（MCP 模式下不输出到 stderr）
+    /// 是否为 MCP 模式（MCP 模式下不輸出到 stderr）
     pub is_mcp_mode: bool,
 }
 
@@ -28,15 +28,15 @@ impl Default for LogConfig {
     }
 }
 
-/// 初始化日志系统
+/// 初始化日誌系統
 pub fn init_logger(config: LogConfig) -> Result<(), Box<dyn std::error::Error>> {
     INIT.call_once(|| {
         let mut builder = Builder::new();
         
-        // 设置日志级别
+        // 設定日誌级别
         builder.filter_level(config.level);
         
-        // 设置日志格式
+        // 設定日誌格式
         builder.format(|buf, record| {
             writeln!(
                 buf,
@@ -48,9 +48,9 @@ pub fn init_logger(config: LogConfig) -> Result<(), Box<dyn std::error::Error>> 
             )
         });
         
-        // 根据模式设置输出目标
+        // 根据模式設定輸出目标
         if config.is_mcp_mode {
-            // MCP 模式：只输出到文件，不输出到 stderr
+            // MCP 模式：只輸出到檔案，不輸出到 stderr
             if let Some(file_path) = &config.file_path {
                 if let Ok(log_file) = OpenOptions::new()
                     .create(true)
@@ -59,15 +59,15 @@ pub fn init_logger(config: LogConfig) -> Result<(), Box<dyn std::error::Error>> 
                 {
                     builder.target(Target::Pipe(Box::new(log_file)));
                 } else {
-                    // 如果文件打开失败，禁用日志输出
+                    // 如果檔案開啟失敗，禁用日誌輸出
                     builder.filter_level(LevelFilter::Off);
                 }
             } else {
-                // MCP 模式下没有指定文件路径，禁用日志输出
+                // MCP 模式下没有指定檔案路径，禁用日誌輸出
                 builder.filter_level(LevelFilter::Off);
             }
         } else {
-            // 非 MCP 模式：输出到 stderr
+            // 非 MCP 模式：輸出到 stderr
             builder.target(Target::Stderr);
         }
         
@@ -77,13 +77,13 @@ pub fn init_logger(config: LogConfig) -> Result<(), Box<dyn std::error::Error>> 
     Ok(())
 }
 
-/// 自动检测模式并初始化日志系统
+/// 自動检测模式并初始化日誌系統
 pub fn auto_init_logger() -> Result<(), Box<dyn std::error::Error>> {
     let args: Vec<String> = env::args().collect();
     let is_mcp_mode = args.len() >= 3 && args[1] == "--mcp-request";
     
     let config = if is_mcp_mode {
-        // MCP 模式：输出到文件
+        // MCP 模式：輸出到檔案
         let log_file_path = env::var("MCP_LOG_FILE")
             .unwrap_or_else(|_| {
                 let temp_dir = env::temp_dir();
@@ -99,7 +99,7 @@ pub fn auto_init_logger() -> Result<(), Box<dyn std::error::Error>> {
             is_mcp_mode: true,
         }
     } else {
-        // GUI 模式：输出到 stderr
+        // GUI 模式：輸出到 stderr
         LogConfig {
             level: env::var("RUST_LOG")
                 .unwrap_or_else(|_| "info".to_string())
@@ -113,7 +113,7 @@ pub fn auto_init_logger() -> Result<(), Box<dyn std::error::Error>> {
     init_logger(config)
 }
 
-/// 便利宏：只在重要情况下记录日志
+/// 便利宏：只在重要情况下記錄日誌
 #[macro_export]
 macro_rules! log_important {
     (error, $($arg:tt)*) => {
@@ -127,7 +127,7 @@ macro_rules! log_important {
     };
 }
 
-/// 便利宏：调试日志（只在 debug 级别下输出）
+/// 便利宏：偵錯日誌（只在 debug 级别下輸出）
 #[macro_export]
 macro_rules! log_debug {
     ($($arg:tt)*) => {
@@ -135,7 +135,7 @@ macro_rules! log_debug {
     };
 }
 
-/// 便利宏：跟踪日志（只在 trace 级别下输出）
+/// 便利宏：跟踪日誌（只在 trace 级别下輸出）
 #[macro_export]
 macro_rules! log_trace {
     ($($arg:tt)*) => {
@@ -158,7 +158,7 @@ mod tests {
     
     #[test]
     fn test_mcp_mode_detection() {
-        // 这个测试需要在实际环境中运行
-        // 这里只是展示如何测试
+        // 这个測試需要在实际环境中執行
+        // 这里只是展示如何測試
     }
 }

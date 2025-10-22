@@ -7,7 +7,7 @@ interface Props {
 
 const props = defineProps<Props>()
 
-// 显示点击后会切换到的主题图标，这样更符合用户直觉
+// 显示点击后会切换到的主題图标，这样更符合用户直觉
 const iconClass = computed(() => {
   return props.theme === 'light' ? 'i-carbon-moon' : 'i-carbon-sun'
 })

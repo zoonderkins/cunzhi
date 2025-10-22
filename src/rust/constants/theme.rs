@@ -1,18 +1,18 @@
-// 主题相关常量
+// 主題相关常量
 
-/// 默认主题
+/// 預設主題
 pub const DEFAULT: &str = "dark";
 
-/// 浅色主题
+/// 浅色主題
 pub const LIGHT: &str = "light";
 
-/// 深色主题
+/// 深色主題
 pub const DARK: &str = "dark";
 
-/// 可用主题列表
+/// 可用主題列表
 pub const AVAILABLE_THEMES: &[&str] = &[LIGHT, DARK];
 
-// 主题配置结构体
+// 主題設定结构体
 #[derive(Debug, Clone)]
 pub struct ThemeConfig {
     pub default_theme: String,
@@ -29,12 +29,12 @@ impl Default for ThemeConfig {
 }
 
 impl ThemeConfig {
-    /// 验证主题是否有效
+    /// 驗證主題是否有效
     pub fn is_valid_theme(&self, theme: &str) -> bool {
         self.available_themes.contains(&theme.to_string())
     }
 
-    /// 获取默认主题
+    /// 獲取預設主題
     pub fn get_default(&self) -> &str {
         &self.default_theme
     }
@@ -48,18 +48,18 @@ impl ThemeConfig {
     }
 }
 
-// 便捷函数
-/// 获取默认主题配置
+// 便捷函數
+/// 獲取預設主題設定
 pub fn get_default_theme_config() -> ThemeConfig {
     ThemeConfig::default()
 }
 
-/// 验证主题是否有效
+/// 驗證主題是否有效
 pub fn is_valid_theme(theme: &str) -> bool {
     AVAILABLE_THEMES.contains(&theme)
 }
 
-/// 获取默认主题
+/// 獲取預設主題
 pub fn get_default_theme() -> &'static str {
     DEFAULT
 }

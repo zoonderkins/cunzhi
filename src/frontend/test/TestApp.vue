@@ -11,8 +11,8 @@ const useSimulatedWindow = ref(true)
 const tabs = [
   { key: 'main-ui', label: '主界面', component: MainLayoutTest },
   { key: 'mcp-popup', label: 'MCP 弹窗', component: McpPopupTest },
-  { key: 'components', label: '组件库', component: ComponentsTest },
-  { key: 'themes', label: '主题测试', component: ThemesTest },
+  { key: 'components', label: '元件函式庫', component: ComponentsTest },
+  { key: 'themes', label: '主題測試', component: ThemesTest },
 ]
 </script>
 
@@ -20,16 +20,16 @@ const tabs = [
   <n-message-provider>
     <div class="test-app">
       <div class="test-header">
-        <h1>寸止 - 组件样式测试环境</h1>
+        <h1>寸止 - 元件样式測試环境</h1>
         <p class="test-description">
-          独立的测试环境，用于开发和调试组件样式，直接引用真实组件
+          独立的測試环境，用于开发和偵錯元件样式，直接引用真实元件
         </p>
 
-        <!-- 模拟窗口开关 -->
+        <!-- 模拟視窗开关 -->
         <div class="window-toggle">
           <n-switch v-model:value="useSimulatedWindow" size="small">
             <template #checked>
-              模拟窗口 (600px)
+              模拟視窗 (600px)
             </template>
             <template #unchecked>
               全屏模式
@@ -38,11 +38,11 @@ const tabs = [
         </div>
       </div>
 
-      <!-- 模拟窗口容器 -->
+      <!-- 模拟視窗容器 -->
       <div v-if="useSimulatedWindow" class="simulated-window-container">
-        <!-- 测试控制面板 -->
+        <!-- 測試控制面板 -->
         <div class="test-controls">
-          <n-card title="测试控制面板" size="small">
+          <n-card title="測試控制面板" size="small">
             <n-tabs v-model:value="activeTab" type="segment" size="small">
               <n-tab-pane
                 v-for="tab in tabs"
@@ -54,9 +54,9 @@ const tabs = [
           </n-card>
         </div>
 
-        <!-- 模拟窗口 -->
+        <!-- 模拟視窗 -->
         <div class="simulated-window">
-          <!-- 模拟窗口标题栏 -->
+          <!-- 模拟視窗标题栏 -->
           <div class="window-titlebar">
             <div class="window-controls">
               <div class="window-control close" />
@@ -69,7 +69,7 @@ const tabs = [
             <div class="window-spacer" />
           </div>
 
-          <!-- 窗口内容 - 只显示真实的应用内容 -->
+          <!-- 視窗内容 - 只显示真实的應用内容 -->
           <div class="window-content">
             <!-- 主界面内容 -->
             <div v-if="activeTab === 'main-ui'" class="app-content">
@@ -141,7 +141,7 @@ const tabs = [
   margin-top: 15px;
 }
 
-/* 模拟窗口容器 */
+/* 模拟視窗容器 */
 .simulated-window-container {
   display: flex;
   gap: 20px;
@@ -151,7 +151,7 @@ const tabs = [
   margin: 0 auto;
 }
 
-/* 测试控制面板 */
+/* 測試控制面板 */
 .test-controls {
   flex: 0 0 300px;
   position: sticky;
@@ -176,7 +176,7 @@ const tabs = [
     0 10px 30px rgba(0, 0, 0, 0.25);
 }
 
-/* 窗口标题栏 */
+/* 視窗标题栏 */
 .window-titlebar {
   height: 40px;
   background: linear-gradient(180deg, #f5f5f5 0%, #e8e8e8 100%);
@@ -229,14 +229,14 @@ const tabs = [
   width: 68px; /* 平衡左侧控制按钮的宽度 */
 }
 
-/* 窗口内容 */
+/* 視窗内容 */
 .window-content {
   background: var(--body-color, #ffffff);
   height: 900px;
   overflow-y: auto;
 }
 
-/* 应用内容 */
+/* 應用内容 */
 .app-content {
   width: 100%;
   height: 100%;
@@ -266,7 +266,7 @@ const tabs = [
   }
 }
 
-/* 深色主题适配 */
+/* 深色主題适配 */
 .dark .window-titlebar {
   background: linear-gradient(180deg, #3a3a3a 0%, #2d2d2d 100%);
   border-bottom-color: #404040;
@@ -276,7 +276,7 @@ const tabs = [
   color: #e0e0e0;
 }
 
-/* 响应式设计 */
+/* 響應式设计 */
 @media (max-width: 768px) {
   .simulated-window {
     width: 95%;

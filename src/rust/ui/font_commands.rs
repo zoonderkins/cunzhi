@@ -2,7 +2,7 @@ use crate::config::{save_config, AppState, FontConfig};
 use crate::constants::font;
 use tauri::{AppHandle, State};
 
-/// 字体配置信息
+/// 字型設定訊息
 #[derive(Debug, serde::Serialize, serde::Deserialize, Clone)]
 pub struct FontInfo {
     pub font_family: String,
@@ -10,7 +10,7 @@ pub struct FontInfo {
     pub custom_font_family: String,
 }
 
-/// 字体系列选项
+/// 字型系列選項
 #[derive(Debug, serde::Serialize, serde::Deserialize, Clone)]
 pub struct FontFamilyOption {
     pub id: String,
@@ -18,7 +18,7 @@ pub struct FontFamilyOption {
     pub css_value: String,
 }
 
-/// 字体大小选项
+/// 字型大小選項
 #[derive(Debug, serde::Serialize, serde::Deserialize, Clone)]
 pub struct FontSizeOption {
     pub id: String,
@@ -33,7 +33,7 @@ pub async fn get_font_config(state: State<'_, AppState>) -> Result<FontInfo, Str
     let config = state
         .config
         .lock()
-        .map_err(|e| format!("获取配置失败: {}", e))?;
+        .map_err(|e| format!("獲取設定失敗: {}", e))?;
     
     Ok(FontInfo {
         font_family: config.ui_config.font_config.font_family.clone(),
@@ -52,13 +52,13 @@ pub async fn set_font_family(
         let mut config = state
             .config
             .lock()
-            .map_err(|e| format!("获取配置失败: {}", e))?;
+            .map_err(|e| format!("獲取設定失敗: {}", e))?;
         config.ui_config.font_config.font_family = font_family;
     }
 
     save_config(&state, &app)
         .await
-        .map_err(|e| format!("保存配置失败: {}", e))?;
+        .map_err(|e| format!("儲存設定失敗: {}", e))?;
 
     Ok(())
 }
@@ -73,13 +73,13 @@ pub async fn set_font_size(
         let mut config = state
             .config
             .lock()
-            .map_err(|e| format!("获取配置失败: {}", e))?;
+            .map_err(|e| format!("獲取設定失敗: {}", e))?;
         config.ui_config.font_config.font_size = font_size;
     }
 
     save_config(&state, &app)
         .await
-        .map_err(|e| format!("保存配置失败: {}", e))?;
+        .map_err(|e| format!("儲存設定失敗: {}", e))?;
 
     Ok(())
 }
@@ -96,13 +96,13 @@ pub async fn set_custom_font_family(
         let mut config = state
             .config
             .lock()
-            .map_err(|e| format!("获取配置失败: {}", e))?;
+            .map_err(|e| format!("獲取設定失敗: {}", e))?;
         config.ui_config.font_config.custom_font_family = custom_font_family;
     }
 
     save_config(&state, &app)
         .await
-        .map_err(|e| format!("保存配置失败: {}", e))?;
+        .map_err(|e| format!("儲存設定失敗: {}", e))?;
 
     Ok(())
 }
@@ -144,7 +144,7 @@ pub async fn reset_font_config(
         let mut config = state
             .config
             .lock()
-            .map_err(|e| format!("获取配置失败: {}", e))?;
+            .map_err(|e| format!("獲取設定失敗: {}", e))?;
         config.ui_config.font_config = FontConfig {
             font_family: font::DEFAULT_FONT_FAMILY.to_string(),
             font_size: font::DEFAULT_FONT_SIZE.to_string(),
@@ -154,7 +154,7 @@ pub async fn reset_font_config(
 
     save_config(&state, &app)
         .await
-        .map_err(|e| format!("保存配置失败: {}", e))?;
+        .map_err(|e| format!("儲存設定失敗: {}", e))?;
 
     Ok(())
 }

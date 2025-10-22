@@ -4,12 +4,12 @@ use cunzhi::mcp::handlers::cleanup_old_temp_files;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
-    // 自动初始化日志系统
+    // 自動初始化日誌系統
     auto_init_logger()?;
 
-    log_important!(info, "启动 MCP 服务器");
+    log_important!(info, "啟動 MCP 服务器");
 
-    // 清理旧的临时文件
+    // 清理旧的临时檔案
     cleanup_old_temp_files();
 
     run_server().await

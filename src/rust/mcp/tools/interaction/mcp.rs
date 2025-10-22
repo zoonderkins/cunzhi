@@ -1,5 +1,5 @@
 use anyhow::Result;
-use rmcp::{Error as McpError, model::*};
+use rmcp::{ErrorData as McpError, model::*};
 
 use crate::mcp::{ZhiRequest, PopupRequest};
 use crate::mcp::handlers::{create_tauri_popup, parse_mcp_response};
@@ -7,7 +7,7 @@ use crate::mcp::utils::{generate_request_id, popup_error};
 
 /// 智能代码审查交互工具
 ///
-/// 支持预定义选项、自由文本输入和图片上传
+/// 支持预定义選項、自由文本輸入和图片上传
 #[derive(Clone)]
 pub struct InteractionTool;
 

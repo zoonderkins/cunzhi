@@ -1,12 +1,12 @@
-// 网络相关常量
+// 網路相关常量
 
-/// 默认请求超时时间 (ms)
+/// 預設请求超时时间 (ms)
 pub const DEFAULT_TIMEOUT_MS: u64 = 30000;
 
-/// 默认重试次数
+/// 預設重试次数
 pub const DEFAULT_RETRY_COUNT: u32 = 3;
 
-/// 默认重试间隔 (ms)
+/// 預設重试间隔 (ms)
 pub const DEFAULT_RETRY_INTERVAL_MS: u64 = 1000;
 
 /// 最大重试次数
@@ -21,19 +21,19 @@ pub const MAX_RETRY_INTERVAL_MS: u64 = 60000;
 /// 连接超时时间 (ms)
 pub const CONNECTION_TIMEOUT_MS: u64 = 10000;
 
-/// 读取超时时间 (ms)
+/// 讀取超时时间 (ms)
 pub const READ_TIMEOUT_MS: u64 = 30000;
 
-/// 写入超时时间 (ms)
+/// 寫入超时时间 (ms)
 pub const WRITE_TIMEOUT_MS: u64 = 10000;
 
-/// 最大并发连接数
+/// 最大並發连接数
 pub const MAX_CONCURRENT_CONNECTIONS: usize = 10;
 
-/// 默认用户代理
+/// 預設用户代理
 pub const DEFAULT_USER_AGENT: &str = concat!(env!("CARGO_PKG_NAME"), "/", env!("CARGO_PKG_VERSION"));
 
-// 网络配置结构体
+// 網路設定结构体
 #[derive(Debug, Clone)]
 pub struct NetworkConfig {
     pub timeout_ms: u64,
@@ -62,7 +62,7 @@ impl Default for NetworkConfig {
 }
 
 impl NetworkConfig {
-    /// 验证配置是否有效
+    /// 驗證設定是否有效
     pub fn is_valid(&self) -> bool {
         self.timeout_ms > 0
             && self.retry_count <= MAX_RETRY_COUNT
@@ -74,19 +74,19 @@ impl NetworkConfig {
             && self.max_concurrent_connections > 0
     }
 
-    /// 设置超时时间
+    /// 設定超时时间
     pub fn with_timeout(mut self, timeout_ms: u64) -> Self {
         self.timeout_ms = timeout_ms;
         self
     }
 
-    /// 设置重试次数
+    /// 設定重试次数
     pub fn with_retry_count(mut self, count: u32) -> Self {
         self.retry_count = count.min(MAX_RETRY_COUNT);
         self
     }
 
-    /// 设置重试间隔
+    /// 設定重试间隔
     pub fn with_retry_interval(mut self, interval_ms: u64) -> Self {
         self.retry_interval_ms = interval_ms.clamp(MIN_RETRY_INTERVAL_MS, MAX_RETRY_INTERVAL_MS);
         self
@@ -107,13 +107,13 @@ impl NetworkConfig {
     }
 }
 
-// 便捷函数
-/// 获取默认网络配置
+// 便捷函數
+/// 獲取預設網路設定
 pub fn get_default_network_config() -> NetworkConfig {
     NetworkConfig::default()
 }
 
-/// 获取快速网络配置（较短的超时时间）
+/// 獲取快速網路設定（较短的超时时间）
 pub fn get_fast_network_config() -> NetworkConfig {
     NetworkConfig::default()
         .with_timeout(5000)
@@ -121,7 +121,7 @@ pub fn get_fast_network_config() -> NetworkConfig {
         .with_retry_interval(500)
 }
 
-/// 获取可靠网络配置（较长的超时时间和更多重试）
+/// 獲取可靠網路設定（较长的超时时间和更多重试）
 pub fn get_reliable_network_config() -> NetworkConfig {
     NetworkConfig::default()
         .with_timeout(60000)

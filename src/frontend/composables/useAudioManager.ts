@@ -1,76 +1,76 @@
 import { invoke } from '@tauri-apps/api/core'
 
 /**
- * 音频管理组合式函数
+ * 音訊管理组合式函數
  */
 export function useAudioManager() {
   /**
-   * 播放音频文件
+   * 播放音訊檔案
    */
   async function playAudio(audioName: string): Promise<void> {
     try {
       await invoke('play_audio', { audioName })
     }
     catch (error) {
-      console.error('播放音频失败:', error)
+      console.error('播放音訊失敗:', error)
       throw error
     }
   }
 
   /**
-   * 停止音频播放
+   * 停止音訊播放
    */
   async function stopAudio(): Promise<void> {
     try {
       await invoke('stop_audio')
     }
     catch (error) {
-      console.error('停止音频失败:', error)
+      console.error('停止音訊失敗:', error)
       throw error
     }
   }
 
   /**
-   * 获取可用的音频文件列表
+   * 獲取可用的音訊檔案列表
    */
   async function getAvailableAudioFiles(): Promise<string[]> {
     try {
       return await invoke('get_available_audio_files')
     }
     catch (error) {
-      console.error('获取音频文件列表失败:', error)
+      console.error('獲取音訊檔案列表失敗:', error)
       return []
     }
   }
 
   /**
-   * 测试音频播放
+   * 測試音訊播放
    */
   async function testAudio(audioName: string): Promise<void> {
     try {
       await playAudio(audioName)
-      // 可以添加一些测试逻辑，比如播放一小段时间后停止
+      // 可以新增一些測試逻辑，比如播放一小段时间后停止
       setTimeout(async () => {
         try {
           await stopAudio()
         }
         catch (error) {
-          console.warn('停止测试音频失败:', error)
+          console.warn('停止測試音訊失敗:', error)
         }
       }, 2000) // 2秒后停止
     }
     catch (error) {
-      console.error('测试音频失败:', error)
+      console.error('測試音訊失敗:', error)
       throw error
     }
   }
 
   /**
-   * 处理音频测试错误
+   * 處理音訊測試錯誤
    */
   function handleTestAudioError(error: any) {
-    console.error('音频测试错误:', error)
-    // 这里可以显示错误提示给用户
+    console.error('音訊測試錯誤:', error)
+    // 这里可以显示錯誤提示给用户
   }
 
   return {

@@ -54,56 +54,56 @@ const conflictWarning = computed(() => {
   return checkShortcutConflict(editingBinding.value, editingId.value)
 })
 
-// 检查是否有按键被按下
+// 檢查是否有按键被按下
 const hasAnyKey = computed(() => {
   return currentKeys.value.ctrl || currentKeys.value.alt || currentKeys.value.shift
     || currentKeys.value.meta || currentKeys.value.key
 })
 
-// 获取作用域文本
+// 獲取作用域文本
 function getScopeText(scope: string): string {
   switch (scope) {
     case 'global': return '全局'
     case 'popup': return '弹窗'
-    case 'input': return '输入框'
+    case 'input': return '輸入框'
     default: return scope
   }
 }
 
-// 编辑快捷键绑定
+// 編輯快捷鍵綁定
 function editBinding(id: string, binding: ShortcutBinding) {
   editingId.value = id
   editingBinding.value = { ...binding }
   showEditDialog.value = true
 }
 
-// 保存快捷键绑定
+// 儲存快捷鍵綁定
 async function saveBinding() {
   try {
     await saveShortcutBinding(editingId.value, editingBinding.value)
     config.value.shortcuts[editingId.value] = { ...editingBinding.value }
     showEditDialog.value = false
-    message.success('快捷键已保存')
+    message.success('快捷键已儲存')
   }
   catch (error) {
-    message.error(`保存失败: ${error}`)
+    message.error(`儲存失敗: ${error}`)
   }
 }
 
-// 重置为默认值
+// 重置为預設值
 async function handleReset() {
   try {
     await resetShortcutsToDefault()
     await loadShortcutConfig()
     config.value = { ...shortcutConfig.value }
-    message.success('快捷键已重置为默认值')
+    message.success('快捷键已重置为預設值')
   }
   catch (error) {
-    message.error(`重置失败: ${error}`)
+    message.error(`重置失敗: ${error}`)
   }
 }
 
-// 监听配置变化
+// 監聽設定变化
 watch(shortcutConfig, (newConfig) => {
   config.value = { ...newConfig }
 }, { deep: true })
@@ -112,7 +112,7 @@ watch(shortcutConfig, (newConfig) => {
 function startRecording() {
   isRecording.value = true
 
-  // 清除之前的快捷键设置和当前按键状态
+  // 清除之前的快捷键設定和当前按键狀態
   editingBinding.value.key_combination = {
     key: '',
     ctrl: false,
@@ -129,14 +129,14 @@ function startRecording() {
     key: '',
   }
 
-  // 添加键盘事件监听器
+  // 新增键盘事件監聽器
   document.addEventListener('keydown', handleRecordingKeyDown, true)
   document.addEventListener('keyup', handleRecordingKeyUp, true)
 
-  // 设置超时自动停止录制（10秒）
+  // 設定超时自動停止录制（10秒）
   recordingTimeout.value = window.setTimeout(() => {
     stopRecording()
-    message.warning('录制超时，已自动停止')
+    message.warning('录制超时，已自動停止')
   }, 10000)
 }
 
@@ -144,11 +144,11 @@ function startRecording() {
 function stopRecording() {
   isRecording.value = false
 
-  // 移除键盘事件监听器
+  // 移除键盘事件監聽器
   document.removeEventListener('keydown', handleRecordingKeyDown, true)
   document.removeEventListener('keyup', handleRecordingKeyUp, true)
 
-  // 清除当前按键状态
+  // 清除当前按键狀態
   currentKeys.value = {
     ctrl: false,
     alt: false,
@@ -164,12 +164,12 @@ function stopRecording() {
   }
 }
 
-// 处理录制时的按键事件
+// 處理录制时的按键事件
 function handleRecordingKeyDown(event: KeyboardEvent) {
   event.preventDefault()
   event.stopPropagation()
 
-  // 更新当前按键状态显示
+  // 更新当前按键狀態显示
   currentKeys.value = {
     ctrl: event.ctrlKey,
     alt: event.altKey,
@@ -190,7 +190,7 @@ function handleRecordingKeyDown(event: KeyboardEvent) {
     return
   }
 
-  // 记录快捷键组合
+  // 記錄快捷鍵組合
   const keyCombo = {
     key: normalizeKey(event.key),
     ctrl: event.ctrlKey,
@@ -199,7 +199,7 @@ function handleRecordingKeyDown(event: KeyboardEvent) {
     meta: event.metaKey,
   }
 
-  // 验证快捷键是否有效（必须包含至少一个修饰键，除非是功能键）
+  // 驗證快捷键是否有效（必须包含至少一个修饰键，除非是功能键）
   const isFunctionKey = /^F\d+$/.test(keyCombo.key) || ['Escape', 'Tab', 'Space', 'Enter'].includes(keyCombo.key)
   const hasModifier = keyCombo.ctrl || keyCombo.alt || keyCombo.shift || keyCombo.meta
 
@@ -208,7 +208,7 @@ function handleRecordingKeyDown(event: KeyboardEvent) {
     return
   }
 
-  // 设置录制的快捷键
+  // 設定录制的快捷键
   editingBinding.value.key_combination = keyCombo
 
   // 停止录制
@@ -216,21 +216,21 @@ function handleRecordingKeyDown(event: KeyboardEvent) {
   message.success(`已录制快捷键: ${shortcutKeyToString(keyCombo)}`)
 }
 
-// 处理录制时的按键释放事件（用于更新修饰键状态）
+// 處理录制时的按键釋放事件（用于更新修饰键狀態）
 function handleRecordingKeyUp(event: KeyboardEvent) {
   event.preventDefault()
   event.stopPropagation()
 
-  // 更新修饰键状态
+  // 更新修饰键狀態
   currentKeys.value.ctrl = event.ctrlKey
   currentKeys.value.alt = event.altKey
   currentKeys.value.shift = event.shiftKey
   currentKeys.value.meta = event.metaKey
 }
 
-// 标准化按键名称
+// 標準化按键名称
 function normalizeKey(key: string): string {
-  // 处理特殊键名
+  // 處理特殊键名
   const keyMap: Record<string, string> = {
     ' ': 'Space',
     'ArrowUp': 'Up',
@@ -248,13 +248,13 @@ function normalizeKey(key: string): string {
   return keyMap[key] || key.toUpperCase()
 }
 
-// 组件挂载时加载配置
+// 元件挂载时載入設定
 onMounted(async () => {
   await loadShortcutConfig()
   config.value = { ...shortcutConfig.value }
 })
 
-// 组件卸载时清理
+// 元件卸载时清理
 onUnmounted(() => {
   if (isRecording.value) {
     stopRecording()
@@ -267,10 +267,10 @@ onUnmounted(() => {
     <!-- 页面标题 -->
     <div class="mb-4">
       <h3 class="text-base font-medium text-on-surface">
-        自定义快捷键
+        自訂快捷键
       </h3>
       <p class="text-sm text-on-surface-secondary">
-        自定义应用快捷键绑定
+        自訂應用快捷鍵綁定
       </p>
     </div>
 
@@ -302,7 +302,7 @@ onUnmounted(() => {
               type="primary"
               @click="editBinding(id, binding)"
             >
-              编辑
+              編輯
             </n-button>
           </div>
         </div>
@@ -319,22 +319,22 @@ onUnmounted(() => {
         size="small"
         @click="handleReset"
       >
-        重置为默认值
+        重置为預設值
       </n-button>
     </div>
 
-    <!-- 编辑快捷键对话框 -->
-    <n-modal v-model:show="showEditDialog" preset="dialog" title="编辑快捷键">
+    <!-- 編輯快捷键对话框 -->
+    <n-modal v-model:show="showEditDialog" preset="dialog" title="編輯快捷键">
       <div class="space-y-4">
         <n-form-item label="快捷键名称">
-          <n-input v-model:value="editingBinding.name" placeholder="输入快捷键名称" />
+          <n-input v-model:value="editingBinding.name" placeholder="輸入快捷键名称" />
         </n-form-item>
 
         <n-form-item label="描述">
-          <n-input v-model:value="editingBinding.description" placeholder="输入描述" />
+          <n-input v-model:value="editingBinding.description" placeholder="輸入描述" />
         </n-form-item>
 
-        <n-form-item label="快捷键设置">
+        <n-form-item label="快捷键設定">
           <!-- 快捷键录制区域 -->
           <div
             class="border-2 border-dashed rounded-lg p-6 text-center transition-all duration-300"
@@ -345,7 +345,7 @@ onUnmounted(() => {
                 🎹 快捷键录制器
               </div>
               <div class="text-sm text-on-surface-secondary">
-                点击下方按钮，然后按下您想要的快捷键组合
+                点击下方按钮，然后按下您想要的快捷鍵組合
               </div>
               <n-button
                 type="primary"
@@ -360,12 +360,12 @@ onUnmounted(() => {
               <div class="flex items-center justify-center gap-2">
                 <div class="w-3 h-3 bg-primary rounded-full animate-pulse" />
                 <div class="text-lg text-primary font-medium">
-                  正在录制... 请按下您想要的快捷键组合
+                  正在录制... 请按下您想要的快捷鍵組合
                 </div>
                 <div class="w-3 h-3 bg-primary rounded-full animate-pulse" />
               </div>
 
-              <!-- 实时按键状态显示 -->
+              <!-- 实时按键狀態显示 -->
               <div class="flex items-center justify-center gap-3 min-h-12 p-3 bg-surface rounded-lg">
                 <n-tag v-if="currentKeys.ctrl" size="medium" type="info">
                   {{ isMac ? '⌃' : 'Ctrl' }}
@@ -426,7 +426,7 @@ onUnmounted(() => {
             :disabled="!!conflictWarning"
             @click="saveBinding"
           >
-            保存
+            儲存
           </n-button>
         </div>
       </template>

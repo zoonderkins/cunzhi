@@ -1,7 +1,7 @@
 import { invoke } from '@tauri-apps/api/core'
 import { computed, ref } from 'vue'
 
-// MCP工具配置接口
+// MCP工具設定介面
 export interface MCPToolConfig {
   id: string
   name: string
@@ -13,7 +13,7 @@ export interface MCPToolConfig {
   dark_icon_bg: string
 }
 
-// 全局MCP工具状态
+// 全局MCP工具狀態
 const mcpTools = ref<MCPToolConfig[]>([])
 const loading = ref(false)
 const error = ref<string | null>(null)
@@ -28,18 +28,18 @@ const toolStats = computed(() => ({
   disabled: mcpTools.value.length - enabledTools.value.length,
 }))
 
-// 加载MCP工具配置
+// 載入MCP工具設定
 async function loadMcpTools() {
   try {
     loading.value = true
     error.value = null
     const tools = await invoke('get_mcp_tools_config') as MCPToolConfig[]
     mcpTools.value = tools
-    console.log('✅ MCP工具配置已加载:', tools)
+    console.log('✅ MCP工具設定已載入:', tools)
   }
   catch (err) {
-    error.value = `加载MCP工具配置失败: ${err}`
-    console.error('❌ 加载MCP工具配置失败:', err)
+    error.value = `載入MCP工具設定失敗: ${err}`
+    console.error('❌ 載入MCP工具設定失敗:', err)
     throw err
   }
   finally {
@@ -47,7 +47,7 @@ async function loadMcpTools() {
   }
 }
 
-// 切换工具启用状态
+// 切换工具启用狀態
 async function toggleTool(toolId: string) {
   const tool = mcpTools.value.find(t => t.id === toolId)
   if (!tool || !tool.can_disable) {
@@ -61,10 +61,10 @@ async function toggleTool(toolId: string) {
       enabled: newEnabled,
     })
 
-    // 更新本地状态
+    // 更新本地狀態
     tool.enabled = newEnabled
 
-    console.log(`✅ 工具 ${toolId} 状态已更新为: ${newEnabled}`)
+    console.log(`✅ 工具 ${toolId} 狀態已更新为: ${newEnabled}`)
 
     return {
       toolId,
@@ -73,24 +73,24 @@ async function toggleTool(toolId: string) {
     }
   }
   catch (err) {
-    error.value = `更新MCP工具状态失败: ${err}`
-    console.error('❌ 更新MCP工具状态失败:', err)
+    error.value = `更新MCP工具狀態失敗: ${err}`
+    console.error('❌ 更新MCP工具狀態失敗:', err)
     throw err
   }
 }
 
-// 重置MCP工具配置
+// 重置MCP工具設定
 async function resetMcpTools() {
   try {
     loading.value = true
     error.value = null
     await invoke('reset_mcp_tools_config')
-    await loadMcpTools() // 重新加载配置
-    console.log('✅ MCP工具配置已重置')
+    await loadMcpTools() // 重新載入設定
+    console.log('✅ MCP工具設定已重置')
   }
   catch (err) {
-    error.value = `重置MCP工具配置失败: ${err}`
-    console.error('❌ 重置MCP工具配置失败:', err)
+    error.value = `重置MCP工具設定失敗: ${err}`
+    console.error('❌ 重置MCP工具設定失敗:', err)
     throw err
   }
   finally {
@@ -98,13 +98,13 @@ async function resetMcpTools() {
   }
 }
 
-// 获取工具状态
+// 獲取工具狀態
 function getToolStatus(toolId: string): boolean {
   const tool = mcpTools.value.find(t => t.id === toolId)
   return tool?.enabled ?? false
 }
 
-// 检查工具是否可禁用
+// 檢查工具是否可禁用
 function canDisableTool(toolId: string): boolean {
   const tool = mcpTools.value.find(t => t.id === toolId)
   return tool?.can_disable ?? false
@@ -113,7 +113,7 @@ function canDisableTool(toolId: string): boolean {
 // 全局MCP工具管理composable
 export function useMcpTools() {
   return {
-    // 状态
+    // 狀態
     mcpTools: mcpTools.value,
     loading: loading.value,
     error: error.value,
@@ -131,10 +131,10 @@ export function useMcpTools() {
   }
 }
 
-// 响应式状态访问（用于模板）
+// 響應式狀態访问（用于模板）
 export function useMcpToolsReactive() {
   return {
-    // 响应式状态
+    // 響應式狀態
     mcpTools,
     loading,
     error,
@@ -152,12 +152,12 @@ export function useMcpToolsReactive() {
   }
 }
 
-// 初始化函数（在应用启动时调用）
+// 初始化函數（在應用啟動时呼叫）
 export async function initMcpTools() {
   try {
     await loadMcpTools()
   }
   catch (err) {
-    console.error('初始化MCP工具失败:', err)
+    console.error('初始化MCP工具失敗:', err)
   }
 }

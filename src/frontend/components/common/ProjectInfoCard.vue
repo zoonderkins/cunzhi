@@ -6,20 +6,20 @@ import { useVersionCheck } from '../../composables/useVersionCheck'
 const message = useMessage()
 const { versionInfo, manualCheckUpdate, safeOpenUrl, lastCheckTime, isChecking, getVersionInfo } = useVersionCheck()
 
-// 格式化最后检查时间
+// 格式化最后檢查时间
 const formattedLastCheckTime = computed(() => {
   return lastCheckTime.value ? lastCheckTime.value.toLocaleString('zh-CN') : ''
 })
 
-// 安全打开GitHub链接
+// 安全開啟GitHub連結
 async function openGitHub() {
   try {
     await safeOpenUrl('https://github.com/zoonderkins/cunzhi')
-    message.success('正在打开GitHub页面...')
+    message.success('正在開啟GitHub页面...')
   }
   catch (error) {
-    const errorMsg = error instanceof Error ? error.message : '打开GitHub失败，请手动访问'
-    if (errorMsg.includes('已复制到剪贴板')) {
+    const errorMsg = error instanceof Error ? error.message : '開啟GitHub失敗，请手動访问'
+    if (errorMsg.includes('已複製到剪贴板')) {
       message.warning(errorMsg)
     }
     else {
@@ -28,15 +28,15 @@ async function openGitHub() {
   }
 }
 
-// 安全打开GitHub Star页面
+// 安全開啟GitHub Star页面
 async function openGitHubStars() {
   try {
     await safeOpenUrl('https://github.com/zoonderkins/cunzhi/stargazers')
-    message.success('正在打开Star页面...')
+    message.success('正在開啟Star页面...')
   }
   catch (error) {
-    const errorMsg = error instanceof Error ? error.message : '打开Star页面失败，请手动访问'
-    if (errorMsg.includes('已复制到剪贴板')) {
+    const errorMsg = error instanceof Error ? error.message : '開啟Star页面失敗，请手動访问'
+    if (errorMsg.includes('已複製到剪贴板')) {
       message.warning(errorMsg)
     }
     else {
@@ -45,7 +45,7 @@ async function openGitHubStars() {
   }
 }
 
-// 检查版本更新
+// 檢查版本更新
 async function checkVersion() {
   try {
     const info = await manualCheckUpdate()
@@ -57,18 +57,18 @@ async function checkVersion() {
     }
   }
   catch (error) {
-    console.error('检查版本失败:', error)
-    message.error('检查版本失败，请稍后重试')
+    console.error('檢查版本失敗:', error)
+    message.error('檢查版本失敗，请稍后重试')
   }
 }
 
-// 组件挂载时初始化版本信息
+// 元件挂载时初始化版本訊息
 onMounted(async () => {
   try {
     await getVersionInfo()
   }
   catch (error) {
-    console.error('初始化版本信息失败:', error)
+    console.error('初始化版本訊息失敗:', error)
   }
 })
 </script>
@@ -80,7 +80,7 @@ onMounted(async () => {
   >
     <!-- 主要内容区域 -->
     <div class="flex items-center justify-between mb-2">
-      <!-- 左侧：项目信息 -->
+      <!-- 左侧：專案訊息 -->
       <div class="flex items-center gap-3">
         <div class="w-8 h-8 rounded-lg bg-blue-100 dark:bg-blue-900 flex items-center justify-center">
           <div class="i-carbon-logo-github text-blue-600 dark:text-blue-400" />
@@ -90,12 +90,12 @@ onMounted(async () => {
             寸止 {{ versionInfo ? `v${versionInfo.current}` : 'v0.2.0' }}
           </h3>
           <p class="text-xs text-gray-500 dark:text-gray-400">
-            智能代码审查工具，支持MCP协议集成
+            智慧程式碼審查工具，支持MCP协议集成
           </p>
         </div>
       </div>
 
-      <!-- 右侧：版本检查区域 -->
+      <!-- 右侧：版本檢查区域 -->
       <div class="flex flex-col items-end gap-1">
         <n-button
           size="medium"
@@ -106,15 +106,15 @@ onMounted(async () => {
           <template #icon>
             <div class="i-carbon-renew text-green-600 dark:text-green-400" />
           </template>
-          检查更新
+          檢查更新
         </n-button>
 
-        <!-- 最后检查时间 -->
+        <!-- 最后檢查时间 -->
         <div
           v-if="formattedLastCheckTime"
           class="text-xs text-gray-400 dark:text-gray-500"
         >
-          最后检查: {{ formattedLastCheckTime }}
+          最后檢查: {{ formattedLastCheckTime }}
         </div>
       </div>
     </div>
@@ -147,7 +147,7 @@ onMounted(async () => {
 
       <!-- 弱化的提示文字 -->
       <p class="text-xs text-gray-400 dark:text-gray-500">
-        如果对您有帮助，请给我们一个 Star ⭐
+        如果对您有幫助，请给我们一个 Star ⭐
       </p>
     </div>
   </n-card>

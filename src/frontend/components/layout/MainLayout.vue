@@ -35,7 +35,7 @@ interface Emits {
 defineProps<Props>()
 const emit = defineEmits<Emits>()
 
-// 处理配置重新加载事件
+// 處理設定重新載入事件
 function handleConfigReloaded() {
   emit('configReloaded')
 }
@@ -43,51 +43,51 @@ function handleConfigReloaded() {
 const activeTab = ref('intro')
 const message = useMessage()
 
-// 图标加载错误处理
+// 图标載入錯誤處理
 function handleImageError(event: Event) {
   const img = event.target as HTMLImageElement
-  // 如果图标加载失败，隐藏图片元素
+  // 如果图标載入失敗，隐藏图片元素
   img.style.display = 'none'
-  console.warn('LOGO图标加载失败，已隐藏')
+  console.warn('LOGO图标載入失敗，已隐藏')
 }
 
-// 测试popup功能 - 创建独立的popup窗口
+// 測試popup功能 - 建立独立的popup視窗
 async function showTestMcpPopup() {
   try {
-    // 创建测试请求数据
+    // 建立測試请求資料
     const testRequest = {
       id: `test-${Date.now()}`,
-      message: `# 🧪 测试弹窗功能
+      message: `# 🧪 測試弹窗功能
 
-这是一个**测试弹窗**，用于验证MCP popup组件的功能。
+这是一个**測試弹窗**，用于驗證MCP popup元件的功能。
 
 ## 功能特性
 - ✅ 支持 Markdown 格式显示
-- ✅ 支持预定义选项选择
-- ✅ 支持自由文本输入
-- ✅ 支持图片粘贴上传
+- ✅ 支持预定义選項選擇
+- ✅ 支持自由文本輸入
+- ✅ 支持图片貼上上传
 
 ## 代码示例
 \`\`\`javascript
 // 这是一个代码示例
 function testPopup() {
-  console.log('测试弹窗功能')
+  console.log('測試弹窗功能')
   return '成功'
 }
 \`\`\`
 
-请选择您要测试的功能，或者在下方输入框中添加您的反馈。`,
-      predefined_options: ['测试选项功能', '测试文本输入', '测试图片上传', '测试Markdown渲染'],
+请選擇您要測試的功能，或者在下方輸入框中新增您的反馈。`,
+      predefined_options: ['測試選項功能', '測試文本輸入', '測試图片上传', '測試Markdown渲染'],
       is_markdown: true,
     }
 
-    // 调用Tauri命令创建popup窗口
+    // 呼叫Tauri命令建立popup視窗
     await invoke('create_test_popup', { request: testRequest })
-    message.success('测试popup窗口已创建')
+    message.success('測試popup視窗已建立')
   }
   catch (error) {
-    console.error('创建测试popup失败:', error)
-    message.error(`创建测试popup失败: ${error}`)
+    console.error('建立測試popup失敗:', error)
+    message.error(`建立測試popup失敗: ${error}`)
   }
 }
 </script>
@@ -110,12 +110,12 @@ function testPopup() {
             <h1 class="text-4xl font-medium text-white">
               寸止
             </h1>
-            <!-- 测试按钮 -->
+            <!-- 測試按钮 -->
             <n-button
               size="small"
               type="tertiary"
               circle
-              title="测试 Popup 功能"
+              title="測試 Popup 功能"
               class="ml-2"
               data-guide="test-button"
               @click="showTestMcpPopup"
@@ -126,13 +126,13 @@ function testPopup() {
             </n-button>
           </div>
 
-          <!-- 服务器状态 -->
+          <!-- 服务器狀態 -->
           <div class="mb-4">
             <n-tag type="success" size="small" round class="px-3 py-1">
               <template #icon>
                 <div class="w-2 h-2 bg-success rounded-full animate-pulse" />
               </template>
-              MCP 服务已启动
+              MCP 服务已啟動
             </n-tag>
           </div>
 
@@ -142,7 +142,7 @@ function testPopup() {
           </p>
         </div>
 
-        <!-- Tab组件 -->
+        <!-- Tab元件 -->
         <n-tabs v-model:value="activeTab" type="segment" size="small" justify-content="center" data-guide="tabs">
           <n-tab-pane name="intro" :tab="t('tabs.intro')">
             <IntroTab />

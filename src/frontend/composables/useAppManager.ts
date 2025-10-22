@@ -6,18 +6,18 @@ import { useSettings } from './useSettings'
 import { useTheme } from './useTheme'
 
 /**
- * 统一的应用管理器
- * 封装所有组合式函数，提供简洁的API
+ * 統一的應用管理器
+ * 封裝所有组合式函數，提供簡潔的API
  */
 export function useAppManager() {
-  // 初始化各个模块
+  // 初始化各個模組
   const theme = useTheme()
   const settings = useSettings()
   const audioManager = useAudioManager()
   const mcpHandler = useMcpHandler()
   const appInit = useAppInitialization(mcpHandler)
 
-  // 创建统一的配置对象
+  // 建立統一的設定物件
   const appConfig = computed(() => {
     const config = {
       theme: theme.currentTheme.value,
@@ -40,13 +40,13 @@ export function useAppManager() {
     return config
   })
 
-  // 创建统一的操作对象
+  // 建立統一的操作物件
   const actions = {
-    // 主题操作
+    // 主題操作
     theme: {
       setTheme: theme.setTheme,
     },
-    // 设置操作
+    // 設定操作
     settings: {
       toggleAlwaysOnTop: settings.toggleAlwaysOnTop,
       toggleAudioNotification: settings.toggleAudioNotification,
@@ -63,23 +63,23 @@ export function useAppManager() {
       handleResponse: mcpHandler.handleMcpResponse,
       handleCancel: mcpHandler.handleMcpCancel,
     },
-    // 音频操作
+    // 音訊操作
     audio: {
       handleTestError: audioManager.handleTestAudioError,
     },
-    // 应用操作
+    // 應用操作
     app: {
       initialize: appInit.initializeApp,
       cleanup: () => {
-        // 清理窗口焦点监听器
+        // 清理視窗焦點監聽器
         settings.removeWindowFocusListener()
       },
     },
   }
 
-  // 返回状态和操作 - 保持响应式
+  // 傳回狀態和操作 - 保持響應式
   return {
-    // 直接解构状态，Vue模板会自动处理响应式
+    // 直接解构狀態，Vue模板会自動處理響應式
     naiveTheme: theme.naiveTheme,
     mcpRequest: mcpHandler.mcpRequest,
     showMcpPopup: mcpHandler.showMcpPopup,

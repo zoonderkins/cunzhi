@@ -53,48 +53,48 @@ interface Emits {
 const props = defineProps<Props>()
 const emit = defineEmits<Emits>()
 
-// 版本检查相关
+// 版本檢查相关
 const { versionInfo, showUpdateModal } = useVersionCheck()
 
-// 弹窗中的设置显示控制
+// 弹窗中的設定显示控制
 const showPopupSettings = ref(false)
 
 // 初始化 Naive UI 消息实例
 const message = useMessage()
 
-// 键盘快捷键处理
+// 键盘快捷键處理
 const { handleExitShortcut } = useKeyboard()
 
-// 切换弹窗设置显示
+// 切换弹窗設定显示
 function togglePopupSettings() {
   showPopupSettings.value = !showPopupSettings.value
 }
 
-// 监听 MCP 请求变化，当有新请求时重置设置页面状态
+// 監聽 MCP 请求变化，当有新请求时重置設定页面狀態
 watch(() => props.mcpRequest, (newRequest) => {
   if (newRequest && showPopupSettings.value) {
-    // 有新的 MCP 请求时，自动切换回消息页面
+    // 有新的 MCP 请求时，自動切换回消息页面
     showPopupSettings.value = false
   }
 }, { immediate: true })
 
-// 全局键盘事件处理器
+// 全局键盘事件處理器
 function handleGlobalKeydown(event: KeyboardEvent) {
   handleExitShortcut(event)
 }
 
 onMounted(() => {
-  // 将消息实例传递给父组件
+  // 将消息实例传递给父元件
   emit('messageReady', message)
-  // 设置退出警告监听器（统一处理主界面和弹窗）
+  // 設定退出警告監聽器（统一處理主界面和弹窗）
   setupExitWarningListener(message)
 
-  // 添加全局键盘事件监听器
+  // 新增全局键盘事件監聽器
   document.addEventListener('keydown', handleGlobalKeydown)
 })
 
 onUnmounted(() => {
-  // 移除键盘事件监听器
+  // 移除键盘事件監聽器
   document.removeEventListener('keydown', handleGlobalKeydown)
 })
 </script>
@@ -119,7 +119,7 @@ onUnmounted(() => {
         />
       </div>
 
-      <!-- 设置界面 -->
+      <!-- 設定界面 -->
       <div
         v-if="showPopupSettings"
         class="flex-1 overflow-y-auto scrollbar-thin"
@@ -148,7 +148,7 @@ onUnmounted(() => {
       />
     </div>
 
-    <!-- 弹窗加载骨架屏 或 初始化骨架屏 -->
+    <!-- 弹窗載入骨架屏 或 初始化骨架屏 -->
     <div
       v-else-if="props.showMcpPopup || props.isInitializing"
       class="flex flex-col w-full h-screen bg-black text-white"

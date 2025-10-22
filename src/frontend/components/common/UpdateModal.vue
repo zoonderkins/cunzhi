@@ -45,7 +45,7 @@ const isVisible = computed({
   set: value => emit('update:show', value),
 })
 
-// 确认更新
+// 確認更新
 async function handleConfirmUpdate() {
   try {
     message.info('正在准备更新...')
@@ -57,66 +57,66 @@ async function handleConfirmUpdate() {
   }
   catch (error) {
     const errorMsg = error instanceof Error ? error.message : String(error)
-    console.error('❌ 更新失败:', errorMsg)
+    console.error('❌ 更新失敗:', errorMsg)
 
-    // 如果是需要手动下载的错误，引导用户手动下载
-    if (errorMsg.includes('手动下载') || errorMsg.includes('网络请求受限') || errorMsg.includes('403')) {
-      let warningMsg = '自动更新不可用，将为您打开下载页面'
+    // 如果是需要手動下载的錯誤，引导用户手動下载
+    if (errorMsg.includes('手動下载') || errorMsg.includes('網路请求受限') || errorMsg.includes('403')) {
+      let warningMsg = '自動更新不可用，将为您開啟下载页面'
 
-      if (errorMsg.includes('网络请求受限') || errorMsg.includes('403')) {
-        warningMsg = '网络请求受限，将为您打开下载页面'
+      if (errorMsg.includes('網路请求受限') || errorMsg.includes('403')) {
+        warningMsg = '網路请求受限，将为您開啟下载页面'
       }
 
       message.warning(warningMsg)
 
-      // 打开下载页面
+      // 開啟下载页面
       if (props.versionInfo?.releaseUrl) {
         try {
           window.open(props.versionInfo.releaseUrl, '_blank')
         }
         catch (openError) {
-          console.error('❌ 打开下载页面失败:', openError)
-          message.error('无法打开下载页面，请手动访问 GitHub 下载最新版本')
+          console.error('❌ 開啟下载页面失敗:', openError)
+          message.error('无法開啟下载页面，请手動访问 GitHub 下载最新版本')
         }
       }
       else {
-        message.error('无法获取下载链接，请手动访问 GitHub 下载最新版本')
+        message.error('无法獲取下载連結，请手動访问 GitHub 下载最新版本')
       }
 
-      // 延迟关闭弹窗，让用户看到提示
+      // 延迟關閉弹窗，让用户看到提示
       setTimeout(() => {
         isVisible.value = false
       }, 2000)
     }
     else {
-      // 其他错误显示具体错误信息
-      let displayMsg = errorMsg || '更新失败，请稍后重试'
+      // 其他錯誤显示具体錯誤訊息
+      let displayMsg = errorMsg || '更新失敗，请稍后重试'
 
-      // 检查是否是网络相关错误
-      if (errorMsg.includes('网络') || errorMsg.includes('连接') || errorMsg.includes('请求失败')
+      // 檢查是否是網路相关錯誤
+      if (errorMsg.includes('網路') || errorMsg.includes('连接') || errorMsg.includes('请求失敗')
         || errorMsg.includes('timeout') || errorMsg.includes('ENOTFOUND') || errorMsg.includes('ECONNREFUSED')) {
-        displayMsg = '网络连接异常，请检查网络后重试'
+        displayMsg = '網路连接例外，请檢查網路后重试'
       }
 
-      message.error(`更新失败: ${displayMsg}`)
+      message.error(`更新失敗: ${displayMsg}`)
     }
   }
 }
 
-// 关闭弹窗（不再提醒）
+// 關閉弹窗（不再提醒）
 function handleDismiss() {
   dismissUpdate()
-  message.info('已关闭更新提醒')
+  message.info('已關閉更新提醒')
 }
 
-// 重启应用
+// 重新啟動應用
 async function handleRestart() {
   try {
     await restartApp()
   }
   catch (error) {
-    console.error('重启失败:', error)
-    message.error('重启失败，请手动重启应用')
+    console.error('重新啟動失敗:', error)
+    message.error('重新啟動失敗，请手動重新啟動應用')
   }
 }
 </script>
@@ -138,7 +138,7 @@ async function handleRestart() {
     </template>
 
     <div class="space-y-4">
-      <!-- 版本信息 -->
+      <!-- 版本訊息 -->
       <div v-if="versionInfo" class="space-y-3">
         <div class="p-4 bg-surface-100 dark:bg-surface-800 rounded-lg border border-surface-200 dark:border-surface-700">
           <div class="flex items-center justify-between mb-3">
@@ -161,7 +161,7 @@ async function handleRestart() {
             <div class="flex items-center gap-2">
               <n-spin size="small" />
               <span class="text-sm font-medium text-on-surface dark:text-on-surface">
-                {{ updateStatus === 'checking' ? '检查更新中...'
+                {{ updateStatus === 'checking' ? '檢查更新中...'
                   : updateStatus === 'downloading' ? '下载更新中...'
                     : updateStatus === 'installing' ? '安装更新中...'
                       : updateStatus === 'completed' ? '更新完成！'
@@ -211,13 +211,13 @@ async function handleRestart() {
 
     <template #action>
       <div class="flex justify-end gap-3">
-        <!-- 关闭按钮 -->
+        <!-- 關閉按钮 -->
         <n-button
           v-if="updateStatus !== 'completed'"
           :disabled="isUpdating"
           @click="handleDismiss"
         >
-          关闭
+          關閉
         </n-button>
 
         <!-- 立即更新按钮 -->
@@ -233,7 +233,7 @@ async function handleRestart() {
           立即更新
         </n-button>
 
-        <!-- 重启按钮 -->
+        <!-- 重新啟動按钮 -->
         <n-button
           v-if="updateStatus === 'completed'"
           type="success"
@@ -242,7 +242,7 @@ async function handleRestart() {
           <template #icon>
             <div class="i-carbon-restart" />
           </template>
-          重启应用
+          重新啟動應用
         </n-button>
       </div>
     </template>
