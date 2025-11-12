@@ -2,6 +2,7 @@
 import type { CustomPrompt, McpRequest } from '../../types/popup'
 import { invoke } from '@tauri-apps/api/core'
 import { listen } from '@tauri-apps/api/event'
+import { getCurrentWebviewWindow } from '@tauri-apps/api/webviewWindow'
 import { useSortable } from '@vueuse/integrations/useSortable'
 import { useMessage } from 'naive-ui'
 import { computed, nextTick, onMounted, onUnmounted, ref, shallowRef, watch } from 'vue'
@@ -515,6 +516,46 @@ watch(userInput, () => {
 
 // 事件監聽器引用
 let unlistenCustomPromptUpdate: (() => void) | null = null
+let unlistenWindowMove: (() => void) | null = null
+
+// 修復輸入法候選框位置的函數
+function fixIMEPosition() {
+  if (textareaRef.value) {
+    try {
+      // 獲取實際的 textarea 元素（Naive UI 的 n-input）
+      const inputElement = (textareaRef.value as any).$el?.querySelector('textarea') || (textareaRef.value as any).inputElRef
+
+      if (inputElement && document.activeElement === inputElement) {
+        // 先失焦再聚焦，讓輸入法重新計算位置
+        inputElement.blur()
+        setTimeout(() => {
+          inputElement.focus()
+        }, 10)
+      }
+    }
+    catch (error) {
+      console.debug('修復IME位置失敗:', error)
+    }
+  }
+}
+
+// 設置窗口移動監聽器
+async function setupWindowMoveListener() {
+  try {
+    const webview = getCurrentWebviewWindow()
+
+    // 監聽窗口移動事件
+    unlistenWindowMove = await webview.onMoved(() => {
+      // 窗口移動後修復輸入法位置
+      fixIMEPosition()
+    })
+
+    console.log('窗口移動監聽器已設置')
+  }
+  catch (error) {
+    console.error('設置窗口移動監聽器失敗:', error)
+  }
+}
 
 // 元件挂载时載入自訂prompt
 onMounted(async () => {
@@ -526,12 +567,20 @@ onMounted(async () => {
     console.log('收到自訂prompt更新事件，重新載入資料')
     loadCustomPrompts()
   })
+
+  // 設置窗口移動監聽器
+  setupWindowMoveListener()
 })
 
 onUnmounted(() => {
   // 清理事件監聽器
   if (unlistenCustomPromptUpdate) {
     unlistenCustomPromptUpdate()
+  }
+
+  // 清理窗口移動監聽器
+  if (unlistenWindowMove) {
+    unlistenWindowMove()
   }
 
   // 停止拖拽功能
