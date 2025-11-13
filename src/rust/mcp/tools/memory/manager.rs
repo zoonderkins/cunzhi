@@ -21,7 +21,7 @@ impl MemoryManager {
         // 建立記憶目录，如果失敗则说明專案不适合使用記憶功能
         fs::create_dir_all(&memory_dir)
             .map_err(|e| anyhow::anyhow!(
-                "无法在git專案中建立記憶目录: {}\n錯誤: {}\n这可能是因为專案目录没有寫入權限。",
+                "無法在git專案中建立記憶目录: {}\n錯誤: {}\n这可能是因为專案目录没有寫入權限。",
                 memory_dir.display(),
                 e
             ))?;
@@ -55,7 +55,7 @@ impl MemoryManager {
         // 规范化路径（解析 . 和 .. 等）
         let canonical_path = absolute_path.canonicalize()
             .unwrap_or_else(|_| {
-                // 如果 canonicalize 失敗，尝试手動规范化
+                // 如果 canonicalize 失敗，嘗試手動规范化
                 Self::manual_canonicalize(&absolute_path).unwrap_or(absolute_path)
             });
 
@@ -79,7 +79,7 @@ impl MemoryManager {
             Ok(git_root)
         } else {
             Err(anyhow::anyhow!(
-                "錯誤：提供的專案路径不在 git 仓函式庫中。\n路径: {}\n请确保在 git 根目录（包含 .git 檔案夹的目录）中呼叫此功能。",
+                "錯誤：提供的專案路径不在 git 仓函式庫中。\n路径: {}\n請确保在 git 根目录（包含 .git 檔案夹的目录）中呼叫此功能。",
                 canonical_path.display()
             ))
         }
@@ -87,7 +87,7 @@ impl MemoryManager {
 
     /// 手動规范化路径
     ///
-    /// 當 canonicalize 失敗时的备用方案
+    /// 當 canonicalize 失敗時的备用方案
     fn manual_canonicalize(path: &Path) -> Result<PathBuf> {
         let mut components = Vec::new();
 
@@ -121,7 +121,7 @@ impl MemoryManager {
         let mut current_path = start_path;
 
         loop {
-            // 檢查当前目录是否包含 .git
+            // 檢查當前目录是否包含 .git
             let git_path = current_path.join(".git");
             if git_path.exists() {
                 return Some(current_path.to_path_buf());
@@ -139,7 +139,7 @@ impl MemoryManager {
 
     /// 初始化記憶檔案结构
     fn initialize_memory_structure(&self) -> Result<()> {
-        // 建立各类記憶檔案，使用新的结构化格式
+        // 建立各類記憶檔案，使用新的结构化格式
         let categories = [
             MemoryCategory::Rule,
             MemoryCategory::Preference,
@@ -210,13 +210,13 @@ impl MemoryManager {
             }
         }
 
-        // 按更新时间排序
+        // 按更新時间排序
         memories.sort_by(|a, b| b.updated_at.cmp(&a.updated_at));
 
         Ok(memories)
     }
 
-    /// 獲取指定分类的記憶
+    /// 獲取指定分類的記憶
     pub fn get_memories_by_category(&self, category: MemoryCategory) -> Result<Vec<MemoryEntry>> {
         let filename = match category {
             MemoryCategory::Rule => "rules.md",
@@ -234,7 +234,7 @@ impl MemoryManager {
         self.parse_memory_file(&content, category)
     }
 
-    /// 将記憶条目新增到对应分类檔案
+    /// 将記憶条目新增到对应分類檔案
     fn append_to_category_file(&self, entry: &MemoryEntry) -> Result<()> {
         let filename = match entry.category {
             MemoryCategory::Rule => "rules.md",
@@ -257,7 +257,7 @@ impl MemoryManager {
         Ok(())
     }
 
-    /// 解析記憶檔案内容 - 简化版本
+    /// 解析記憶檔案內容 - 简化版本
     fn parse_memory_file(&self, content: &str, category: MemoryCategory) -> Result<Vec<MemoryEntry>> {
         let mut memories = Vec::new();
 
@@ -283,17 +283,17 @@ impl MemoryManager {
         Ok(memories)
     }
 
-    /// 獲取分类标题
+    /// 獲取分類標題
     fn get_category_title(&self, category: &MemoryCategory) -> &str {
         match category {
             MemoryCategory::Rule => "开发规范和规则",
             MemoryCategory::Preference => "用户偏好設定",
-            MemoryCategory::Pattern => "常用模式和最佳实践",
+            MemoryCategory::Pattern => "常用模式和最佳實務",
             MemoryCategory::Context => "專案上下文訊息",
         }
     }
 
-    /// 獲取分类檔案头部（简化版本）
+    /// 獲取分類檔案头部（简化版本）
     fn get_category_header(&self, category: &MemoryCategory) -> String {
         format!("# {}\n\n", self.get_category_title(category))
     }
@@ -324,7 +324,7 @@ impl MemoryManager {
 
         let mut compressed_info = Vec::new();
 
-        // 按分类压缩汇总
+        // 按分類压缩汇总
         let categories = [
             (MemoryCategory::Rule, "规范"),
             (MemoryCategory::Preference, "偏好"),
@@ -339,7 +339,7 @@ impl MemoryManager {
                 for memory in memories {
                     let content = memory.content.trim();
                     if !content.is_empty() {
-                        // 去除多余空格和换行，压缩内容
+                        // 去除多余空格和换行，压缩內容
                         let compressed_content = content
                             .split_whitespace()
                             .collect::<Vec<&str>>()

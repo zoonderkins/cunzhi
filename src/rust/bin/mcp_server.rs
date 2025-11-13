@@ -9,7 +9,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     log_important!(info, "啟動 MCP 服务器");
 
-    // 清理旧的临时檔案
+    // 清理旧的临時檔案
     cleanup_old_temp_files();
 
     run_server().await

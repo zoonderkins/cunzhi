@@ -18,7 +18,7 @@ export const locales: Record<Locale, Messages> = {
 
 // 語言名稱映射
 export const localeNames: Record<Locale, string> = {
-  'zh-CN': '简体中文',
+  'zh-CN': '簡體中文',
   'zh-TW': '繁體中文',
 }
 

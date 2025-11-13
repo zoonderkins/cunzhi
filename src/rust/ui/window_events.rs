@@ -14,7 +14,7 @@ pub fn setup_window_event_listeners(app_handle: &AppHandle) {
                 
                 let app_handle = app_handle_clone.clone();
                 
-                // 非同步處理退出请求
+                // 非同步處理退出請求
                 tauri::async_runtime::spawn(async move {
                     let state = app_handle.state::<AppState>();
 
@@ -34,7 +34,7 @@ pub fn setup_window_event_listeners(app_handle: &AppHandle) {
                             }
                         }
                         Err(e) => {
-                            log_important!(error, "處理退出请求失敗: {}", e);
+                            log_important!(error, "處理退出請求失敗: {}", e);
                         }
                     }
                 });

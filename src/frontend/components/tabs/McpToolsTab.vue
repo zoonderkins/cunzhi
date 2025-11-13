@@ -21,12 +21,12 @@ const message = useMessage()
 // i18n
 const { t } = useI18n()
 
-// 切换工具启用狀態（包装全局方法）
+// 切换工具啟用狀態（包装全局方法）
 async function toggleTool(toolId: string) {
   try {
     const result = await globalToggleTool(toolId)
 
-    // 显示重连提示
+    // 顯示重连提示
     if (result.needsReconnect) {
       needsReconnect.value = true
     }
@@ -91,7 +91,7 @@ onMounted(async () => {
         <!-- 卡片头部 -->
         <template #header>
           <div class="flex items-center justify-between">
-            <!-- 左侧内容区域 - 允许收缩但不会挤压右侧 -->
+            <!-- 左侧內容区域 - 允许收缩但不会挤压右侧 -->
             <div class="flex items-center gap-3 flex-1 min-w-0">
               <!-- 图标 -->
               <div
@@ -103,7 +103,7 @@ onMounted(async () => {
                 />
               </div>
 
-              <!-- 标题和副标题 -->
+              <!-- 標題和副標題 -->
               <div class="flex-1 min-w-0">
                 <n-space align="center">
                   <div class="text-lg font-medium tracking-tight">
@@ -124,7 +124,7 @@ onMounted(async () => {
                     size="small"
                     :bordered="false"
                   >
-                    已启用
+                    已啟用
                   </n-tag>
                   <n-tag
                     v-else

@@ -3,23 +3,23 @@ import { listen } from '@tauri-apps/api/event'
 import { ref } from 'vue'
 
 /**
- * MCP處理组合式函數
+ * MCP處理組合式函數
  */
 export function useMcpHandler() {
   const mcpRequest = ref(null)
   const showMcpPopup = ref(false)
 
   /**
-   * 統一的MCP响应處理
+   * 統一的MCP回應處理
    */
   async function handleMcpResponse(response: any) {
     try {
-      // 通过Tauri命令发送响应并退出應用
+      // 透過Tauri命令傳送回應并退出應用
       await invoke('send_mcp_response', { response })
       await invoke('exit_app')
     }
     catch (error) {
-      console.error('MCP响应處理失敗:', error)
+      console.error('MCP回應處理失敗:', error)
     }
   }
 
@@ -28,7 +28,7 @@ export function useMcpHandler() {
    */
   async function handleMcpCancel() {
     try {
-      // 发送取消訊息并退出應用
+      // 傳送取消訊息并退出應用
       await invoke('send_mcp_response', { response: 'CANCELLED' })
       await invoke('exit_app')
     }
@@ -39,14 +39,14 @@ export function useMcpHandler() {
   }
 
   /**
-   * 显示MCP弹窗
+   * 顯示MCP弹窗
    */
   async function showMcpDialog(request: any) {
     // 獲取Telegram設定，檢查是否需要隐藏前端弹窗
     let shouldShowFrontendPopup = true
     try {
       const telegramConfig = await invoke('get_telegram_config')
-      // 如果Telegram启用且設定了隐藏前端弹窗，则不显示前端弹窗
+      // 如果Telegram啟用且設定了隐藏前端弹窗，则不顯示前端弹窗
       if (telegramConfig && (telegramConfig as any).enabled && (telegramConfig as any).hide_frontend_popup) {
         shouldShowFrontendPopup = false
         console.log('🔕 根据Telegram設定，隐藏前端弹窗')
@@ -54,20 +54,20 @@ export function useMcpHandler() {
     }
     catch (error) {
       console.error('獲取Telegram設定失敗:', error)
-      // 設定獲取失敗时，保持預設行为（显示弹窗）
+      // 設定獲取失敗時，保持預設行为（顯示弹窗）
     }
 
-    // 根据設定决定是否显示前端弹窗
+    // 根据設定决定是否顯示前端弹窗
     if (shouldShowFrontendPopup) {
-      // 設定请求資料和显示狀態
+      // 設定請求資料和顯示狀態
       mcpRequest.value = request
       showMcpPopup.value = true
     }
     else {
-      console.log('🔕 跳過前端弹窗显示，仅使用Telegram交互')
+      console.log('🔕 跳過前端弹窗顯示，僅使用Telegram交互')
     }
 
-    // 播放音訊通知（无论是否显示弹窗都播放）
+    // 播放音訊通知（无论是否顯示弹窗都播放）
     try {
       await invoke('play_notification_sound')
     }
@@ -75,7 +75,7 @@ export function useMcpHandler() {
       console.error('播放音訊通知失敗:', error)
     }
 
-    // 啟動Telegram同步（无论是否显示弹窗都啟動）
+    // 啟動Telegram同步（无论是否顯示弹窗都啟動）
     try {
       if (request?.message) {
         await invoke('start_telegram_sync', {
@@ -99,7 +99,7 @@ export function useMcpHandler() {
       const args = await invoke('get_cli_args')
 
       if (args && (args as any).mcp_request) {
-        // 讀取MCP请求檔案
+        // 讀取MCP請求檔案
         const content = await invoke('read_mcp_request', { filePath: (args as any).mcp_request })
 
         if (content) {

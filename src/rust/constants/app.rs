@@ -37,10 +37,10 @@ pub const APP_IDENTIFIER: &str = "com.zoonderkins.cunzhi";
 pub const USER_AGENT: &str = concat!(env!("CARGO_PKG_NAME"), "/", env!("CARGO_PKG_VERSION"));
 
 // 防误触退出相关常量
-/// 退出確認时间視窗（秒）
+/// 退出確認時间視窗（秒）
 pub const EXIT_CONFIRMATION_WINDOW_SECS: u64 = 3;
 
-/// 需要的连续退出尝试次数
+/// 需要的连续退出嘗試次数
 pub const REQUIRED_EXIT_ATTEMPTS: u32 = 2;
 
 // 應用程序訊息结构体
@@ -76,12 +76,12 @@ impl Default for AppInfo {
 }
 
 impl AppInfo {
-    /// 獲取完整的應用程序标题
+    /// 獲取完整的應用程序標題
     pub fn get_full_title(&self) -> String {
         format!("{} v{}", self.name, self.version)
     }
 
-    /// 獲取視窗标题
+    /// 獲取視窗標題
     pub fn get_window_title(&self) -> String {
         self.name.clone()
     }

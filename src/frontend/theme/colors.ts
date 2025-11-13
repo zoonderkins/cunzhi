@@ -1,14 +1,14 @@
 /**
- * 统一颜色管理系統 - UnoCSS + Naive UI 最佳实践
+ * 统一颜色管理系統 - UnoCSS + Naive UI 最佳實務
  *
  * 设计原则：
- * 1. 重新定义 UnoCSS 基础颜色，让它们自動适配主題
- * 2. 使用语义化命名，便于理解和維護
- * 3. 通过 CSS 變數實作主題切换
+ * 1. 重新定義 UnoCSS 基础颜色，让它们自動适配主題
+ * 2. 使用语義化命名，便于理解和維護
+ * 3. 透過 CSS 變數實作主題切换
  * 4. 避免硬编码颜色值
  */
 
-// 主色调設定 - 保持不变，用于强调色
+// 主色调設定 - 保持不變，用于强调色
 export const primaryColors = {
   50: '#f0fdfa',
   100: '#ccfbf1',
@@ -31,9 +31,9 @@ export const functionalColors = {
   info: '#3b82f6',
 }
 
-// 语义化颜色系統 - 重新定义 UnoCSS 基础颜色
+// 语義化颜色系統 - 重新定義 UnoCSS 基础颜色
 export const semanticColors = {
-  // 重新定义 black/white 让它们适配主題
+  // 重新定義 black/white 让它们适配主題
   black: {
     DEFAULT: 'var(--color-surface)',
     50: 'var(--color-surface-50)',
@@ -51,7 +51,7 @@ export const semanticColors = {
   white: {
     DEFAULT: 'var(--color-on-surface)',
   },
-  // 重新定义 gray 让它适配主題
+  // 重新定義 gray 让它适配主題
   gray: {
     50: 'var(--color-surface-50)',
     100: 'var(--color-surface-100)',
@@ -71,7 +71,7 @@ export const semanticColors = {
   ...functionalColors,
 }
 
-// 主題颜色定义
+// 主題颜色定義
 export const themeColors = {
   light: {
     // 表面色（背景相关）

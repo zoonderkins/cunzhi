@@ -47,7 +47,7 @@ pub use window::is_valid_window_size;
 
 /// 驗證視窗位置是否有效
 pub fn is_valid_window_position(x: i32, y: i32) -> bool {
-    // 允许负值，因为多显示器环境下可能有负坐标
+    // 允许负值，因为多顯示器環境下可能有负坐标
     (-10000..=10000).contains(&x) && (-10000..=10000).contains(&y)
 }
 
@@ -66,12 +66,12 @@ pub use theme::is_valid_theme;
 
 // 網路驗證函數
 
-/// 驗證超时时间是否有效
+/// 驗證超時時间是否有效
 pub fn is_valid_timeout(timeout_ms: u64) -> bool {
     is_in_range(timeout_ms, 100, 300000) // 100ms 到 5分钟
 }
 
-/// 驗證重试次数是否有效
+/// 驗證重試次数是否有效
 pub fn is_valid_retry_count(count: u32) -> bool {
     count <= network::MAX_RETRY_COUNT
 }
@@ -158,15 +158,15 @@ pub fn validate_network_config(
     let mut result = ValidationResult::new();
 
     if !is_valid_timeout(timeout_ms) {
-        result.add_error(format!("无效的超时时间: {}ms", timeout_ms));
+        result.add_error(format!("无效的超時時间: {}ms", timeout_ms));
     }
 
     if !is_valid_retry_count(retry_count) {
-        result.add_error(format!("无效的重试次数: {}", retry_count));
+        result.add_error(format!("无效的重試次数: {}", retry_count));
     }
 
     if !is_in_range(retry_interval_ms, network::MIN_RETRY_INTERVAL_MS, network::MAX_RETRY_INTERVAL_MS) {
-        result.add_error(format!("无效的重试间隔: {}ms", retry_interval_ms));
+        result.add_error(format!("无效的重試间隔: {}ms", retry_interval_ms));
     }
 
     result

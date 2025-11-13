@@ -1,5 +1,5 @@
 // UI 常量設定
-// 这些常量与后端設定保持同步，通过 get_window_constraints 命令动态獲取
+// 这些常量与后端設定保持同步，透過 get_window_constraints 命令動態獲取
 
 // 預設視窗约束（后备值）
 export const DEFAULT_WINDOW_CONSTRAINTS = {
@@ -56,7 +56,7 @@ export const AUDIO_CONFIG = {
 export const REPLY_CONFIG = {
   defaultEnabled: true,
   defaultThreshold: 1000,
-  defaultPrompt: '请按照最佳实践繼續',
+  defaultPrompt: '請按照最佳實務繼續',
 } as const
 
 // MCP 工具常量
@@ -124,7 +124,7 @@ export const BREAKPOINTS = {
   '2xl': '1536px',
 } as const
 
-// 類型定义
+// 類型定義
 export type WindowConstraints = typeof DEFAULT_WINDOW_CONSTRAINTS
 export type WindowSize = typeof DEFAULT_WINDOW_SIZE
 export type TransitionDuration = keyof typeof TRANSITION_DURATIONS

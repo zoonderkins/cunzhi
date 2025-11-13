@@ -22,11 +22,11 @@ pub struct UpdateProgress {
 /// 檢查是否有可用更新
 #[tauri::command]
 pub async fn check_for_updates(app: AppHandle) -> Result<UpdateInfo, String> {
-    log::info!("🔍 开始檢查更新");
+    log::info!("🔍 開始檢查更新");
     
-    // 由于Tauri更新器无法處理中文tag，这里直接使用GitHub API檢查
+    // 由于Tauri更新器無法處理中文tag，这里直接使用GitHub API檢查
     let client = reqwest::Client::new();
-    log::info!("📡 发送 GitHub API 请求");
+    log::info!("📡 傳送 GitHub API 請求");
     
     let response = client
         .get("https://api.github.com/repos/zoonderkins/cunzhi/releases/latest")
@@ -36,20 +36,20 @@ pub async fn check_for_updates(app: AppHandle) -> Result<UpdateInfo, String> {
         .send()
         .await
         .map_err(|e| {
-            log::error!("❌ 網路请求失敗: {}", e);
-            format!("網路请求失敗: {}", e)
+            log::error!("❌ 網路請求失敗: {}", e);
+            format!("網路請求失敗: {}", e)
         })?;
 
-    log::info!("📊 GitHub API 响应狀態: {}", response.status());
+    log::info!("📊 GitHub API 回應狀態: {}", response.status());
 
     if !response.status().is_success() {
         let status = response.status();
         let error_msg = if status == 403 {
-            "網路请求受限，请手動下载最新版本".to_string()
+            "網路請求受限，請手動下载最新版本".to_string()
         } else if status == 404 {
-            "網路连接例外，请檢查網路后重试".to_string()
+            "網路連接例外，請檢查網路后重試".to_string()
         } else {
-            format!("網路请求失敗: {}", status)
+            format!("網路請求失敗: {}", status)
         };
         log::error!("❌ {}", error_msg);
         return Err(error_msg);
@@ -59,14 +59,14 @@ pub async fn check_for_updates(app: AppHandle) -> Result<UpdateInfo, String> {
         .json()
         .await
         .map_err(|e| {
-            log::error!("❌ 解析响应失敗: {}", e);
-            format!("解析响应失敗: {}", e)
+            log::error!("❌ 解析回應失敗: {}", e);
+            format!("解析回應失敗: {}", e)
         })?;
 
     log::info!("📋 成功獲取 release 資料");
 
     let current_version = app.package_info().version.to_string();
-    log::info!("📦 当前版本: {}", current_version);
+    log::info!("📦 當前版本: {}", current_version);
     
     // 提取最新版本号，處理中文tag
     let tag_name = release["tag_name"]
@@ -86,7 +86,7 @@ pub async fn check_for_updates(app: AppHandle) -> Result<UpdateInfo, String> {
     log::info!("🆕 解析后的最新版本: {}", latest_version);
 
     if latest_version.is_empty() {
-        let error_msg = "无法解析版本号".to_string();
+        let error_msg = "無法解析版本号".to_string();
         log::error!("❌ {}", error_msg);
         return Err(error_msg);
     }
@@ -95,7 +95,7 @@ pub async fn check_for_updates(app: AppHandle) -> Result<UpdateInfo, String> {
     let has_update = compare_versions(&latest_version, &current_version);
     log::info!("🔄 版本比较结果 - 有更新: {}", has_update);
 
-    // 獲取实际的下载URL（从assets中找到对应平台的檔案）
+    // 獲取實際的下载URL（从assets中找到对应平台的檔案）
     let download_url = get_platform_download_url(&release)?;
 
     let update_info = UpdateInfo {
@@ -110,7 +110,7 @@ pub async fn check_for_updates(app: AppHandle) -> Result<UpdateInfo, String> {
     Ok(update_info)
 }
 
-/// 简单的版本比较函數
+/// 简單的版本比较函數
 fn compare_versions(v1: &str, v2: &str) -> bool {
     let v1_parts: Vec<u32> = v1.split('.').filter_map(|s| s.parse().ok()).collect();
     let v2_parts: Vec<u32> = v2.split('.').filter_map(|s| s.parse().ok()).collect();
@@ -134,7 +134,7 @@ fn compare_versions(v1: &str, v2: &str) -> bool {
 /// 下载并安装更新
 #[tauri::command]
 pub async fn download_and_install_update(app: AppHandle) -> Result<(), String> {
-    log::info!("🚀 开始下载和安装更新");
+    log::info!("🚀 開始下载和安装更新");
 
     // 首先檢查更新訊息
     log::info!("🔍 重新檢查更新訊息");
@@ -150,8 +150,8 @@ pub async fn download_and_install_update(app: AppHandle) -> Result<(), String> {
 
     log::info!("✅ 確認有可用更新，准备下载");
 
-    // 发送下载开始事件
-    log::info!("📢 发送下载开始事件");
+    // 傳送下载開始事件
+    log::info!("📢 傳送下载開始事件");
     let _ = app.emit("update_download_started", ());
 
     // 實作真正的下载和安装逻辑
@@ -165,20 +165,20 @@ pub async fn download_and_install_update(app: AppHandle) -> Result<(), String> {
             log::error!("❌ 更新失敗: {}", e);
 
             // 如果自動更新失敗，提供手動下载選項
-            log::info!("🔗 发送手動下载事件，URL: {}", update_info.download_url);
+            log::info!("🔗 傳送手動下载事件，URL: {}", update_info.download_url);
             let _ = app.emit("update_manual_download_required", &update_info.download_url);
 
             // 傳回更友好的錯誤消息
             if e.contains("手動下载") {
-                Err("请手動下载最新版本".to_string())
+                Err("請手動下载最新版本".to_string())
             } else {
-                Err(format!("自動更新失敗，请手動下载最新版本: {}", e))
+                Err(format!("自動更新失敗，請手動下载最新版本: {}", e))
             }
         }
     }
 }
 
-/// 獲取当前應用版本
+/// 獲取當前應用版本
 #[tauri::command]
 pub async fn get_current_version(app: AppHandle) -> Result<String, String> {
     Ok(app.package_info().version.to_string())
@@ -190,14 +190,14 @@ pub async fn restart_app(app: AppHandle) -> Result<(), String> {
     app.restart();
 }
 
-/// 獲取当前平台对应的下载URL
+/// 獲取當前平台对应的下载URL
 fn get_platform_download_url(release: &serde_json::Value) -> Result<String, String> {
     let assets = release["assets"].as_array()
-        .ok_or_else(|| "无法獲取release assets".to_string())?;
+        .ok_or_else(|| "無法獲取release assets".to_string())?;
 
     log::info!("📦 Release assets 总数: {}", assets.len());
 
-    // 确定当前平台（匹配实际的檔案名格式）
+    // 确定當前平台（匹配實際的檔案名格式）
     let platform = if cfg!(target_os = "macos") {
         if cfg!(target_arch = "aarch64") {
             "macos-aarch64"
@@ -249,24 +249,24 @@ fn get_platform_download_url(release: &serde_json::Value) -> Result<String, Stri
     Ok(release["html_url"].as_str().unwrap_or("").to_string())
 }
 
-/// 实际的下载和安装實作
+/// 實際的下载和安装實作
 async fn download_and_install_update_impl(app: &AppHandle, update_info: &UpdateInfo) -> Result<(), String> {
-    log::info!("🚀 开始自動更新實作");
+    log::info!("🚀 開始自動更新實作");
     log::info!("📋 更新訊息: {:?}", update_info);
 
     // 如果下载URL是GitHub页面而不是直接下载連結，引导用户手動下载
     if update_info.download_url.contains("/releases/tag/") {
         log::info!("🔗 下载URL是release页面，需要手動下载: {}", update_info.download_url);
-        log::info!("💡 这通常意味着没有找到当前平台的预編譯版本");
-        return Err("请手動下载最新版本".to_string());
+        log::info!("💡 这通常意味着没有找到當前平台的预編譯版本");
+        return Err("請手動下载最新版本".to_string());
     }
 
-    log::info!("📥 开始下载檔案: {}", update_info.download_url);
+    log::info!("📥 開始下载檔案: {}", update_info.download_url);
 
-    // 建立临时目录
+    // 建立临時目录
     let temp_dir = std::env::temp_dir().join("cunzhi_update");
     fs::create_dir_all(&temp_dir)
-        .map_err(|e| format!("建立临时目录失敗: {}", e))?;
+        .map_err(|e| format!("建立临時目录失敗: {}", e))?;
 
     // 确定檔案名
     let file_name = update_info.download_url
@@ -283,7 +283,7 @@ async fn download_and_install_update_impl(app: &AppHandle, update_info: &UpdateI
         .get(&update_info.download_url)
         .send()
         .await
-        .map_err(|e| format!("下载请求失敗: {}", e))?;
+        .map_err(|e| format!("下载請求失敗: {}", e))?;
 
     if !response.status().is_success() {
         return Err(format!("下载失敗: HTTP {}", response.status()));
@@ -321,7 +321,7 @@ async fn download_and_install_update_impl(app: &AppHandle, update_info: &UpdateI
 
     log::info!("✅ 檔案下载完成: {}", file_path.display());
 
-    // 开始安装
+    // 開始安装
     let _ = app.emit("update_install_started", ());
 
     // 根据平台執行不同的安装逻辑
@@ -332,7 +332,7 @@ async fn download_and_install_update_impl(app: &AppHandle, update_info: &UpdateI
 
 /// 根据平台安装更新
 async fn install_update(file_path: &PathBuf) -> Result<(), String> {
-    log::info!("🔧 开始安装更新: {}", file_path.display());
+    log::info!("🔧 開始安装更新: {}", file_path.display());
 
     if cfg!(target_os = "macos") {
         install_macos_update(file_path).await
@@ -352,15 +352,15 @@ async fn install_macos_update(file_path: &PathBuf) -> Result<(), String> {
         .unwrap_or("");
 
     if file_name.ends_with(".tar.gz") {
-        // 压缩包檔案，需要解压并替换当前可執行檔案
+        // 压缩包檔案，需要解压并替换當前可執行檔案
         log::info!("📦 處理 tar.gz 压缩包檔案");
         install_from_archive(file_path).await
     } else if file_name.ends_with(".dmg") {
         // DMG 檔案需要挂载后複製
         log::info!("📦 處理 DMG 檔案");
-        return Err("DMG 檔案需要手動安装，请手動下载最新版本".to_string());
+        return Err("DMG 檔案需要手動安装，請手動下载最新版本".to_string());
     } else {
-        return Err("未知的檔案格式，请手動下载最新版本".to_string());
+        return Err("未知的檔案格式，請手動下载最新版本".to_string());
     }
 }
 
@@ -371,7 +371,7 @@ async fn install_windows_update(file_path: &PathBuf) -> Result<(), String> {
         .unwrap_or("");
 
     if file_name.ends_with(".zip") {
-        // ZIP 压缩包檔案，需要解压并替换当前可執行檔案
+        // ZIP 压缩包檔案，需要解压并替换當前可執行檔案
         log::info!("📦 處理 ZIP 压缩包檔案");
         install_from_archive(file_path).await
     } else if file_name.ends_with(".msi") {
@@ -401,7 +401,7 @@ async fn install_windows_update(file_path: &PathBuf) -> Result<(), String> {
 
         Ok(())
     } else {
-        Err("未知的檔案格式，请手動下载最新版本".to_string())
+        Err("未知的檔案格式，請手動下载最新版本".to_string())
     }
 }
 
@@ -412,7 +412,7 @@ async fn install_linux_update(file_path: &PathBuf) -> Result<(), String> {
         .unwrap_or("");
 
     if file_name.ends_with(".tar.gz") {
-        // 压缩包檔案，需要解压并替换当前可執行檔案
+        // 压缩包檔案，需要解压并替换當前可執行檔案
         log::info!("📦 處理 tar.gz 压缩包檔案");
         install_from_archive(file_path).await
     } else if file_name.ends_with(".deb") {
@@ -442,30 +442,30 @@ async fn install_linux_update(file_path: &PathBuf) -> Result<(), String> {
 
         Ok(())
     } else {
-        Err("未知的檔案格式，请手動下载最新版本".to_string())
+        Err("未知的檔案格式，請手動下载最新版本".to_string())
     }
 }
 
 /// 从压缩包安装更新
 async fn install_from_archive(file_path: &PathBuf) -> Result<(), String> {
-    log::info!("📦 开始从压缩包安装更新: {}", file_path.display());
+    log::info!("📦 開始从压缩包安装更新: {}", file_path.display());
 
-    // 獲取当前可執行檔案的路径
+    // 獲取當前可執行檔案的路径
     let current_exe = std::env::current_exe()
-        .map_err(|e| format!("无法獲取当前可執行檔案路径: {}", e))?;
+        .map_err(|e| format!("無法獲取當前可執行檔案路径: {}", e))?;
 
-    log::info!("📍 当前可執行檔案路径: {}", current_exe.display());
+    log::info!("📍 當前可執行檔案路径: {}", current_exe.display());
 
-    // 建立临时解压目录
+    // 建立临時解压目录
     let temp_dir = std::env::temp_dir().join("cunzhi_extract");
     if temp_dir.exists() {
         fs::remove_dir_all(&temp_dir)
-            .map_err(|e| format!("清理临时目录失敗: {}", e))?;
+            .map_err(|e| format!("清理临時目录失敗: {}", e))?;
     }
     fs::create_dir_all(&temp_dir)
-        .map_err(|e| format!("建立临时解压目录失敗: {}", e))?;
+        .map_err(|e| format!("建立临時解压目录失敗: {}", e))?;
 
-    log::info!("📂 临时解压目录: {}", temp_dir.display());
+    log::info!("📂 临時解压目录: {}", temp_dir.display());
 
     // 根据檔案類型解压
     let file_name = file_path.file_name()
@@ -484,10 +484,10 @@ async fn install_from_archive(file_path: &PathBuf) -> Result<(), String> {
     let new_exe = find_executable_in_dir(&temp_dir)?;
     log::info!("🔍 找到新的可執行檔案: {}", new_exe.display());
 
-    // 替换当前可執行檔案
+    // 替换當前可執行檔案
     replace_executable(&current_exe, &new_exe)?;
 
-    // 清理临时目录
+    // 清理临時目录
     let _ = fs::remove_dir_all(&temp_dir);
 
     log::info!("✅ 更新安装完成！");
@@ -589,8 +589,8 @@ fn find_executable_in_dir(dir: &PathBuf) -> Result<PathBuf, String> {
         }
     }
 
-    // 如果没找到明确的可執行檔案，尝试查找任何可能的可執行檔案
-    log::warn!("⚠️ 未找到明确的可執行檔案，尝试查找其他可能的檔案");
+    // 如果没找到明确的可執行檔案，嘗試查找任何可能的可執行檔案
+    log::warn!("⚠️ 未找到明确的可執行檔案，嘗試查找其他可能的檔案");
     for file in &files {
         if let Some(file_name) = file.file_name().and_then(|n| n.to_str()) {
             // 在 Unix 系統上，檢查檔案是否有執行權限
@@ -621,20 +621,20 @@ fn find_executable_in_dir(dir: &PathBuf) -> Result<PathBuf, String> {
         files.iter().map(|f| f.file_name().and_then(|n| n.to_str()).unwrap_or("?")).collect::<Vec<_>>()))
 }
 
-/// 替换当前可執行檔案
+/// 替换當前可執行檔案
 fn replace_executable(current_exe: &PathBuf, new_exe: &PathBuf) -> Result<(), String> {
     log::info!("🔄 替换可執行檔案");
-    log::info!("📍 当前檔案: {}", current_exe.display());
+    log::info!("📍 當前檔案: {}", current_exe.display());
     log::info!("📍 新檔案: {}", new_exe.display());
 
     // 建立備份（智能命名）
     let backup_path = create_backup_path(current_exe)?;
 
-    log::info!("💾 建立当前檔案備份: {}", backup_path.display());
+    log::info!("💾 建立當前檔案備份: {}", backup_path.display());
     fs::copy(current_exe, &backup_path)
         .map_err(|e| format!("建立備份失敗: {}", e))?;
 
-    // 在 Windows 上，无法直接替换正在執行的可執行檔案
+    // 在 Windows 上，無法直接替换正在執行的可執行檔案
     // 需要使用特殊的方法
     if cfg!(target_os = "windows") {
         replace_executable_windows(current_exe, new_exe)?;
@@ -648,7 +648,7 @@ fn replace_executable(current_exe: &PathBuf, new_exe: &PathBuf) -> Result<(), St
 
 /// Windows 平台替换可執行檔案
 fn replace_executable_windows(current_exe: &PathBuf, new_exe: &PathBuf) -> Result<(), String> {
-    // Windows 上无法直接替换正在執行的檔案
+    // Windows 上無法直接替换正在執行的檔案
     // 建立一个批處理脚本来延迟替换
     let script_path = current_exe.parent().unwrap().join("update_script.bat");
 
@@ -679,7 +679,7 @@ del "%~f0"
 
 /// Unix 平台替换可執行檔案
 fn replace_executable_unix(current_exe: &PathBuf, new_exe: &PathBuf) -> Result<(), String> {
-    // 複製新檔案到临时位置
+    // 複製新檔案到临時位置
     let temp_new = current_exe.with_extension("new");
     fs::copy(new_exe, &temp_new)
         .map_err(|e| format!("複製新檔案失敗: {}", e))?;
@@ -715,9 +715,9 @@ fn create_backup_path(original_path: &PathBuf) -> Result<PathBuf, String> {
         .unwrap_or("");
 
     let parent = original_path.parent()
-        .ok_or_else(|| "无法獲取檔案父目录".to_string())?;
+        .ok_or_else(|| "無法獲取檔案父目录".to_string())?;
 
-    // 獲取当前版本訊息，优先使用應用版本
+    // 獲取當前版本訊息，优先使用應用版本
     let current_version = get_current_app_version();
 
     // 基础備份檔案名：xxx.version.bak
@@ -742,7 +742,7 @@ fn create_backup_path(original_path: &PathBuf) -> Result<PathBuf, String> {
 
         // 防止无限循环
         if counter > 100 {
-            return Err("備份檔案数量过多，请清理旧備份".to_string());
+            return Err("備份檔案数量过多，請清理旧備份".to_string());
         }
     }
 
@@ -750,23 +750,23 @@ fn create_backup_path(original_path: &PathBuf) -> Result<PathBuf, String> {
     Ok(backup_path)
 }
 
-/// 獲取当前應用版本
+/// 獲取當前應用版本
 fn get_current_app_version() -> String {
-    // 使用編譯时嵌入的版本訊息
+    // 使用編譯時嵌入的版本訊息
     const VERSION: &str = env!("CARGO_PKG_VERSION");
 
     // 驗證版本格式
     if !VERSION.is_empty() && VERSION != "unknown" {
-        log::info!("📋 使用編譯时版本: {}", VERSION);
+        log::info!("📋 使用編譯時版本: {}", VERSION);
         return VERSION.to_string();
     }
 
-    // 如果編譯时版本不可用，尝试从應用名称中解析版本
+    // 如果編譯時版本不可用，嘗試从應用名称中解析版本
     if let Ok(current_exe) = std::env::current_exe() {
         if let Some(file_name) = current_exe.file_name().and_then(|n| n.to_str()) {
-            log::info!("🔍 尝试从檔案名提取版本: {}", file_name);
+            log::info!("🔍 嘗試从檔案名提取版本: {}", file_name);
 
-            // 尝试匹配版本模式 (如 v1.2.3 或 1.2.3)
+            // 嘗試匹配版本模式 (如 v1.2.3 或 1.2.3)
             if let Some(version) = extract_version_from_filename(file_name) {
                 log::info!("✅ 从檔案名提取到版本: {}", version);
                 return version;
@@ -774,14 +774,14 @@ fn get_current_app_version() -> String {
         }
     }
 
-    // 使用时间戳作为最后的fallback
+    // 使用時间戳作为最后的fallback
     let timestamp = std::time::SystemTime::now()
         .duration_since(std::time::UNIX_EPOCH)
         .unwrap_or_default()
         .as_secs();
 
     let fallback_version = format!("backup-{}", timestamp);
-    log::warn!("⚠️ 无法獲取版本訊息，使用时间戳: {}", fallback_version);
+    log::warn!("⚠️ 無法獲取版本訊息，使用時间戳: {}", fallback_version);
     fallback_version
 }
 

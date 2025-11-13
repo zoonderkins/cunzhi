@@ -1,5 +1,5 @@
 // MCP工具註冊模組
-// 工具實作按各自的模組目录组织
+// 工具實作按各自的模組目录組织
 
 pub mod memory;
 pub mod interaction;

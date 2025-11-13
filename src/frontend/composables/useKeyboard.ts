@@ -5,7 +5,7 @@ import { computed } from 'vue'
  * 跨平台键盘快捷键處理
  */
 export function useKeyboard() {
-  // 检测操作系統
+  // 检測操作系統
   const isMac = computed(() => {
     if (typeof navigator !== 'undefined') {
       return navigator.platform.toUpperCase().includes('MAC')

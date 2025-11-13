@@ -33,14 +33,14 @@ const isReloading = ref(false)
 const configFilePath = ref('config.json')
 let unlistenConfigReloaded: (() => void) | null = null
 
-// 重新載入設定（通过重新載入設定實作）
+// 重新載入設定（透過重新載入設定實作）
 async function reloadConfig() {
   if (isReloading.value)
     return
 
   isReloading.value = true
   try {
-    // 触发重新載入設定的事件
+    // 觸發重新載入設定的事件
     emit('configReloaded')
     message.success(t('settings.reload.success'))
   }
@@ -75,7 +75,7 @@ onMounted(async () => {
     unlistenConfigReloaded = await listen('config_reloaded', () => {
       // 設定重新載入后，重新載入設定而不是重新整理整个页面
       console.log('收到設定重新載入事件，重新載入設定')
-      // 触发重新載入設定的事件
+      // 觸發重新載入設定的事件
       emit('configReloaded')
     })
   }

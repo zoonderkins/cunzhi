@@ -6,22 +6,22 @@ pub const TOOL_ZHI: &str = "zhi";
 /// 記憶管理工具标识符
 pub const TOOL_JI: &str = "ji";
 
-/// 預設启用的工具列表
+/// 預設啟用的工具列表
 pub const DEFAULT_ENABLED_TOOLS: &[&str] = &[TOOL_ZHI, TOOL_JI];
 
-/// 繼續回复預設启用狀態
+/// 繼續回复預設啟用狀態
 pub const DEFAULT_CONTINUE_REPLY_ENABLED: bool = true;
 
-/// 預設自動繼續阈值
+/// 預設自動繼續閾值
 pub const DEFAULT_AUTO_CONTINUE_THRESHOLD: u32 = 1000;
 
-/// 預設繼續提示词
-pub const DEFAULT_CONTINUE_PROMPT: &str = "请按照最佳实践繼續";
+/// 預設繼續提示詞
+pub const DEFAULT_CONTINUE_PROMPT: &str = "請按照最佳實務繼續";
 
-/// MCP 请求超时时间 (ms)
+/// MCP 請求超時時间 (ms)
 pub const REQUEST_TIMEOUT_MS: u64 = 30000;
 
-/// MCP 重试次数
+/// MCP 重試次数
 pub const MAX_RETRY_COUNT: u32 = 3;
 
 // MCP 工具設定结构体
@@ -75,14 +75,14 @@ impl McpConfig {
         self.tools.iter().find(|tool| tool.tool_id == tool_id)
     }
 
-    /// 檢查工具是否启用
+    /// 檢查工具是否啟用
     pub fn is_tool_enabled(&self, tool_id: &str) -> bool {
         self.get_tool_config(tool_id)
             .map(|tool| tool.enabled)
             .unwrap_or(false)
     }
 
-    /// 設定工具启用狀態
+    /// 設定工具啟用狀態
     pub fn set_tool_enabled(&mut self, tool_id: &str, enabled: bool) -> bool {
         if let Some(tool) = self.tools.iter_mut().find(|tool| tool.tool_id == tool_id) {
             if tool.can_disable || enabled {

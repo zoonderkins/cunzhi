@@ -2,11 +2,11 @@ use crate::config::AppState;
 use crate::log_important;
 use tauri::{AppHandle, Manager};
 
-/// 處理應用退出请求（从前端快捷键呼叫）
+/// 處理應用退出請求（从前端快捷键呼叫）
 pub async fn handle_exit_request_internal(app_handle: AppHandle) -> Result<bool, String> {
     let state = app_handle.state::<AppState>();
     
-    log_important!(info, "🔥 處理應用内退出请求");
+    log_important!(info, "🔥 處理應用内退出請求");
     
     crate::ui::exit::handle_system_exit_request(
         state,

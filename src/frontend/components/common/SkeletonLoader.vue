@@ -25,7 +25,7 @@ const _props = withDefaults(defineProps<Props>(), {
         <div class="bg-gray-200 dark:bg-gray-700 animate-pulse rounded-full w-6 h-6" />
       </div>
 
-      <!-- 内容骨架 -->
+      <!-- 內容骨架 -->
       <div class="flex-1 p-4 space-y-2">
         <div class="bg-gray-200 dark:bg-gray-700 animate-pulse rounded w-full h-6 mb-4" />
         <div
@@ -54,7 +54,7 @@ const _props = withDefaults(defineProps<Props>(), {
 
     <!-- 主界面骨架屏 -->
     <div v-else-if="type === 'main-layout'" class="flex flex-col items-center space-y-6 p-6 pt-12">
-      <!-- 标题区域 -->
+      <!-- 標題区域 -->
       <div class="flex items-center gap-3">
         <div class="bg-gray-200 dark:bg-gray-700 animate-pulse rounded-full w-10 h-10" />
         <div class="bg-gray-200 dark:bg-gray-700 animate-pulse rounded w-32 h-8" />
@@ -65,7 +65,7 @@ const _props = withDefaults(defineProps<Props>(), {
         <div class="bg-gray-200 dark:bg-gray-700 animate-pulse rounded-full w-24 h-6" />
       </div>
 
-      <!-- 副标题 -->
+      <!-- 副標題 -->
       <div class="flex justify-center">
         <div class="bg-gray-200 dark:bg-gray-700 animate-pulse rounded w-48 h-4" />
       </div>
@@ -78,7 +78,7 @@ const _props = withDefaults(defineProps<Props>(), {
         <div class="bg-gray-200 dark:bg-gray-700 animate-pulse rounded-full w-12 h-8" />
       </div>
 
-      <!-- 内容区域 -->
+      <!-- 內容区域 -->
       <div class="w-full max-w-6xl">
         <div class="grid grid-cols-2 gap-4">
           <div v-for="i in 4" :key="i" class="p-4 rounded-lg border border-gray-200 dark:border-gray-700">
@@ -90,7 +90,7 @@ const _props = withDefaults(defineProps<Props>(), {
       </div>
     </div>
 
-    <!-- 通用内容骨架屏 -->
+    <!-- 通用內容骨架屏 -->
     <div v-else class="space-y-2">
       <div
         v-for="i in lines" :key="i" class="bg-gray-200 dark:bg-gray-700 animate-pulse rounded mb-3" :class="[

@@ -7,28 +7,28 @@ const props = defineProps<{
   showControls?: boolean
 }>()
 
-// 預設显示控制面板
+// 預設顯示控制面板
 const showControls = ref(props.showControls !== false)
 
 const currentTheme = ref('dark')
 const showPopup = ref(true)
 
-// 模拟不同類型的 MCP 请求
+// 模拟不同類型的 MCP 請求
 const requestTemplates = [
   {
-    name: '基础文本请求',
+    name: '基础文本請求',
     request: {
       id: 'test-basic',
-      message: '这是一个基础的模拟请求，用于測試弹窗功能。请確認是否繼續執行操作。',
+      message: '这是一个基础的模拟請求，用于測試弹窗功能。請確認是否繼續執行操作。',
       is_markdown: false,
     },
   },
   {
-    name: '预定义選項请求',
+    name: '预定義選項請求',
     request: {
       id: 'test-options',
-      message: '请選擇您需要的操作類型：',
-      predefined_options: ['建立新檔案', '修改现有檔案', '刪除檔案', '查看檔案内容'],
+      message: '請選擇您需要的操作類型：',
+      predefined_options: ['建立新檔案', '修改现有檔案', '刪除檔案', '查看檔案內容'],
       is_markdown: false,
     },
   },
@@ -36,11 +36,11 @@ const requestTemplates = [
     name: 'Markdown + 代码块',
     request: {
       id: 'test-markdown-code',
-      message: `# 代码审查请求
+      message: `# 代码审查請求
 
-我需要对以下代码进行审查和最佳化：
+我需要对以下代码進行审查和最佳化：
 
-## 当前代码
+## 當前代码
 
 \`\`\`typescript
 interface User {
@@ -101,13 +101,13 @@ function isValidEmail(email: string): boolean {
 }
 \`\`\`
 
-请選擇您希望的操作：`,
+請選擇您希望的操作：`,
       predefined_options: ['應用建议的改进', '需要进一步讨论', '查看更多示例', '拒绝修改'],
       is_markdown: true,
     },
   },
   {
-    name: '自訂请求',
+    name: '自訂請求',
     request: {
       id: 'test-custom',
       message: `# 🎨 新弹窗系統測試
@@ -115,17 +115,17 @@ function isValidEmail(email: string): boolean {
 欢迎使用重构后的弹窗系統！
 
 ## ✨ 新特性
-- 🧩 **模組化元件**：头部、内容、輸入、操作栏独立元件
+- 🧩 **模組化元件**：头部、內容、輸入、操作栏独立元件
 - 🎭 **过渡动画**：流畅的切换效果和骨架屏
 - 🏠 **主界面切换**：点击头部按钮可切换到主界面
 - 🎯 **狀態管理**：完整的應用狀態管理系統
 - 🧪 **模拟資料**：支持完全脱离MCP服务執行
 
 ## 🔧 測試功能
-请尝试以下操作：
+請嘗試以下操作：
 1. 切换主題
-2. 選擇预定义選項
-3. 輸入文本内容
+2. 選擇预定義選項
+3. 輸入文本內容
 4. 拖拽或貼上图片
 5. 点击主界面按钮
 
@@ -139,7 +139,7 @@ interface PopupSystem {
 }
 \`\`\`
 
-请選擇您要測試的功能：`,
+請選擇您要測試的功能：`,
       predefined_options: [
         '🎨 測試主題切换',
         '🏠 切换到主界面',
@@ -153,7 +153,7 @@ interface PopupSystem {
   },
 ]
 
-const currentTemplate = ref(2) // 預設显示markdown模板
+const currentTemplate = ref(2) // 預設顯示markdown模板
 const currentRequest = ref(requestTemplates[2].request)
 
 function switchTemplate(index: number) {
@@ -162,7 +162,7 @@ function switchTemplate(index: number) {
 }
 
 function handleResponse(response: any) {
-  console.log('MCP 响应:', response)
+  console.log('MCP 回應:', response)
 }
 
 function handleCancel() {
@@ -194,7 +194,7 @@ function togglePopup() {
               測試模式
             </n-tag>
             <n-button size="small" @click="togglePopup">
-              {{ showPopup ? '隐藏弹窗' : '显示弹窗' }}
+              {{ showPopup ? '隐藏弹窗' : '顯示弹窗' }}
             </n-button>
           </n-space>
         </template>
@@ -204,7 +204,7 @@ function togglePopup() {
           <n-card title="測試控制" size="small">
             <n-space vertical>
               <div class="control-section">
-                <h4>请求模板:</h4>
+                <h4>請求模板:</h4>
                 <n-space>
                   <n-button
                     v-for="(template, index) in requestTemplates" :key="index"
@@ -217,7 +217,7 @@ function togglePopup() {
               </div>
 
               <div class="control-section">
-                <h4>当前狀態:</h4>
+                <h4>當前狀態:</h4>
                 <n-space vertical size="small">
                   <n-space align="center" justify="space-between">
                     <span>主題:</span>
@@ -229,7 +229,7 @@ function togglePopup() {
                   <n-space align="center" justify="space-between">
                     <span>弹窗:</span>
                     <n-tag size="small" :type="showPopup ? 'success' : 'default'">
-                      {{ showPopup ? '显示' : '隐藏' }}
+                      {{ showPopup ? '顯示' : '隐藏' }}
                     </n-tag>
                   </n-space>
 
@@ -245,7 +245,7 @@ function togglePopup() {
           </n-card>
         </div>
 
-        <!-- 弹窗元件显示区域 -->
+        <!-- 弹窗元件顯示区域 -->
         <div class="popup-container">
           <!-- 弹窗元件 -->
           <div v-if="showPopup" class="popup-mode">
@@ -262,7 +262,7 @@ function togglePopup() {
           <div v-else class="hidden-state">
             <div class="hidden-message">
               <h3>弹窗已隐藏</h3>
-              <p>点击"显示弹窗"按钮来查看弹窗元件</p>
+              <p>点击"顯示弹窗"按钮来查看弹窗元件</p>
             </div>
           </div>
         </div>
@@ -277,7 +277,7 @@ function togglePopup() {
               </div>
               <div class="flex items-center text-sm">
                 <div class="w-1.5 h-1.5 bg-green-500 rounded-full mr-3 flex-shrink-0" />
-                模組化元件：头部、内容、輸入、操作栏独立元件
+                模組化元件：头部、內容、輸入、操作栏独立元件
               </div>
               <div class="flex items-center text-sm">
                 <div class="w-1.5 h-1.5 bg-green-500 rounded-full mr-3 flex-shrink-0" />
@@ -297,7 +297,7 @@ function togglePopup() {
       </n-card>
     </div>
 
-    <!-- 纯净模式 - 只显示弹窗 -->
+    <!-- 纯净模式 - 只顯示弹窗 -->
     <div v-else class="pure-mode">
       <McpPopup
         :request="currentRequest" :current-theme="currentTheme" :mock-mode="true" @response="handleResponse"

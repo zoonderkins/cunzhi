@@ -10,7 +10,7 @@ const { mcpTools, loading: mcpLoading, loadMcpTools, enabledTools } = useMcpTool
 // i18n
 const { t } = useI18n()
 
-// 根据MCP工具狀態动态生成提示词
+// 根据MCP工具狀態動態生成提示詞
 const promptContent = computed(() => {
   // 将后端資料格式转换为前端格式
   const frontendTools = mcpTools.value.map(tool => ({
@@ -29,7 +29,7 @@ const promptContent = computed(() => {
 
 const copyButtonText = ref('複製')
 
-// 複製参考提示词内容
+// 複製參考提示詞內容
 async function copyPromptContent() {
   try {
     await navigator.clipboard.writeText(promptContent.value)
@@ -47,7 +47,7 @@ async function copyPromptContent() {
   }
 }
 
-// 元件挂载时載入MCP工具設定
+// 元件挂载時載入MCP工具設定
 onMounted(async () => {
   if (mcpTools.value.length === 0) {
     try {
@@ -66,7 +66,7 @@ onMounted(async () => {
       vertical
       size="medium"
     >
-      <!-- 参考提示词卡片 -->
+      <!-- 參考提示詞卡片 -->
       <n-card size="small">
         <!-- 卡片头部 -->
         <template #header>
@@ -80,7 +80,7 @@ onMounted(async () => {
                 <div class="i-carbon-document text-lg text-orange-600 dark:text-orange-400" />
               </div>
 
-              <!-- 标题訊息 -->
+              <!-- 標題訊息 -->
               <div>
                 <div class="text-lg font-medium mb-1 tracking-tight">
                   {{ t('prompts.title') }}
@@ -116,13 +116,13 @@ onMounted(async () => {
               正在載入MCP工具設定...
             </template>
             <template v-else>
-              当前已启用 {{ enabledTools.length }} / {{ mcpTools.length }} 个MCP工具，
+              當前已啟用 {{ enabledTools.length }} / {{ mcpTools.length }} 个MCP工具，
               可在"MCP工具"页面管理工具开关
             </template>
           </span>
         </div>
 
-        <!-- 启用工具列表 -->
+        <!-- 啟用工具列表 -->
         <div class="mb-4">
           <div class="text-sm font-medium mb-2 opacity-80">
             {{ t('prompts.enabledTools') }}
@@ -157,7 +157,7 @@ onMounted(async () => {
           />
         </div>
 
-        <!-- 内容区域 -->
+        <!-- 內容区域 -->
         <n-card embedded>
           <div class="text-sm font-mono leading-relaxed">
             <pre class="whitespace-pre-wrap my-0 opacity-90">{{ promptContent }}</pre>
@@ -174,13 +174,13 @@ onMounted(async () => {
               <div class="i-carbon-information text-lg text-blue-600 dark:text-blue-400" />
             </div>
 
-            <!-- 标题訊息 -->
+            <!-- 標題訊息 -->
             <div>
               <div class="text-lg font-medium mb-1 tracking-tight">
                 使用说明
               </div>
               <div class="text-sm opacity-60 font-normal">
-                如何使用和設定提示词
+                如何使用和設定提示詞
               </div>
             </div>
           </n-space>
@@ -192,15 +192,15 @@ onMounted(async () => {
         >
           <div class="flex items-center text-sm leading-relaxed">
             <div class="w-1.5 h-1.5 bg-green-500 rounded-full mr-3 flex-shrink-0" />
-            <span class="opacity-90">将此提示词新增到您的AI助手系統提示中，以获得最佳的交互体验</span>
+            <span class="opacity-90">将此提示詞新增到您的AI助手系統提示中，以获得最佳的交互体验</span>
           </div>
           <div class="flex items-center text-sm leading-relaxed">
             <div class="w-1.5 h-1.5 bg-blue-500 rounded-full mr-3 flex-shrink-0" />
-            <span class="opacity-90">提示词内容会根据"MCP工具"页面的开关設定自動更新</span>
+            <span class="opacity-90">提示詞內容会根据"MCP工具"页面的开关設定自動更新</span>
           </div>
           <div class="flex items-center text-sm leading-relaxed">
             <div class="w-1.5 h-1.5 bg-purple-500 rounded-full mr-3 flex-shrink-0" />
-            <span class="opacity-90">關閉的工具不会包含在生成的提示词中，对应的MCP服务也不会启用</span>
+            <span class="opacity-90">關閉的工具不会包含在生成的提示詞中，对应的MCP服务也不会啟用</span>
           </div>
         </n-space>
       </n-card>

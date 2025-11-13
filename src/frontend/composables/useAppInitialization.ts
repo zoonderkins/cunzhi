@@ -6,7 +6,7 @@ import { useSettings } from './useSettings'
 import { useVersionCheck } from './useVersionCheck'
 
 /**
- * 應用初始化组合式函數
+ * 應用初始化組合式函數
  */
 export function useAppInitialization(mcpHandler: ReturnType<typeof import('./useMcpHandler').useMcpHandler>) {
   const isInitializing = ref(true)
@@ -39,7 +39,7 @@ export function useAppInitialization(mcpHandler: ReturnType<typeof import('./use
       // 檢查是否为首次啟動
       const isFirstRun = checkFirstRun()
 
-      // 主題已在useTheme初始化时載入，这里不需要重复載入
+      // 主題已在useTheme初始化時載入，这里不需要重复載入
 
       // 載入語言設定和字型設定
       await Promise.all([
@@ -60,7 +60,7 @@ export function useAppInitialization(mcpHandler: ReturnType<typeof import('./use
 
       // 在MCP模式下，确保前端狀態与后端視窗狀態同步
       if (isMcp) {
-        console.log('MCP模式检测到，同步視窗狀態...')
+        console.log('MCP模式检測到，同步視窗狀態...')
         try {
           await settings.syncWindowStateFromBackend()
         }
@@ -77,7 +77,7 @@ export function useAppInitialization(mcpHandler: ReturnType<typeof import('./use
 
       // 如果是首次啟動，标记已初始化（主題已在上面載入过）
       if (isFirstRun) {
-        console.log('检测到首次啟動，标记應用已初始化')
+        console.log('检測到首次啟動，标记應用已初始化')
         markAsInitialized()
       }
 
@@ -86,7 +86,7 @@ export function useAppInitialization(mcpHandler: ReturnType<typeof import('./use
         // 静默處理版本檢查失敗
       })
 
-      // 结束初始化狀態
+      // 結束初始化狀態
       isInitializing.value = false
 
       return { isMcp, mcpContent }

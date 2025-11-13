@@ -33,7 +33,7 @@ defineProps<{
           />
         </div>
 
-        <!-- 标题和副标题 -->
+        <!-- 標題和副標題 -->
         <div>
           <div class="text-lg font-medium mb-1 tracking-tight">
             {{ feature.title }}

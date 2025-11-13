@@ -10,7 +10,7 @@ static INIT: Once = Once::new();
 /// 日誌設定
 #[derive(Debug, Clone)]
 pub struct LogConfig {
-    /// 日誌级别
+    /// 日誌级別
     pub level: LevelFilter,
     /// 日誌檔案路径（None 表示不輸出到檔案）
     pub file_path: Option<String>,
@@ -33,7 +33,7 @@ pub fn init_logger(config: LogConfig) -> Result<(), Box<dyn std::error::Error>> 
     INIT.call_once(|| {
         let mut builder = Builder::new();
         
-        // 設定日誌级别
+        // 設定日誌级別
         builder.filter_level(config.level);
         
         // 設定日誌格式
@@ -77,7 +77,7 @@ pub fn init_logger(config: LogConfig) -> Result<(), Box<dyn std::error::Error>> 
     Ok(())
 }
 
-/// 自動检测模式并初始化日誌系統
+/// 自動检測模式并初始化日誌系統
 pub fn auto_init_logger() -> Result<(), Box<dyn std::error::Error>> {
     let args: Vec<String> = env::args().collect();
     let is_mcp_mode = args.len() >= 3 && args[1] == "--mcp-request";
@@ -127,7 +127,7 @@ macro_rules! log_important {
     };
 }
 
-/// 便利宏：偵錯日誌（只在 debug 级别下輸出）
+/// 便利宏：偵錯日誌（只在 debug 级別下輸出）
 #[macro_export]
 macro_rules! log_debug {
     ($($arg:tt)*) => {
@@ -135,7 +135,7 @@ macro_rules! log_debug {
     };
 }
 
-/// 便利宏：跟踪日誌（只在 trace 级别下輸出）
+/// 便利宏：跟踪日誌（只在 trace 级別下輸出）
 #[macro_export]
 macro_rules! log_trace {
     ($($arg:tt)*) => {
@@ -158,7 +158,7 @@ mod tests {
     
     #[test]
     fn test_mcp_mode_detection() {
-        // 这个測試需要在实际环境中執行
+        // 这个測試需要在實際環境中執行
         // 这里只是展示如何測試
     }
 }

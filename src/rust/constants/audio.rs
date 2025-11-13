@@ -3,7 +3,7 @@
 /// 預設音訊 URL（空字符串表示使用内置音效）
 pub const DEFAULT_URL: &str = "";
 
-/// 預設音訊通知启用狀態
+/// 預設音訊通知啟用狀態
 pub const DEFAULT_NOTIFICATION_ENABLED: bool = false;
 
 /// 音訊檔案支持的格式

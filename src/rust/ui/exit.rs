@@ -9,38 +9,38 @@ use tauri::{AppHandle, Manager, State, Emitter};
 pub fn should_allow_exit(state: &State<AppState>) -> Result<(bool, bool), String> {
     let now = Instant::now();
 
-    // 獲取当前退出尝试计数和上次尝试时间
+    // 獲取當前退出嘗試计数和上次嘗試時间
     let (current_count, last_attempt) = {
         let count_guard = state.exit_attempt_count.lock()
             .map_err(|e| format!("獲取退出计数失敗: {}", e))?;
         let time_guard = state.last_exit_attempt.lock()
-            .map_err(|e| format!("獲取退出时间失敗: {}", e))?;
+            .map_err(|e| format!("獲取退出時间失敗: {}", e))?;
 
         (*count_guard, *time_guard)
     };
 
-    log_important!(info, "🔍 退出檢查 - 当前计数: {}, 要求计数: {}", current_count, REQUIRED_EXIT_ATTEMPTS);
+    log_important!(info, "🔍 退出檢查 - 當前计数: {}, 要求计数: {}", current_count, REQUIRED_EXIT_ATTEMPTS);
 
-    // 檢查时间視窗
+    // 檢查時间視窗
     let within_time_window = if let Some(last_time) = last_attempt {
         let elapsed = now.duration_since(last_time);
         let within_window = elapsed <= Duration::from_secs(EXIT_CONFIRMATION_WINDOW_SECS);
-        log_important!(info, "🔍 时间視窗檢查 - 距离上次: {:?}, 視窗期: {}秒, 在視窗内: {}",
+        log_important!(info, "🔍 時间視窗檢查 - 距离上次: {:?}, 視窗期: {}秒, 在視窗内: {}",
                 elapsed, EXIT_CONFIRMATION_WINDOW_SECS, within_window);
         within_window
     } else {
-        log_important!(info, "🔍 首次退出尝试");
+        log_important!(info, "🔍 首次退出嘗試");
         false
     };
     
-    // 如果超出时间視窗，重置计数器并开始新的计数
+    // 如果超出時间視窗，重置计数器并開始新的计数
     if !within_time_window {
         reset_exit_attempts(state)?;
         increment_exit_attempts(state, now)?;
-        return Ok((false, true)); // 不退出，显示警告
+        return Ok((false, true)); // 不退出，顯示警告
     }
 
-    // 在时间視窗内，先增加计数，然后檢查是否达到要求
+    // 在時间視窗内，先增加计数，然后檢查是否达到要求
     increment_exit_attempts(state, now)?;
     let new_count = {
         let count_guard = state.exit_attempt_count.lock()
@@ -49,16 +49,16 @@ pub fn should_allow_exit(state: &State<AppState>) -> Result<(bool, bool), String
     };
 
     if new_count >= REQUIRED_EXIT_ATTEMPTS {
-        // 达到要求的尝试次数，允许退出
+        // 达到要求的嘗試次数，允许退出
         reset_exit_attempts(state)?;
         Ok((true, false))
     } else {
-        // 还未达到要求次数，显示警告
+        // 还未达到要求次数，顯示警告
         Ok((false, true))
     }
 }
 
-/// 重置退出尝试计数器
+/// 重置退出嘗試计数器
 fn reset_exit_attempts(state: &State<AppState>) -> Result<(), String> {
     {
         let mut count_guard = state.exit_attempt_count.lock()
@@ -68,14 +68,14 @@ fn reset_exit_attempts(state: &State<AppState>) -> Result<(), String> {
     
     {
         let mut time_guard = state.last_exit_attempt.lock()
-            .map_err(|e| format!("重置退出时间失敗: {}", e))?;
+            .map_err(|e| format!("重置退出時间失敗: {}", e))?;
         *time_guard = None;
     }
     
     Ok(())
 }
 
-/// 增加退出尝试计数
+/// 增加退出嘗試计数
 fn increment_exit_attempts(state: &State<AppState>, now: Instant) -> Result<(), String> {
     {
         let mut count_guard = state.exit_attempt_count.lock()
@@ -85,14 +85,14 @@ fn increment_exit_attempts(state: &State<AppState>, now: Instant) -> Result<(), 
     
     {
         let mut time_guard = state.last_exit_attempt.lock()
-            .map_err(|e| format!("更新退出时间失敗: {}", e))?;
+            .map_err(|e| format!("更新退出時间失敗: {}", e))?;
         *time_guard = Some(now);
     }
     
     Ok(())
 }
 
-/// 處理系統退出请求（来自快捷键或視窗關閉按钮）
+/// 處理系統退出請求（来自快捷键或視窗關閉按钮）
 pub async fn handle_system_exit_request(
     state: State<'_, AppState>,
     app: &AppHandle,
@@ -111,7 +111,7 @@ pub async fn handle_system_exit_request(
         perform_exit(app.clone()).await?;
         Ok(true)
     } else if show_warning {
-        // 发送警告消息到前端
+        // 傳送警告消息到前端
         let warning_message = format!(
             "再次按下退出快捷键以確認退出 ({}秒内有效)",
             EXIT_CONFIRMATION_WINDOW_SECS
@@ -120,14 +120,14 @@ pub async fn handle_system_exit_request(
         if let Some(window) = app.get_webview_window("main") {
             match window.emit("exit-warning", &warning_message) {
                 Ok(_) => {
-                    log_important!(info, "✅ 退出警告事件已发送: {}", warning_message);
+                    log_important!(info, "✅ 退出警告事件已傳送: {}", warning_message);
                 }
                 Err(e) => {
-                    log_important!(error, "❌ 发送退出警告事件失敗: {}", e);
+                    log_important!(error, "❌ 傳送退出警告事件失敗: {}", e);
                 }
             }
         } else {
-            log_important!(error, "❌ 无法獲取主視窗，无法发送退出警告");
+            log_important!(error, "❌ 無法獲取主視窗，無法傳送退出警告");
         }
         Ok(false)
     } else {
@@ -135,7 +135,7 @@ pub async fn handle_system_exit_request(
     }
 }
 
-/// 執行实际的退出操作
+/// 執行實際的退出操作
 async fn perform_exit(app: AppHandle) -> Result<(), String> {
     // 關閉所有視窗
     if let Some(window) = app.get_webview_window("main") {
@@ -154,7 +154,7 @@ pub async fn force_exit_app(app: AppHandle) -> Result<(), String> {
     perform_exit(app).await
 }
 
-/// Tauri命令：重置退出尝试计数器
+/// Tauri命令：重置退出嘗試计数器
 #[tauri::command]
 pub async fn reset_exit_attempts_cmd(state: State<'_, AppState>) -> Result<(), String> {
     reset_exit_attempts(&state)

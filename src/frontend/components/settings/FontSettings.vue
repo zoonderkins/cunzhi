@@ -23,19 +23,19 @@ const customFontInput = ref('')
 const fontNameInput = ref('')
 const isLoading = ref(false)
 
-// 计算当前字型系列的显示名称
+// 计算當前字型系列的顯示名称
 const currentFontFamilyName = computed(() => {
   const option = fontFamilyOptions.value.find(opt => opt.id === fontConfig.value.font_family)
   return option?.name || '未知'
 })
 
-// 计算当前字型大小的显示名称
+// 计算當前字型大小的顯示名称
 const currentFontSizeName = computed(() => {
   const option = fontSizeOptions.value.find(opt => opt.id === fontConfig.value.font_size)
   return option?.name || '未知'
 })
 
-// 處理字型系列变更
+// 處理字型系列變更
 async function handleFontFamilyChange(value: string) {
   if (isLoading.value)
     return
@@ -49,7 +49,7 @@ async function handleFontFamilyChange(value: string) {
       customFontInput.value = ''
     }
     else {
-      // 如果切换到自訂字型，使用当前的自訂字型值
+      // 如果切换到自訂字型，使用當前的自訂字型值
       customFontInput.value = fontConfig.value.custom_font_family
     }
 
@@ -64,7 +64,7 @@ async function handleFontFamilyChange(value: string) {
   }
 }
 
-// 處理字型大小变更
+// 處理字型大小變更
 async function handleFontSizeChange(value: string) {
   if (isLoading.value)
     return
@@ -83,7 +83,7 @@ async function handleFontSizeChange(value: string) {
   }
 }
 
-// 處理自訂字型系列变更
+// 處理自訂字型系列變更
 async function handleCustomFontFamilyChange() {
   if (isLoading.value || !customFontInput.value.trim())
     return
@@ -149,7 +149,7 @@ async function handleResetConfig() {
   }
 }
 
-// 元件挂载时載入資料
+// 元件挂载時載入資料
 onMounted(async () => {
   try {
     await Promise.all([
@@ -165,7 +165,7 @@ onMounted(async () => {
 </script>
 
 <template>
-  <!-- 設定内容 -->
+  <!-- 設定內容 -->
   <div class="space-y-6">
     <n-space vertical size="large">
       <!-- 字型系列設定 -->
@@ -202,7 +202,7 @@ onMounted(async () => {
           @update:value="handleFontFamilyChange"
         />
 
-        <!-- 自訂字型輸入（当選擇自訂时显示） -->
+        <!-- 自訂字型輸入（当選擇自訂時顯示） -->
         <n-collapse-transition :show="fontConfig.font_family === 'custom'">
           <div class="mt-3">
             <div class="text-xs opacity-60 mb-2">
@@ -229,7 +229,7 @@ onMounted(async () => {
         </n-collapse-transition>
 
         <div class="text-xs opacity-50 mt-2">
-          当前: {{ currentFontFamilyName }}
+          當前: {{ currentFontFamilyName }}
         </div>
       </div>
 
@@ -279,7 +279,7 @@ onMounted(async () => {
               字型大小
             </div>
             <div class="text-xs opacity-60">
-              调整應用界面的字型大小
+              調整應用界面的字型大小
             </div>
           </div>
         </div>
@@ -296,7 +296,7 @@ onMounted(async () => {
           </n-button>
         </n-space>
         <div class="text-xs opacity-50 mt-1">
-          当前: {{ currentFontSizeName }} ({{ (currentFontScale * 100).toFixed(0) }}%)
+          當前: {{ currentFontSizeName }} ({{ (currentFontScale * 100).toFixed(0) }}%)
         </div>
       </div>
 
@@ -310,7 +310,7 @@ onMounted(async () => {
                 字型预览
               </div>
               <div class="text-xs opacity-60">
-                实时预览当前字型效果
+                实時预览當前字型效果
               </div>
             </div>
           </div>
@@ -323,7 +323,7 @@ onMounted(async () => {
           }"
         >
           <div class="mb-3 font-medium text-lg">
-            寸止 - AI 对话持续工具
+            寸止 - AI 對話持续工具
           </div>
           <div class="mb-3 opacity-80">
             The quick brown fox jumps over the lazy dog.
@@ -342,7 +342,7 @@ onMounted(async () => {
           </div>
         </div>
         <div class="text-xs opacity-50 mt-2 space-y-1">
-          <div>当前字型: {{ currentFontFamily }}</div>
+          <div>當前字型: {{ currentFontFamily }}</div>
         </div>
       </div>
     </n-space>

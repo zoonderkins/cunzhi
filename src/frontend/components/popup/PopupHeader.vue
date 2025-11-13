@@ -41,7 +41,7 @@ function handleToggleAlwaysOnTop() {
 <template>
   <div class="px-4 py-3 select-none">
     <div class="flex items-center justify-between">
-      <!-- 左侧：标题 -->
+      <!-- 左侧：標題 -->
       <div class="flex items-center gap-3">
         <div class="w-3 h-3 rounded-full bg-primary-500" />
         <h1 class="text-base font-medium text-white">

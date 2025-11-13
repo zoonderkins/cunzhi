@@ -2,7 +2,7 @@ import { invoke } from '@tauri-apps/api/core'
 import { getCurrentWebviewWindow } from '@tauri-apps/api/webviewWindow'
 import { ref } from 'vue'
 
-// 单例实例
+// 單例实例
 let settingsInstance: ReturnType<typeof createSettings> | null = null
 
 function createSettings() {
@@ -22,7 +22,7 @@ function createSettings() {
 
   // 繼續回复設定
   const continueReplyEnabled = ref(true)
-  const continuePrompt = ref('请按照最佳实践繼續')
+  const continuePrompt = ref('請按照最佳實務繼續')
 
   // 視窗约束和 UI 常量
   const windowConstraints = ref({
@@ -39,10 +39,10 @@ function createSettings() {
   // Naive UI 消息实例
   let message: any = null
 
-  // 节流定时器
+  // 節流定時器
   let resizeThrottleTimer: number | null = null
 
-  // 視窗大小变化監聽器
+  // 視窗大小變化監聽器
   let windowResizeUnlisten: (() => void) | null = null
 
   function setMessageInstance(messageInstance: any) {
@@ -103,7 +103,7 @@ function createSettings() {
         if (replyConfig) {
           const config = replyConfig as any
           continueReplyEnabled.value = config.enable_continue_reply || true
-          continuePrompt.value = config.continue_prompt || '请按照最佳实践繼續'
+          continuePrompt.value = config.continue_prompt || '請按照最佳實務繼續'
         }
       }
       catch {
@@ -135,7 +135,7 @@ function createSettings() {
     }
   }
 
-  // 从后端同步視窗狀態（用于MCP弹窗啟動时确保狀態一致）
+  // 从后端同步視窗狀態（用于MCP弹窗啟動時确保狀態一致）
   async function syncWindowStateFromBackend() {
     try {
       console.log('同步視窗狀態...')
@@ -184,13 +184,13 @@ function createSettings() {
   async function testAudioSound() {
     try {
       await invoke('test_audio_sound')
-      // 只有在成功时才显示成功提示
+      // 只有在成功時才顯示成功提示
       if (message) {
         message.success('音效測試播放成功')
       }
     }
     catch (error) {
-      // 显示錯誤提示给用户
+      // 顯示錯誤提示给用户
       console.error('音效測試失敗:', error)
       if (message) {
         message.error(`音效測試失敗: ${error}`)
@@ -211,7 +211,7 @@ function createSettings() {
   // 更新視窗大小
   async function updateWindowSize(size: { width: number, height: number, fixed: boolean }) {
     try {
-      // update_window_size 命令已经会同时更新 WindowConfig 中的所有相关設定
+      // update_window_size 命令已经会同時更新 WindowConfig 中的所有相关設定
       await invoke('update_window_size', { sizeUpdate: size })
 
       // 更新本地狀態
@@ -225,7 +225,7 @@ function createSettings() {
         removeWindowResizeListener()
       }
       else {
-        // 自由拉伸模式：启用監聽器
+        // 自由拉伸模式：啟用監聽器
         await setupWindowResizeListener()
       }
 
@@ -242,7 +242,7 @@ function createSettings() {
     }
   }
 
-  // 节流儲存視窗尺寸
+  // 節流儲存視窗尺寸
   function throttledSaveWindowSize() {
     if (resizeThrottleTimer) {
       clearTimeout(resizeThrottleTimer)
@@ -252,12 +252,12 @@ function createSettings() {
       try {
         // 只在自由拉伸模式下儲存
         if (!fixedWindowSize.value) {
-          // 獲取当前視窗的逻辑尺寸
+          // 獲取當前視窗的逻辑尺寸
           const result = await invoke('get_current_window_size')
           if (result && typeof result === 'object') {
             const { width, height } = result as any
 
-            // 驗證尺寸，如果小于最小限制则调整为最小尺寸
+            // 驗證尺寸，如果小于最小限制则調整为最小尺寸
             let adjustedWidth = width
             let adjustedHeight = height
             let wasAdjusted = false
@@ -272,7 +272,7 @@ function createSettings() {
             }
 
             if (wasAdjusted) {
-              console.log(`視窗尺寸已调整: ${width}x${height} -> ${adjustedWidth}x${adjustedHeight}`)
+              console.log(`視窗尺寸已調整: ${width}x${height} -> ${adjustedWidth}x${adjustedHeight}`)
             }
 
             await invoke('set_window_settings', {
@@ -301,10 +301,10 @@ function createSettings() {
           console.error('儲存視窗尺寸失敗:', error)
         }
       }
-    }, windowConstraints.value.resize_throttle_ms) // 使用設定的节流时间
+    }, windowConstraints.value.resize_throttle_ms) // 使用設定的節流時间
   }
 
-  // 設定視窗大小变化監聽器
+  // 設定視窗大小變化監聽器
   async function setupWindowResizeListener() {
     try {
       const webview = getCurrentWebviewWindow()
@@ -314,19 +314,19 @@ function createSettings() {
         windowResizeUnlisten()
       }
 
-      // 監聽視窗大小变化
+      // 監聽視窗大小變化
       windowResizeUnlisten = await webview.onResized(() => {
         throttledSaveWindowSize()
       })
 
-      console.log('視窗大小变化監聽器已設定')
+      console.log('視窗大小變化監聽器已設定')
     }
     catch (error) {
-      console.error('設定視窗大小变化監聽器失敗:', error)
+      console.error('設定視窗大小變化監聽器失敗:', error)
     }
   }
 
-  // 移除視窗大小变化監聽器
+  // 移除視窗大小變化監聽器
   function removeWindowResizeListener() {
     if (windowResizeUnlisten) {
       windowResizeUnlisten()

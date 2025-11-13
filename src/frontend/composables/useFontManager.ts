@@ -20,7 +20,7 @@ export interface FontSizeOption {
 }
 
 /**
- * 字型管理组合式函數
+ * 字型管理組合式函數
  */
 export function useFontManager() {
   // 響應式狀態
@@ -33,7 +33,7 @@ export function useFontManager() {
   const fontFamilyOptions = ref<FontFamilyOption[]>([])
   const fontSizeOptions = ref<FontSizeOption[]>([])
 
-  // 计算当前字型CSS值
+  // 计算當前字型CSS值
   const currentFontFamily = computed(() => {
     if (fontConfig.value.font_family === 'custom') {
       return fontConfig.value.custom_font_family
@@ -43,7 +43,7 @@ export function useFontManager() {
     return option?.css_value || fontFamilyOptions.value[0]?.css_value || 'Inter, sans-serif'
   })
 
-  // 计算当前字型大小比例
+  // 计算當前字型大小比例
   const currentFontScale = computed(() => {
     const option = fontSizeOptions.value.find(opt => opt.id === fontConfig.value.font_size)
     return option?.scale || 1.0
@@ -61,7 +61,7 @@ export function useFontManager() {
     // 設定字型大小比例CSS變數
     root.style.setProperty('--font-size-scale', currentFontScale.value.toString())
 
-    // 應用字型大小到各个尺寸级别
+    // 應用字型大小到各个尺寸级別
     const baseSizes = [
       { name: 'xs', base: 0.75 },
       { name: 'sm', base: 0.875 },
@@ -175,12 +175,12 @@ export function useFontManager() {
     }
   }
 
-  // 監聽字型設定变化，自動應用
+  // 監聽字型設定變化，自動應用
   watch([currentFontFamily, currentFontScale], () => {
     applyFontVariables()
   }, { immediate: true })
 
-  // 監聽字型設定物件变化
+  // 監聽字型設定物件變化
   watch(fontConfig, () => {
     applyFontVariables()
   }, { deep: true })

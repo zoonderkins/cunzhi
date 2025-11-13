@@ -13,7 +13,7 @@ export function useShortcuts() {
 
   const keys = useMagicKeys()
 
-  // 检测操作系統
+  // 检測操作系統
   const isMac = computed(() => {
     if (typeof navigator !== 'undefined') {
       return navigator.platform.toUpperCase().includes('MAC')
@@ -122,7 +122,7 @@ export function useShortcuts() {
     return null
   }
 
-  // 獲取指定动作的快捷键
+  // 獲取指定動作的快捷键
   function getShortcutByAction(action: string): ShortcutBinding | null {
     for (const binding of Object.values(shortcutConfig.value.shortcuts)) {
       if (binding.action === action) {
@@ -132,16 +132,16 @@ export function useShortcuts() {
     return null
   }
 
-  // 獲取快速發送快捷鍵的显示文本
+  // 獲取快速發送快捷鍵的顯示文本
   const quickSubmitShortcutText = computed(() => {
     const binding = getShortcutByAction('submit')
     if (!binding) {
-      return isMac.value ? '⌘+回车 快速发送' : 'Ctrl+回车 快速发送'
+      return isMac.value ? '⌘+回车 快速傳送' : 'Ctrl+回车 快速傳送'
     }
     return `${shortcutKeyToString(binding.key_combination)} ${binding.name}`
   })
 
-  // 獲取增強快捷鍵的显示文本
+  // 獲取增強快捷鍵的顯示文本
   const enhanceShortcutText = computed(() => {
     const binding = getShortcutByAction('enhance')
     if (!binding) {
@@ -150,7 +150,7 @@ export function useShortcuts() {
     return `${shortcutKeyToString(binding.key_combination)} ${binding.name}`
   })
 
-  // 獲取繼續快捷鍵的显示文本
+  // 獲取繼續快捷鍵的顯示文本
   const continueShortcutText = computed(() => {
     const binding = getShortcutByAction('continue')
     if (!binding) {

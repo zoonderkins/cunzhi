@@ -6,7 +6,7 @@ use std::path::{Path, PathBuf};
 use crate::mcp::types::PopupRequest;
 use crate::log_debug;
 
-/// RAII 临时檔案自動清理器
+/// RAII 临時檔案自動清理器
 struct TempFile(PathBuf);
 
 impl TempFile {
@@ -23,21 +23,21 @@ impl Drop for TempFile {
     fn drop(&mut self) {
         if self.0.exists() {
             match fs::remove_file(&self.0) {
-                Ok(_) => log_debug!("临时檔案已清理: {:?}", self.0),
-                Err(e) => log_debug!("清理临时檔案失敗: {:?}, 錯誤: {}", self.0, e),
+                Ok(_) => log_debug!("临時檔案已清理: {:?}", self.0),
+                Err(e) => log_debug!("清理临時檔案失敗: {:?}, 錯誤: {}", self.0, e),
             }
         }
     }
 }
 
-/// 清理旧的 MCP 临时檔案
+/// 清理旧的 MCP 临時檔案
 ///
-/// 啟動时呼叫，清理超过 1 小时的临时檔案
+/// 啟動時呼叫，清理超过 1 小時的临時檔案
 pub fn cleanup_old_temp_files() {
     use std::time::{SystemTime, UNIX_EPOCH};
 
     let temp_dir = std::env::temp_dir();
-    log_debug!("开始清理旧临时檔案，目录: {:?}", temp_dir);
+    log_debug!("開始清理旧临時檔案，目录: {:?}", temp_dir);
 
     let now = SystemTime::now()
         .duration_since(UNIX_EPOCH)
@@ -49,21 +49,21 @@ pub fn cleanup_old_temp_files() {
     if let Ok(entries) = fs::read_dir(&temp_dir) {
         for entry in entries.flatten() {
             if let Ok(file_name) = entry.file_name().into_string() {
-                // 只處理 MCP 請求临时檔案
+                // 只處理 MCP 請求临時檔案
                 if file_name.starts_with("mcp_request_") && file_name.ends_with(".json") {
-                    // 檢查檔案修改时间
+                    // 檢查檔案修改時间
                     if let Ok(metadata) = entry.metadata() {
                         if let Ok(modified) = metadata.modified() {
                             if let Ok(modified_since_epoch) = modified.duration_since(UNIX_EPOCH) {
                                 let age_secs = now.saturating_sub(modified_since_epoch.as_secs());
 
-                                // 清理超过 1 小时（3600 秒）的檔案
+                                // 清理超过 1 小時（3600 秒）的檔案
                                 if age_secs > 3600 {
                                     if let Err(e) = fs::remove_file(entry.path()) {
-                                        log_debug!("清理旧临时檔案失敗: {:?}, 錯誤: {}", entry.path(), e);
+                                        log_debug!("清理旧临時檔案失敗: {:?}, 錯誤: {}", entry.path(), e);
                                     } else {
                                         cleaned_count += 1;
-                                        log_debug!("已清理旧临时檔案: {:?} ({}小时前)", entry.path(), age_secs / 3600);
+                                        log_debug!("已清理旧临時檔案: {:?} ({}小時前)", entry.path(), age_secs / 3600);
                                     }
                                 }
                             }
@@ -75,7 +75,7 @@ pub fn cleanup_old_temp_files() {
     }
 
     if cleaned_count > 0 {
-        log_debug!("清理完成，共清理 {} 个旧临时檔案", cleaned_count);
+        log_debug!("清理完成，共清理 {} 个旧临時檔案", cleaned_count);
     }
 }
 
@@ -83,16 +83,16 @@ pub fn cleanup_old_temp_files() {
 ///
 /// 优先呼叫与 MCP 服务器同目录的 UI 命令，找不到時使用全局版本
 pub fn create_tauri_popup(request: &PopupRequest) -> Result<String> {
-    // 建立临时请求檔案 - 跨平台适配
+    // 建立临時請求檔案 - 跨平台适配
     let temp_dir = std::env::temp_dir();
     let temp_file_path = temp_dir.join(format!("mcp_request_{}.json", request.id));
     let request_json = serde_json::to_string_pretty(request)?;
     fs::write(&temp_file_path, request_json)?;
 
-    // 使用 RAII 自動清理临时檔案
+    // 使用 RAII 自動清理临時檔案
     let temp_file = TempFile::new(temp_file_path);
 
-    // 尝试找到等一下命令的路径
+    // 嘗試找到等一下命令的路径
     let command_path = find_ui_command()?;
 
     // 呼叫等一下命令
@@ -119,13 +119,13 @@ pub fn create_tauri_popup(request: &PopupRequest) -> Result<String> {
 
 /// 查找等一下 UI 命令的路径
 ///
-/// 按优先级查找：同目录 -> 全局版本 -> 开发环境
+/// 按优先级查找：同目录 -> 全局版本 -> 开发環境
 fn find_ui_command() -> Result<String> {
     use crate::log_important;
 
-    // 1. 优先尝试与当前 MCP 服务器同目录的等一下命令
+    // 1. 优先嘗試与當前 MCP 服务器同目录的等一下命令
     if let Ok(current_exe) = std::env::current_exe() {
-        log_debug!("当前可執行檔案路径: {:?}", current_exe);
+        log_debug!("當前可執行檔案路径: {:?}", current_exe);
 
         if let Some(exe_dir) = current_exe.parent() {
             log_debug!("可執行檔案目录: {:?}", exe_dir);
@@ -147,8 +147,8 @@ fn find_ui_command() -> Result<String> {
         }
     }
 
-    // 2. 尝试全局命令（最常见的部署方式）
-    log_debug!("尝试查找全局 等一下 命令...");
+    // 2. 嘗試全局命令（最常见的部署方式）
+    log_debug!("嘗試查找全局 等一下 命令...");
     if test_command_available("等一下") {
         log_important!(info, "使用全局 等一下 命令");
         return Ok("等一下".to_string());
@@ -157,7 +157,7 @@ fn find_ui_command() -> Result<String> {
     // 3. 如果都找不到，傳回详细錯誤訊息
     log_important!(error, "找不到等一下 UI 命令");
     anyhow::bail!(
-        "找不到等一下 UI 命令。请确保：\n\
+        "找不到等一下 UI 命令。請确保：\n\
          1. 已編譯專案：cargo build --release\n\
          2. 或已全局安装：./install.sh\n\
          3. 或等一下命令在同目录下"

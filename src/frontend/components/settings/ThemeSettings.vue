@@ -14,7 +14,7 @@ defineEmits(['themeChange'])
 </script>
 
 <template>
-  <!-- 設定内容 -->
+  <!-- 設定內容 -->
   <div class="flex items-center justify-between">
     <div class="flex items-center">
       <div class="w-1.5 h-1.5 bg-primary-500 rounded-full mr-3 flex-shrink-0" />

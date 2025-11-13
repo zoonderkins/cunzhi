@@ -2,7 +2,7 @@
 import { invoke } from '@tauri-apps/api/core'
 import { computed, onMounted, ref, watch } from 'vue'
 
-// 類型定义
+// 類型定義
 interface AudioAsset {
   id: string
   name: string
@@ -22,11 +22,11 @@ const props = defineProps({
 
 const emit = defineEmits(['toggleAudioNotification', 'updateAudioUrl', 'testAudio', 'stopAudio', 'testAudioError'])
 
-// 预设音效設定（从后端獲取）
+// 預設音效設定（从后端獲取）
 const presetSounds = ref<AudioAsset[]>([])
 const loading = ref(true)
 
-// 当前选中的音效類型
+// 當前选中的音效類型
 const selectedSoundType = ref('preset') // 'preset' | 'custom'
 const selectedPreset = ref('default') // 使用资源ID
 const customUrl = ref('')
@@ -47,7 +47,7 @@ async function loadAudioAssets() {
       filename: asset.filename,
     }))
 
-    // 如果没有选中的预设，預設選擇第一个
+    // 如果没有选中的預設，預設選擇第一个
     if (!selectedPreset.value && presetSounds.value.length > 0) {
       selectedPreset.value = presetSounds.value[0].id
     }
@@ -60,7 +60,7 @@ async function loadAudioAssets() {
   }
 }
 
-// 计算当前音效URL
+// 计算當前音效URL
 const currentAudioUrl = computed(() => {
   if (selectedSoundType.value === 'preset') {
     return selectedPreset.value // 傳回资源ID
@@ -75,7 +75,7 @@ function updateAudioConfig() {
   emit('updateAudioUrl', currentAudioUrl.value)
 }
 
-// 切换到预设音效
+// 切换到預設音效
 function selectPreset(presetId) {
   selectedSoundType.value = 'preset'
   selectedPreset.value = presetId
@@ -87,7 +87,7 @@ function selectPreset(presetId) {
 
 // 停止之前的音訊播放
 function stopPreviousAudio() {
-  // 发送停止音訊事件到父元件
+  // 傳送停止音訊事件到父元件
   emit('stopAudio')
 }
 
@@ -99,7 +99,7 @@ function selectCustom() {
     updateAudioConfig()
   }
   else {
-    // 否则显示自訂輸入界面，設定为显示狀態
+    // 否则顯示自訂輸入界面，設定为顯示狀態
     customAudioState.value = 'show_input'
     if (!customUrl.value) {
       customUrl.value = ''
@@ -108,7 +108,7 @@ function selectCustom() {
   }
 }
 
-// 判断是否为预设音效ID（从服务端獲取的列表）
+// 判断是否为預設音效ID（从服务端獲取的列表）
 function isPresetId(id: string) {
   return presetSounds.value.some(s => s.id === id)
 }
@@ -119,40 +119,40 @@ async function saveCustomUrl() {
     return
 
   customAudioState.value = 'saved'
-  // 这里不立即切换到自訂模式，需要试听成功后才切换
+  // 这里不立即切换到自訂模式，需要試听成功后才切换
 }
 
-// 试听自訂音訊
+// 試听自訂音訊
 async function testCustomAudio() {
   if (!customUrl.value.trim())
     return
 
   isTestingCustom.value = true
 
-  // 儲存原来的URL，以便失敗时恢復
+  // 儲存原来的URL，以便失敗時恢復
   const originalUrl = props.audioUrl
 
   try {
-    // 临时設定自訂URL进行试听
+    // 临時設定自訂URL進行試听
     emit('updateAudioUrl', customUrl.value)
 
-    // 直接呼叫后端測試音訊，而不是通过事件
+    // 直接呼叫后端測試音訊，而不是透過事件
     await invoke('test_audio_sound')
 
-    // 试听成功，标记为已驗證并切换到自訂模式
+    // 試听成功，标记为已驗證并切换到自訂模式
     customAudioState.value = 'verified'
     selectedSoundType.value = 'custom'
 
-    console.log('✅ 自訂音訊试听成功，已切换到自訂模式')
+    console.log('✅ 自訂音訊試听成功，已切换到自訂模式')
   }
   catch (error) {
-    // 试听失敗，恢復原来的URL
+    // 試听失敗，恢復原来的URL
     emit('updateAudioUrl', originalUrl)
     customAudioState.value = 'show_input'
-    console.error('❌ 自訂音訊试听失敗:', error)
+    console.error('❌ 自訂音訊試听失敗:', error)
 
-    // 显示錯誤提示给用户
-    // 这里可以通过事件通知父元件显示錯誤消息
+    // 顯示錯誤提示给用户
+    // 这里可以透過事件通知父元件顯示錯誤消息
     emit('testAudioError', error)
   }
   finally {
@@ -162,19 +162,19 @@ async function testCustomAudio() {
 
 // 更新自訂URL輸入
 function updateCustomUrl() {
-  // 輸入时重置狀態
+  // 輸入時重置狀態
   if (customAudioState.value !== 'verified') {
     customAudioState.value = 'show_input'
   }
 }
 
-// 初始化当前狀態
+// 初始化當前狀態
 function initializeState() {
   if (isPresetId(props.audioUrl)) {
     selectedSoundType.value = 'preset'
     customAudioState.value = 'hidden'
     selectedPreset.value = props.audioUrl
-    // 清空自訂URL，避免显示预设ID
+    // 清空自訂URL，避免顯示預設ID
     customUrl.value = ''
     customName.value = ''
   }
@@ -189,14 +189,14 @@ function initializeState() {
     customAudioState.value = 'hidden'
     customUrl.value = ''
     customName.value = ''
-    // 如果没有設定，使用第一个可用的预设
+    // 如果没有設定，使用第一个可用的預設
     if (presetSounds.value.length > 0) {
       selectedPreset.value = presetSounds.value[0].id
     }
   }
 }
 
-// 監聽props变化
+// 監聽props變化
 watch(() => props.audioUrl, () => {
   initializeState()
 }, { immediate: true })
@@ -208,7 +208,7 @@ onMounted(async () => {
 </script>
 
 <template>
-  <!-- 設定内容 -->
+  <!-- 設定內容 -->
   <n-space vertical size="large">
     <!-- 音訊通知开关 -->
     <div class="flex items-center justify-between">
@@ -219,7 +219,7 @@ onMounted(async () => {
             音訊通知
           </div>
           <div class="text-xs opacity-60">
-            启用后在MCP工具被触发时播放音訊提示
+            啟用后在MCP工具被觸發時播放音訊提示
           </div>
         </div>
       </div>
@@ -239,10 +239,10 @@ onMounted(async () => {
             音效選擇
           </div>
 
-          <!-- 预设音效 -->
+          <!-- 預設音效 -->
           <div class="mb-4">
             <div class="text-xs opacity-60 mb-2">
-              预设音效
+              預設音效
             </div>
             <div v-if="loading" class="text-xs opacity-60">
               載入中...
@@ -314,7 +314,7 @@ onMounted(async () => {
                   <template #icon>
                     <div class="i-carbon-volume-up text-sm" />
                   </template>
-                  试听
+                  試听
                 </n-button>
                 <n-button
                   v-else
@@ -326,7 +326,7 @@ onMounted(async () => {
                   <template #icon>
                     <div class="i-carbon-volume-up text-sm" />
                   </template>
-                  试听
+                  試听
                 </n-button>
               </n-input-group>
 
@@ -335,18 +335,18 @@ onMounted(async () => {
                   示例：/path/to/sound.mp3 或 https://example.com/notification.wav
                 </span>
                 <span v-else-if="customAudioState === 'saved'" class="text-orange-500">
-                  请点击试听按钮測試音訊，试听成功后将自動切换到自訂音效
+                  請点击試听按钮測試音訊，試听成功后将自動切换到自訂音效
                 </span>
                 <span v-else class="text-green-500">
-                  ✅ 自訂音效已驗證并启用
+                  ✅ 自訂音效已驗證并啟用
                 </span>
               </div>
             </div>
           </div>
 
-          <!-- 当前音效显示 -->
+          <!-- 當前音效顯示 -->
           <div class="mt-3 p-2 bg-gray-100 rounded text-xs">
-            <span class="opacity-60">当前音效：</span>
+            <span class="opacity-60">當前音效：</span>
             <span v-if="selectedSoundType === 'preset'">
               {{ presetSounds.find(p => p.id === selectedPreset)?.name }}
             </span>

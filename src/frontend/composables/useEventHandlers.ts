@@ -1,6 +1,6 @@
 /**
  * 事件處理器封裝
- * 将复杂的事件传递简化为可复用的處理器
+ * 将复杂的事件傳遞简化为可复用的處理器
  */
 export function useEventHandlers(actions: any) {
   return {

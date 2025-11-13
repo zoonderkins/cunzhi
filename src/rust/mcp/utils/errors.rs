@@ -13,7 +13,7 @@ pub enum McpToolError {
     #[error("弹窗建立失敗: {0}")]
     PopupCreation(String),
     
-    #[error("响应解析失敗: {0}")]
+    #[error("回應解析失敗: {0}")]
     ResponseParsing(String),
     
     #[error("記憶管理錯誤: {0}")]
@@ -63,7 +63,7 @@ pub fn popup_error(msg: impl Into<String>) -> McpToolError {
     McpToolError::PopupCreation(msg.into())
 }
 
-/// 建立响应解析錯誤
+/// 建立回應解析錯誤
 pub fn response_error(msg: impl Into<String>) -> McpToolError {
     McpToolError::ResponseParsing(msg.into())
 }

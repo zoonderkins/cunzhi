@@ -1,33 +1,33 @@
 // 網路相关常量
 
-/// 預設请求超时时间 (ms)
+/// 預設請求超時時间 (ms)
 pub const DEFAULT_TIMEOUT_MS: u64 = 30000;
 
-/// 預設重试次数
+/// 預設重試次数
 pub const DEFAULT_RETRY_COUNT: u32 = 3;
 
-/// 預設重试间隔 (ms)
+/// 預設重試间隔 (ms)
 pub const DEFAULT_RETRY_INTERVAL_MS: u64 = 1000;
 
-/// 最大重试次数
+/// 最大重試次数
 pub const MAX_RETRY_COUNT: u32 = 10;
 
-/// 最小重试间隔 (ms)
+/// 最小重試间隔 (ms)
 pub const MIN_RETRY_INTERVAL_MS: u64 = 100;
 
-/// 最大重试间隔 (ms)
+/// 最大重試间隔 (ms)
 pub const MAX_RETRY_INTERVAL_MS: u64 = 60000;
 
-/// 连接超时时间 (ms)
+/// 連接超時時间 (ms)
 pub const CONNECTION_TIMEOUT_MS: u64 = 10000;
 
-/// 讀取超时时间 (ms)
+/// 讀取超時時间 (ms)
 pub const READ_TIMEOUT_MS: u64 = 30000;
 
-/// 寫入超时时间 (ms)
+/// 寫入超時時间 (ms)
 pub const WRITE_TIMEOUT_MS: u64 = 10000;
 
-/// 最大並發连接数
+/// 最大並發連接数
 pub const MAX_CONCURRENT_CONNECTIONS: usize = 10;
 
 /// 預設用户代理
@@ -74,19 +74,19 @@ impl NetworkConfig {
             && self.max_concurrent_connections > 0
     }
 
-    /// 設定超时时间
+    /// 設定超時時间
     pub fn with_timeout(mut self, timeout_ms: u64) -> Self {
         self.timeout_ms = timeout_ms;
         self
     }
 
-    /// 設定重试次数
+    /// 設定重試次数
     pub fn with_retry_count(mut self, count: u32) -> Self {
         self.retry_count = count.min(MAX_RETRY_COUNT);
         self
     }
 
-    /// 設定重试间隔
+    /// 設定重試间隔
     pub fn with_retry_interval(mut self, interval_ms: u64) -> Self {
         self.retry_interval_ms = interval_ms.clamp(MIN_RETRY_INTERVAL_MS, MAX_RETRY_INTERVAL_MS);
         self
@@ -113,7 +113,7 @@ pub fn get_default_network_config() -> NetworkConfig {
     NetworkConfig::default()
 }
 
-/// 獲取快速網路設定（较短的超时时间）
+/// 獲取快速網路設定（较短的超時時间）
 pub fn get_fast_network_config() -> NetworkConfig {
     NetworkConfig::default()
         .with_timeout(5000)
@@ -121,7 +121,7 @@ pub fn get_fast_network_config() -> NetworkConfig {
         .with_retry_interval(500)
 }
 
-/// 獲取可靠網路設定（较长的超时时间和更多重试）
+/// 獲取可靠網路設定（较长的超時時间和更多重試）
 pub fn get_reliable_network_config() -> NetworkConfig {
     NetworkConfig::default()
         .with_timeout(60000)

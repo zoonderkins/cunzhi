@@ -27,7 +27,7 @@ pub async fn get_mcp_tools_config(state: State<'_, AppState>) -> Result<Vec<MCPT
         MCPToolConfig {
             id: mcp::TOOL_ZHI.to_string(),
             name: "寸止".to_string(),
-            description: "智能代码审查交互工具，支持预定义選項、自由文本輸入和图片上传".to_string(),
+            description: "智能代码审查交互工具，支持预定義選項、自由文本輸入和图片上传".to_string(),
             enabled: config.mcp_config.tools.get(mcp::TOOL_ZHI).copied().unwrap_or(true),
             can_disable: false, // 寸止工具是必需的
             icon: "i-carbon-chat".to_string(),
@@ -37,7 +37,7 @@ pub async fn get_mcp_tools_config(state: State<'_, AppState>) -> Result<Vec<MCPT
         MCPToolConfig {
             id: mcp::TOOL_JI.to_string(),
             name: "記憶管理".to_string(),
-            description: "全局記憶管理工具，用于存储和管理重要的开发规范、用户偏好和最佳实践".to_string(),
+            description: "全局記憶管理工具，用于存储和管理重要的开发规范、用户偏好和最佳實務".to_string(),
             enabled: config.mcp_config.tools.get(mcp::TOOL_JI).copied().unwrap_or(true),
             can_disable: true,
             icon: "i-carbon-data-base".to_string(),
@@ -46,7 +46,7 @@ pub async fn get_mcp_tools_config(state: State<'_, AppState>) -> Result<Vec<MCPT
         },
     ];
     
-    // 按启用狀態排序，启用的在前
+    // 按啟用狀態排序，啟用的在前
     tools.sort_by(|a, b| b.enabled.cmp(&a.enabled));
     
     Ok(tools)
@@ -65,7 +65,7 @@ pub async fn set_mcp_tool_enabled(
         
         // 檢查工具是否可以禁用
         if tool_id == mcp::TOOL_ZHI && !enabled {
-            return Err("寸止工具是必需的，无法禁用".to_string());
+            return Err("寸止工具是必需的，無法禁用".to_string());
         }
         
         // 更新工具狀態
@@ -76,7 +76,7 @@ pub async fn set_mcp_tool_enabled(
     save_config(&state, &app).await
         .map_err(|e| format!("儲存設定失敗: {}", e))?;
 
-    // 使用日誌記錄狀態变更（在 MCP 模式下会自動輸出到檔案）
+    // 使用日誌記錄狀態變更（在 MCP 模式下会自動輸出到檔案）
     log::info!("MCP工具 {} 狀態已更新为: {}", tool_id, enabled);
 
     Ok(())

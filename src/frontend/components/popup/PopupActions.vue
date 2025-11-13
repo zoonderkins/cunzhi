@@ -21,7 +21,7 @@ const props = withDefaults(defineProps<Props>(), {
   loading: false,
   submitting: false,
   canSubmit: false,
-  connectionStatus: '已连接',
+  connectionStatus: '已連接',
   inputStatusText: '',
 })
 
@@ -39,21 +39,21 @@ const {
 const shortcutText = quickSubmitShortcutText
 
 const statusText = computed(() => {
-  // 如果可以提交，直接显示快捷键提示
+  // 如果可以提交，直接顯示快捷键提示
   if (props.canSubmit) {
     return shortcutText.value
   }
 
-  // 如果有輸入狀態文本且不是預設狀態，显示輸入狀態
+  // 如果有輸入狀態文本且不是預設狀態，顯示輸入狀態
   if (props.inputStatusText && props.inputStatusText !== '等待輸入...') {
     return props.inputStatusText
   }
 
-  // 根据请求類型显示不同的提示
+  // 根据請求類型顯示不同的提示
   if (props.request?.predefined_options) {
     return '選擇選項或輸入文本'
   }
-  return '请輸入内容'
+  return '請輸入內容'
 })
 
 // 處理快捷键
@@ -81,7 +81,7 @@ function handleEnhance() {
   }
 }
 
-// 元件挂载时載入快捷鍵設定
+// 元件挂载時載入快捷鍵設定
 onMounted(() => {
   loadShortcutConfig()
 })
@@ -122,7 +122,7 @@ onMounted(() => {
             {{ enhanceShortcutText }}
           </n-tooltip>
 
-          <!-- 发送按钮 -->
+          <!-- 傳送按钮 -->
           <n-tooltip trigger="hover" placement="top">
             <template #trigger>
               <n-button
@@ -136,7 +136,7 @@ onMounted(() => {
                 <template #icon>
                   <div v-if="!submitting" class="i-carbon-send w-4 h-4" />
                 </template>
-                {{ submitting ? '发送中...' : '发送' }}
+                {{ submitting ? '傳送中...' : '傳送' }}
               </n-button>
             </template>
             {{ shortcutText }}

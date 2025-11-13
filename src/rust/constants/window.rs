@@ -18,13 +18,13 @@ pub const DEFAULT_WIDTH: f64 = 600.0;
 /// 視窗預設高度 (px)
 pub const DEFAULT_HEIGHT: f64 = 900.0;
 
-/// 預設置顶启用狀態
+/// 預設置顶啟用狀態
 pub const DEFAULT_ALWAYS_ON_TOP: bool = true;
 
 /// 預設視窗固定模式狀態
 pub const DEFAULT_FIXED_MODE: bool = false;
 
-/// 預設自動调整大小狀態
+/// 預設自動調整大小狀態
 pub const DEFAULT_AUTO_RESIZE: bool = true;
 
 // 視窗约束结构体

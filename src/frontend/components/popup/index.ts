@@ -1,4 +1,4 @@
-// 類型定义
+// 類型定義
 export type {
   ImageData,
   IPopupManager,

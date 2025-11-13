@@ -1,7 +1,7 @@
 import { invoke } from '@tauri-apps/api/core'
 
 /**
- * 音訊管理组合式函數
+ * 音訊管理組合式函數
  */
 export function useAudioManager() {
   /**
@@ -49,7 +49,7 @@ export function useAudioManager() {
   async function testAudio(audioName: string): Promise<void> {
     try {
       await playAudio(audioName)
-      // 可以新增一些測試逻辑，比如播放一小段时间后停止
+      // 可以新增一些測試逻辑，比如播放一小段時间后停止
       setTimeout(async () => {
         try {
           await stopAudio()
@@ -70,7 +70,7 @@ export function useAudioManager() {
    */
   function handleTestAudioError(error: any) {
     console.error('音訊測試錯誤:', error)
-    // 这里可以显示錯誤提示给用户
+    // 这里可以顯示錯誤提示给用户
   }
 
   return {

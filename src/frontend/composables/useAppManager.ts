@@ -7,7 +7,7 @@ import { useTheme } from './useTheme'
 
 /**
  * 統一的應用管理器
- * 封裝所有组合式函數，提供簡潔的API
+ * 封裝所有組合式函數，提供簡潔的API
  */
 export function useAppManager() {
   // 初始化各個模組

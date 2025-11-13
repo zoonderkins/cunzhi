@@ -33,7 +33,7 @@ pub async fn apply_window_constraints(state: State<'_, AppState>, app: tauri::Ap
             return Err(format!("設定最大視窗大小失敗: {}", e));
         }
 
-        // 如果启用了自動调整大小，設定为合适的初始大小
+        // 如果啟用了自動調整大小，設定为合适的初始大小
         if window_config.auto_resize {
             let initial_width = window_config.min_width;
             let initial_height = (window_config.min_height + window_config.max_height) / 2.0;
@@ -90,7 +90,7 @@ pub async fn update_window_size(size_update: WindowSizeUpdate, state: State<'_, 
         config.ui_config.always_on_top
     };
 
-    // 應用到当前視窗
+    // 應用到當前視窗
     if let Some(window) = app.get_webview_window("main") {
         if size_update.fixed {
             // 固定模式：設定精确的視窗大小和约束
@@ -125,7 +125,7 @@ pub async fn update_window_size(size_update: WindowSizeUpdate, state: State<'_, 
             log::debug!("視窗已設定为自由拉伸模式，預設大小: {}x{}", size_update.width, size_update.height);
         }
 
-        // 重新應用置顶狀態，确保視窗大小变更不会影响置頂設定
+        // 重新應用置顶狀態，确保視窗大小變更不会影响置頂設定
         if let Err(e) = window.set_always_on_top(always_on_top) {
             log::warn!("重新應用置顶狀態失敗: {}", e);
         } else {

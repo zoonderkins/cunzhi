@@ -20,9 +20,9 @@ const tabs = [
   <n-message-provider>
     <div class="test-app">
       <div class="test-header">
-        <h1>寸止 - 元件样式測試环境</h1>
+        <h1>寸止 - 元件样式測試環境</h1>
         <p class="test-description">
-          独立的測試环境，用于开发和偵錯元件样式，直接引用真实元件
+          独立的測試環境，用于开发和偵錯元件样式，直接引用真实元件
         </p>
 
         <!-- 模拟視窗开关 -->
@@ -56,7 +56,7 @@ const tabs = [
 
         <!-- 模拟視窗 -->
         <div class="simulated-window">
-          <!-- 模拟視窗标题栏 -->
+          <!-- 模拟視窗標題栏 -->
           <div class="window-titlebar">
             <div class="window-controls">
               <div class="window-control close" />
@@ -69,19 +69,19 @@ const tabs = [
             <div class="window-spacer" />
           </div>
 
-          <!-- 視窗内容 - 只显示真实的應用内容 -->
+          <!-- 視窗內容 - 只顯示真实的應用內容 -->
           <div class="window-content">
-            <!-- 主界面内容 -->
+            <!-- 主界面內容 -->
             <div v-if="activeTab === 'main-ui'" class="app-content">
               <MainLayoutTest :show-controls="false" />
             </div>
 
-            <!-- MCP弹窗内容 -->
+            <!-- MCP弹窗內容 -->
             <div v-else-if="activeTab === 'mcp-popup'" class="app-content">
               <McpPopupTest :show-controls="false" />
             </div>
 
-            <!-- 其他内容 -->
+            <!-- 其他內容 -->
             <div v-else class="app-content">
               <component :is="tabs.find(t => t.key === activeTab)?.component" :show-controls="false" />
             </div>
@@ -176,7 +176,7 @@ const tabs = [
     0 10px 30px rgba(0, 0, 0, 0.25);
 }
 
-/* 視窗标题栏 */
+/* 視窗標題栏 */
 .window-titlebar {
   height: 40px;
   background: linear-gradient(180deg, #f5f5f5 0%, #e8e8e8 100%);
@@ -229,14 +229,14 @@ const tabs = [
   width: 68px; /* 平衡左侧控制按钮的宽度 */
 }
 
-/* 視窗内容 */
+/* 視窗內容 */
 .window-content {
   background: var(--body-color, #ffffff);
   height: 900px;
   overflow-y: auto;
 }
 
-/* 應用内容 */
+/* 應用內容 */
 .app-content {
   width: 100%;
   height: 100%;

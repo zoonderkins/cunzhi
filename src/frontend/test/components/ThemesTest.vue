@@ -48,7 +48,7 @@ function copyColorValue(color: string) {
             引用: useTheme hook
           </n-tag>
           <n-tag size="small" :type="currentTheme === 'dark' ? 'warning' : 'info'">
-            当前: {{ currentTheme }}
+            當前: {{ currentTheme }}
           </n-tag>
         </n-space>
       </template>
@@ -76,8 +76,8 @@ function copyColorValue(color: string) {
 
             <div class="theme-info">
               <n-space vertical size="small">
-                <div><strong>当前主題:</strong> {{ currentTheme }}</div>
-                <div><strong>实际應用:</strong> {{ currentTheme }}</div>
+                <div><strong>當前主題:</strong> {{ currentTheme }}</div>
+                <div><strong>實際應用:</strong> {{ currentTheme }}</div>
               </n-space>
             </div>
           </n-card>
@@ -111,7 +111,7 @@ function copyColorValue(color: string) {
         <!-- CSS 變數 -->
         <div class="theme-section">
           <h3 class="section-title">
-            CSS 變數 (实时值)
+            CSS 變數 (实時值)
           </h3>
 
           <n-card size="small">
@@ -143,7 +143,7 @@ function copyColorValue(color: string) {
 
           <n-card size="small">
             <n-space vertical>
-              <!-- 按钮组 -->
+              <!-- 按钮組 -->
               <div class="component-preview">
                 <h4>按钮元件</h4>
                 <n-space>
@@ -203,7 +203,7 @@ function copyColorValue(color: string) {
               <div class="component-preview">
                 <h4>卡片元件</h4>
                 <n-card title="示例卡片" size="small" style="max-width: 300px;">
-                  <p>这是一个示例卡片，用于展示当前主題下的卡片样式。</p>
+                  <p>这是一个示例卡片，用于展示當前主題下的卡片样式。</p>
                   <template #footer>
                     <n-button size="small">
                       操作
@@ -228,7 +228,7 @@ function copyColorValue(color: string) {
               <div><strong>颜色設定:</strong> src/frontend/theme/colors.ts</div>
               <div><strong>UnoCSS 設定:</strong> uno.config.ts</div>
               <div>
-                <strong>当前使用:</strong> {{ currentTheme }}
+                <strong>當前使用:</strong> {{ currentTheme }}
               </div>
             </n-space>
           </n-card>

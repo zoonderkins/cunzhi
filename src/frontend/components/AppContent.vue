@@ -56,7 +56,7 @@ const emit = defineEmits<Emits>()
 // 版本檢查相关
 const { versionInfo, showUpdateModal } = useVersionCheck()
 
-// 弹窗中的設定显示控制
+// 弹窗中的設定顯示控制
 const showPopupSettings = ref(false)
 
 // 初始化 Naive UI 消息实例
@@ -65,15 +65,15 @@ const message = useMessage()
 // 键盘快捷键處理
 const { handleExitShortcut } = useKeyboard()
 
-// 切换弹窗設定显示
+// 切换弹窗設定顯示
 function togglePopupSettings() {
   showPopupSettings.value = !showPopupSettings.value
 }
 
-// 監聽 MCP 请求变化，当有新请求时重置設定页面狀態
+// 監聽 MCP 請求變化，当有新請求時重置設定页面狀態
 watch(() => props.mcpRequest, (newRequest) => {
   if (newRequest && showPopupSettings.value) {
-    // 有新的 MCP 请求时，自動切换回消息页面
+    // 有新的 MCP 請求時，自動切换回消息页面
     showPopupSettings.value = false
   }
 }, { immediate: true })
@@ -84,7 +84,7 @@ function handleGlobalKeydown(event: KeyboardEvent) {
 }
 
 onMounted(() => {
-  // 将消息实例传递给父元件
+  // 将消息实例傳遞给父元件
   emit('messageReady', message)
   // 設定退出警告監聽器（统一處理主界面和弹窗）
   setupExitWarningListener(message)
@@ -137,7 +137,7 @@ onUnmounted(() => {
         />
       </div>
 
-      <!-- 弹窗内容 -->
+      <!-- 弹窗內容 -->
       <McpPopup
         v-else
         :request="props.mcpRequest"
@@ -182,7 +182,7 @@ onUnmounted(() => {
         </div>
       </div>
 
-      <!-- 内容骨架 -->
+      <!-- 內容骨架 -->
       <div class="flex-1 p-4">
         <div class="bg-black-100 rounded-lg p-4 mb-4">
           <n-skeleton
@@ -226,7 +226,7 @@ onUnmounted(() => {
       </div>
     </div>
 
-    <!-- 主界面 - 只在非弹窗模式且非初始化时显示 -->
+    <!-- 主界面 - 只在非弹窗模式且非初始化時顯示 -->
     <LayoutWrapper
       v-else
       :app-config="props.appConfig"

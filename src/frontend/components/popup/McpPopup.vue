@@ -68,7 +68,7 @@ const inputRef = ref()
 
 // 繼續回覆設定
 const continueReplyEnabled = ref(true)
-const continuePrompt = ref('请按照最佳实践繼續')
+const continuePrompt = ref('請按照最佳實務繼續')
 
 // 计算属性
 const isVisible = computed(() => !!props.request)
@@ -92,7 +92,7 @@ async function loadReplyConfig() {
     if (config) {
       const replyConfig = config as any
       continueReplyEnabled.value = replyConfig.enable_continue_reply ?? true
-      continuePrompt.value = replyConfig.continue_prompt ?? '请按照最佳实践繼續'
+      continuePrompt.value = replyConfig.continue_prompt ?? '請按照最佳實務繼續'
     }
   }
   catch (error) {
@@ -100,7 +100,7 @@ async function loadReplyConfig() {
   }
 }
 
-// 監聽設定变化（当从設定页面切换回来时）
+// 監聽設定變化（当从設定页面切换回来時）
 watch(() => props.appConfig.reply, (newReplyConfig) => {
   if (newReplyConfig) {
     continueReplyEnabled.value = newReplyConfig.enabled
@@ -108,12 +108,12 @@ watch(() => props.appConfig.reply, (newReplyConfig) => {
   }
 }, { deep: true, immediate: true })
 
-// 監聽请求变化
+// 監聽請求變化
 watch(() => props.request, (newRequest) => {
   if (newRequest) {
     resetForm()
     loading.value = true
-    // 每次显示弹窗时重新載入設定
+    // 每次顯示弹窗時重新載入設定
     loadReplyConfig()
     setTimeout(() => {
       loading.value = false
@@ -151,12 +151,12 @@ function handleTextUpdate(text: string) {
   }
 }
 
-// 元件挂载时載入設定
+// 元件挂载時載入設定
 onMounted(() => {
   loadReplyConfig()
 })
 
-// 重置表单
+// 重置表單
 function resetForm() {
   selectedOptions.value = []
   userInput.value = ''
@@ -188,7 +188,7 @@ async function handleSubmit() {
       },
     }
 
-    // 如果没有任何有效内容，設定預設用户輸入
+    // 如果没有任何有效內容，設定預設用户輸入
     if (!response.user_input && response.selected_options.length === 0 && response.images.length === 0) {
       response.user_input = '用户確認繼續'
     }
@@ -196,10 +196,10 @@ async function handleSubmit() {
     if (props.mockMode) {
       // 模拟模式下的延迟
       await new Promise(resolve => setTimeout(resolve, 1000))
-      message.success('模拟响应发送成功')
+      message.success('模拟回應傳送成功')
     }
     else {
-      // 实际发送响应
+      // 實際傳送回應
       await invoke('send_mcp_response', { response })
       await invoke('exit_app')
     }
@@ -207,8 +207,8 @@ async function handleSubmit() {
     emit('response', response)
   }
   catch (error) {
-    console.error('提交响应失敗:', error)
-    message.error('提交失敗，请重试')
+    console.error('提交回應失敗:', error)
+    message.error('提交失敗，請重試')
   }
   finally {
     submitting.value = false
@@ -224,7 +224,7 @@ function handleInputUpdate(data: { userInput: string, selectedOptions: string[],
 
 // 處理图片新增 - 移除重复逻辑，避免双重新增
 function handleImageAdd(_image: string) {
-  // 这个函數现在只是为了保持介面相容性，实际新增在PopupInput中完成
+  // 这个函數现在只是为了保持介面相容性，實際新增在PopupInput中完成
 }
 
 // 處理图片移除
@@ -270,10 +270,10 @@ async function handleEnhance() {
     if (props.mockMode) {
       // 模拟模式下的延迟
       await new Promise(resolve => setTimeout(resolve, 1000))
-      message.success('增强请求发送成功')
+      message.success('增强請求傳送成功')
     }
     else {
-      // 实际发送增强请求
+      // 實際傳送增强請求
       await invoke('send_mcp_response', { response })
       await invoke('exit_app')
     }
@@ -281,8 +281,8 @@ async function handleEnhance() {
     emit('response', response)
   }
   catch (error) {
-    console.error('发送增强请求失敗:', error)
-    message.error('增强请求失敗，请重试')
+    console.error('傳送增强請求失敗:', error)
+    message.error('增强請求失敗，請重試')
   }
   finally {
     submitting.value = false
@@ -292,9 +292,9 @@ async function handleEnhance() {
 
 <template>
   <div v-if="isVisible" class="flex flex-col flex-1">
-    <!-- 内容区域 - 可滚动 -->
+    <!-- 內容区域 - 可滚动 -->
     <div class="flex-1 overflow-y-auto scrollbar-thin">
-      <!-- 消息内容 - 允许选中 -->
+      <!-- 消息內容 - 允许选中 -->
       <div class="mx-2 mt-2 mb-1 px-4 py-3 bg-black-100 rounded-lg select-text" data-guide="popup-content">
         <PopupContent :request="request" :loading="loading" :current-theme="props.appConfig.theme" @quote-message="handleQuoteMessage" />
       </div>

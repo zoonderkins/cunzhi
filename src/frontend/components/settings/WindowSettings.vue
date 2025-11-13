@@ -29,14 +29,14 @@ const localFixed = ref(props.fixedWindowSize)
 const localWidth = ref(props.windowWidth)
 const localHeight = ref(props.windowHeight)
 
-// 实时視窗大小
+// 实時視窗大小
 const currentWidth = ref(0)
 const currentHeight = ref(0)
 
-// 視窗大小变化監聽器
+// 視窗大小變化監聽器
 let windowResizeUnlisten: (() => void) | null = null
 
-// 監聽props变化，同步本地值
+// 監聽props變化，同步本地值
 
 watch(() => props.windowWidth, (newWidth) => {
   localWidth.value = newWidth
@@ -94,7 +94,7 @@ async function loadWindowConstraints() {
 
 // 切换視窗模式（立即儲存）
 async function toggleWindowMode(fixed: boolean) {
-  // 如果模式没有变化，直接傳回
+  // 如果模式没有變化，直接傳回
   if (localFixed.value === fixed) {
     return
   }
@@ -115,7 +115,7 @@ async function toggleWindowMode(fixed: boolean) {
     fixed,
   })
 
-  // 切换模式后重新整理当前視窗大小显示
+  // 切换模式后重新整理當前視窗大小顯示
   setTimeout(() => {
     getCurrentWindowSize()
   }, windowConstraints.value.size_update_delay_ms)
@@ -124,12 +124,12 @@ async function toggleWindowMode(fixed: boolean) {
 // 儲存目前模式的尺寸到后端
 async function saveCurrentModeSize() {
   try {
-    // 獲取当前实际的視窗大小
+    // 獲取當前實際的視窗大小
     const result = await invoke('get_current_window_size')
     if (result && typeof result === 'object') {
       const { width, height } = result as any
 
-      // 驗證尺寸，如果小于最小限制则调整为最小尺寸
+      // 驗證尺寸，如果小于最小限制则調整为最小尺寸
       let adjustedWidth = width
       let adjustedHeight = height
       let wasAdjusted = false
@@ -144,7 +144,7 @@ async function saveCurrentModeSize() {
       }
 
       if (wasAdjusted) {
-        console.log(`視窗尺寸已调整: ${width}x${height} -> ${adjustedWidth}x${adjustedHeight}`)
+        console.log(`視窗尺寸已調整: ${width}x${height} -> ${adjustedWidth}x${adjustedHeight}`)
       }
 
       const settings: any = {}
@@ -174,7 +174,7 @@ async function saveCurrentModeSize() {
   }
 }
 
-// 獲取实时視窗大小
+// 獲取实時視窗大小
 async function getCurrentWindowSize() {
   try {
     const result = await invoke('get_current_window_size')
@@ -184,7 +184,7 @@ async function getCurrentWindowSize() {
     }
   }
   catch (error) {
-    console.error('獲取当前視窗大小失敗:', error)
+    console.error('獲取當前視窗大小失敗:', error)
   }
 }
 
@@ -205,13 +205,13 @@ async function saveWindowSize() {
     fixed: localFixed.value,
   })
 
-  // 儲存后重新整理当前視窗大小显示
+  // 儲存后重新整理當前視窗大小顯示
   setTimeout(() => {
     getCurrentWindowSize()
   }, windowConstraints.value.size_update_delay_ms)
 }
 
-// 設定視窗大小变化監聽器
+// 設定視窗大小變化監聽器
 async function setupWindowResizeListener() {
   try {
     const webview = getCurrentWebviewWindow()
@@ -221,22 +221,22 @@ async function setupWindowResizeListener() {
       windowResizeUnlisten()
     }
 
-    // 監聽視窗大小变化
+    // 監聽視窗大小變化
     windowResizeUnlisten = await webview.onResized(() => {
-      // 延迟獲取視窗大小，确保变化已完成
+      // 延迟獲取視窗大小，确保變化已完成
       setTimeout(() => {
         getCurrentWindowSize()
       }, windowConstraints.value.size_check_delay_ms)
     })
 
-    console.log('視窗大小变化監聽器已設定')
+    console.log('視窗大小變化監聽器已設定')
   }
   catch (error) {
-    console.error('設定視窗大小变化監聽器失敗:', error)
+    console.error('設定視窗大小變化監聽器失敗:', error)
   }
 }
 
-// 移除視窗大小变化監聽器
+// 移除視窗大小變化監聽器
 function removeWindowResizeListener() {
   if (windowResizeUnlisten) {
     windowResizeUnlisten()
@@ -244,7 +244,7 @@ function removeWindowResizeListener() {
   }
 }
 
-// 元件挂载时獲取当前視窗大小并設定監聽器
+// 元件挂载時獲取當前視窗大小并設定監聽器
 onMounted(async () => {
   await loadWindowConstraints()
   getCurrentWindowSize()
@@ -252,16 +252,16 @@ onMounted(async () => {
   setupWindowResizeListener()
 })
 
-// 元件卸载时移除監聽器
+// 元件卸载時移除監聽器
 onUnmounted(() => {
   removeWindowResizeListener()
 })
 </script>
 
 <template>
-  <!-- 設定内容 -->
+  <!-- 設定內容 -->
   <n-space vertical size="large">
-    <!-- 置顶显示設定 -->
+    <!-- 置顶顯示設定 -->
     <div class="flex items-center justify-between">
       <div class="flex items-center">
         <div class="w-1.5 h-1.5 bg-success rounded-full mr-3 flex-shrink-0" />
@@ -270,7 +270,7 @@ onUnmounted(() => {
             总在最前
           </div>
           <div class="text-xs opacity-60">
-            启用后視窗将始终保持在其他應用程序之上
+            啟用后視窗将始终保持在其他應用程序之上
           </div>
         </div>
       </div>
@@ -314,7 +314,7 @@ onUnmounted(() => {
                       自由拉伸
                     </div>
                     <div class="text-xs opacity-60">
-                      視窗可以自由拖拽调整大小
+                      視窗可以自由拖拽調整大小
                     </div>
                   </div>
                 </div>
@@ -401,10 +401,10 @@ onUnmounted(() => {
             </div>
           </div>
 
-          <!-- 視窗訊息显示（弱化） -->
+          <!-- 視窗訊息顯示（弱化） -->
           <div class="mt-4 text-center space-y-1">
             <div class="text-xs opacity-60 text-gray-600 dark:text-gray-400">
-              当前視窗：{{ currentWidth || localWidth }} × {{ currentHeight || localHeight }} px
+              當前視窗：{{ currentWidth || localWidth }} × {{ currentHeight || localHeight }} px
               （{{ localFixed ? '固定大小' : '自由拉伸' }}）
             </div>
             <div class="text-xs opacity-50 text-gray-500 dark:text-gray-500">

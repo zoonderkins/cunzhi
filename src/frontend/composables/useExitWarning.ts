@@ -18,7 +18,7 @@ class ExitWarningManager {
         this.unlistenExitWarning = await listen('exit-warning', (event: any) => {
           const message = event.payload as string
 
-          // 显示退出警告消息
+          // 顯示退出警告消息
           if (messageInstance) {
             messageInstance.warning(message, {
               duration: 3000,
@@ -47,7 +47,7 @@ class ExitWarningManager {
   }
 }
 
-// 全局单例实例
+// 全局單例实例
 const exitWarningManager = new ExitWarningManager()
 
 /**
@@ -65,7 +65,7 @@ export function removeExitWarningListener(): void {
 }
 
 /**
- * 退出警告處理组合式函數（保留向后相容性）
+ * 退出警告處理組合式函數（保留向后相容性）
  * @deprecated 推荐直接使用 setupExitWarningListener 和 removeExitWarningListener
  */
 export function useExitWarning() {

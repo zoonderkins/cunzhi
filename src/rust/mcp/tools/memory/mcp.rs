@@ -6,7 +6,7 @@ use crate::mcp::{JiyiRequest, utils::{validate_project_path, project_path_error}
 
 /// 全局記憶管理工具
 ///
-/// 用于存储和管理重要的开发规范、用户偏好和最佳实践
+/// 用于存储和管理重要的开发规范、用户偏好和最佳實務
 #[derive(Clone)]
 pub struct MemoryTool;
 
@@ -17,7 +17,7 @@ impl MemoryTool {
         // 使用增强的路径驗證功能
         if let Err(e) = validate_project_path(&request.project_path) {
             return Err(project_path_error(format!(
-                "路径驗證失敗: {}\n原始路径: {}\n请檢查路径格式是否正确，特别是 Windows 路径应使用正确的盘符格式（如 C:\\path）",
+                "路径驗證失敗: {}\n原始路径: {}\n請檢查路径格式是否正确，特別是 Windows 路径应使用正确的盘符格式（如 C:\\path）",
                 e,
                 request.project_path
             )).into());
@@ -29,7 +29,7 @@ impl MemoryTool {
         let result = match request.action.as_str() {
             "記憶" => {
                 if request.content.trim().is_empty() {
-                    return Err(McpError::invalid_params("缺少記憶内容".to_string(), None));
+                    return Err(McpError::invalid_params("缺少記憶內容".to_string(), None));
                 }
 
                 let category = match request.category.as_str() {
@@ -43,7 +43,7 @@ impl MemoryTool {
                 let id = manager.add_memory(&request.content, category)
                     .map_err(|e| McpError::internal_error(format!("新增記憶失敗: {}", e), None))?;
 
-                format!("✅ 記憶已新增，ID: {}\n📝 内容: {}\n📂 分类: {:?}", id, request.content, category)
+                format!("✅ 記憶已新增，ID: {}\n📝 內容: {}\n📂 分類: {:?}", id, request.content, category)
             }
             "回忆" | "回憶" => {
                 manager.get_project_info()

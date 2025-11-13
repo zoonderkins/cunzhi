@@ -66,16 +66,16 @@ const { start, stop } = useSortable(promptContainer, sortablePrompts, {
   forceFallback: true,
   fallbackTolerance: 3,
   onStart: (evt) => {
-    console.log('PopupInput: 拖拽开始:', evt)
-    console.log('PopupInput: 拖拽开始时的容器:', evt.from)
-    console.log('PopupInput: 拖拽开始时的元素:', evt.item)
+    console.log('PopupInput: 拖拽開始:', evt)
+    console.log('PopupInput: 拖拽開始時的容器:', evt.from)
+    console.log('PopupInput: 拖拽開始時的元素:', evt.item)
   },
   onEnd: (evt) => {
     console.log('PopupInput: 拖拽排序完成:', evt)
     console.log('PopupInput: 从索引', evt.oldIndex, '移动到索引', evt.newIndex)
     console.log('PopupInput: 拖拽后的sortablePrompts:', sortablePrompts.value.map(p => ({ id: p.id, name: p.name })))
 
-    // 檢查是否真的发生了位置变化
+    // 檢查是否真的发生了位置變化
     if (evt.oldIndex !== evt.newIndex && evt.oldIndex !== undefined && evt.newIndex !== undefined) {
       // 手動重新排列陣列
       const newList = [...sortablePrompts.value]
@@ -90,13 +90,13 @@ const { start, stop } = useSortable(promptContainer, sortablePrompts, {
       // 保留条件性prompt，只更新普通prompt的顺序
       const conditionalPromptsList = customPrompts.value.filter(prompt => prompt.type === 'conditional')
       customPrompts.value = [...sortablePrompts.value, ...conditionalPromptsList]
-      console.log('PopupInput: 位置发生变化，儲存新排序')
+      console.log('PopupInput: 位置发生變化，儲存新排序')
 
       // 立即儲存排序
       savePromptOrder()
     }
     else {
-      console.log('PopupInput: 位置未发生变化，无需儲存')
+      console.log('PopupInput: 位置未发生變化，无需儲存')
     }
   },
   onMove: (evt) => {
@@ -131,12 +131,12 @@ const canSubmit = computed(() => {
 
 // 工具栏狀態文本
 const statusText = computed(() => {
-  // 檢查是否有任何輸入内容
+  // 檢查是否有任何輸入內容
   const hasInput = selectedOptions.value.length > 0
     || uploadedImages.value.length > 0
     || userInput.value.trim().length > 0
 
-  // 如果有任何輸入内容，傳回空字符串让 PopupActions 显示快捷键
+  // 如果有任何輸入內容，傳回空字符串让 PopupActions 顯示快捷键
   if (hasInput) {
     return ''
   }
@@ -144,12 +144,12 @@ const statusText = computed(() => {
   return '等待輸入...'
 })
 
-// 发送更新事件
+// 傳送更新事件
 function emitUpdate() {
-  // 獲取条件性prompt的追加内容
+  // 獲取条件性prompt的追加內容
   const conditionalContent = generateConditionalContent()
 
-  // 将条件性内容追加到用户輸入
+  // 将条件性內容追加到用户輸入
   const finalUserInput = userInput.value + conditionalContent
 
   emit('update', {
@@ -159,7 +159,7 @@ function emitUpdate() {
   })
 }
 
-// 處理選項变化
+// 處理選項變化
 function handleOptionChange(option: string, checked: boolean) {
   if (checked) {
     selectedOptions.value.push(option)
@@ -216,14 +216,14 @@ async function handleImageFiles(files: FileList | File[]): Promise<void> {
 
     if (file.type.startsWith('image/')) {
       try {
-        console.log('开始转换为 Base64...')
+        console.log('開始转换为 Base64...')
         const base64 = await fileToBase64(file)
         console.log('Base64转换成功，长度:', base64.length)
 
         // 檢查是否已存在相同图片，避免重复新增
         if (!uploadedImages.value.includes(base64)) {
           uploadedImages.value.push(base64)
-          console.log('图片已新增到陣列，当前数量:', uploadedImages.value.length)
+          console.log('图片已新增到陣列，當前数量:', uploadedImages.value.length)
           message.success(`图片 ${file.name} 已新增`)
           emitUpdate()
         }
@@ -266,7 +266,7 @@ function removeImage(index: number) {
 // 載入自訂prompt設定
 async function loadCustomPrompts() {
   try {
-    console.log('PopupInput: 开始載入自訂prompt設定')
+    console.log('PopupInput: 開始載入自訂prompt設定')
     const config = await invoke('get_custom_prompt_config')
     if (config) {
       const promptConfig = config as any
@@ -298,7 +298,7 @@ async function loadCustomPrompts() {
 
 // 處理自訂prompt点击
 function handlePromptClick(prompt: CustomPrompt) {
-  // 如果prompt内容为空或只有空格，直接清空輸入框
+  // 如果prompt內容为空或只有空格，直接清空輸入框
   if (!prompt.content || prompt.content.trim() === '') {
     userInput.value = ''
     emitUpdate()
@@ -306,7 +306,7 @@ function handlePromptClick(prompt: CustomPrompt) {
   }
 
   if (userInput.value.trim()) {
-    // 如果輸入框有内容，显示插入選擇对话框
+    // 如果輸入框有內容，顯示插入選擇對話框
     pendingPromptContent.value = prompt.content
     showInsertDialog.value = true
   }
@@ -316,21 +316,21 @@ function handlePromptClick(prompt: CustomPrompt) {
   }
 }
 
-// 處理引用消息内容
+// 處理引用消息內容
 function handleQuoteMessage(messageContent: string) {
   if (userInput.value.trim()) {
-    // 輸入框有内容，显示插入選擇对话框
+    // 輸入框有內容，顯示插入選擇對話框
     pendingPromptContent.value = messageContent
     showInsertDialog.value = true
   }
   else {
     // 輸入框为空，直接插入
     insertPromptContent(messageContent)
-    message.success('原文内容已引用到輸入框')
+    message.success('原文內容已引用到輸入框')
   }
 }
 
-// 插入prompt内容
+// 插入prompt內容
 function insertPromptContent(content: string, mode: 'replace' | 'append' = 'replace') {
   if (mode === 'replace') {
     userInput.value = content
@@ -343,7 +343,7 @@ function insertPromptContent(content: string, mode: 'replace' | 'append' = 'repl
   setTimeout(() => {
     if (textareaRef.value) {
       textareaRef.value.focus()
-      // 尝试将光标移到末尾（对于Naive UI元件）
+      // 嘗試将光标移到末尾（对于Naive UI元件）
       try {
         const inputElement = textareaRef.value.$el?.querySelector('textarea') || textareaRef.value.inputElRef
         if (inputElement && typeof inputElement.setSelectionRange === 'function') {
@@ -366,7 +366,7 @@ function handleInsertMode(mode: 'replace' | 'append') {
   pendingPromptContent.value = ''
 }
 
-// 處理条件性prompt开关变化
+// 處理条件性prompt开关變化
 async function handleConditionalToggle(promptId: string, value: boolean) {
   // 先更新本地狀態
   const prompt = customPrompts.value.find(p => p.id === promptId)
@@ -393,7 +393,7 @@ async function handleConditionalToggle(promptId: string, value: boolean) {
   }
 }
 
-// 生成条件性prompt的追加内容
+// 生成条件性prompt的追加內容
 function generateConditionalContent(): string {
   const conditionalTexts: string[] = []
 
@@ -417,7 +417,7 @@ function getConditionalDescription(prompt: CustomPrompt): string {
   const isEnabled = prompt.current_state ?? false
   const template = isEnabled ? prompt.template_true : prompt.template_false
 
-  // 如果有对应狀態的模板，显示模板内容，否则显示原始描述
+  // 如果有对应狀態的模板，顯示模板內容，否则顯示原始描述
   if (template && template.trim()) {
     return template.trim()
   }
@@ -437,9 +437,9 @@ async function initializeDragSort() {
 
   // 使用更长的延迟
   setTimeout(async () => {
-    console.log('PopupInput: 开始查找容器')
+    console.log('PopupInput: 開始查找容器')
 
-    // 尝试多种方式查找容器
+    // 嘗試多种方式查找容器
     let targetContainer = promptContainer.value
 
     if (!targetContainer) {
@@ -448,14 +448,14 @@ async function initializeDragSort() {
     }
 
     if (!targetContainer) {
-      // 尝试通过类名查找
+      // 嘗試透過類名查找
       const containers = document.querySelectorAll('.flex.flex-wrap')
       console.log('PopupInput: 找到的flex容器数量:', containers.length)
       for (let i = 0; i < containers.length; i++) {
         const container = containers[i] as HTMLElement
         if (container.querySelector('.sortable-item')) {
           targetContainer = container
-          console.log('PopupInput: 通过sortable-item找到容器')
+          console.log('PopupInput: 透過sortable-item找到容器')
           break
         }
       }
@@ -477,26 +477,26 @@ async function initializeDragSort() {
       console.log('PopupInput: start()函數呼叫完成')
     }
     else {
-      console.log('PopupInput: 无法找到容器，DOM可能还没有渲染')
-      console.log('PopupInput: 当前页面所有带data-prompt-container的元素:', document.querySelectorAll('[data-prompt-container]'))
-      console.log('PopupInput: 当前页面所有.sortable-item元素:', document.querySelectorAll('.sortable-item'))
+      console.log('PopupInput: 無法找到容器，DOM可能还没有渲染')
+      console.log('PopupInput: 當前页面所有带data-prompt-container的元素:', document.querySelectorAll('[data-prompt-container]'))
+      console.log('PopupInput: 當前页面所有.sortable-item元素:', document.querySelectorAll('.sortable-item'))
     }
-  }, 500) // 增加延迟时间
+  }, 500) // 增加延迟時间
 }
 
 // 儲存prompt排序
 async function savePromptOrder() {
   try {
     console.log('savePromptOrder被呼叫')
-    console.log('当前sortablePrompts:', sortablePrompts.value.map(p => ({ id: p.id, name: p.name })))
+    console.log('當前sortablePrompts:', sortablePrompts.value.map(p => ({ id: p.id, name: p.name })))
     const promptIds = sortablePrompts.value.map(p => p.id)
-    console.log('开始儲存排序，prompt IDs:', promptIds)
+    console.log('開始儲存排序，prompt IDs:', promptIds)
 
     const startTime = Date.now()
     await invoke('update_custom_prompt_order', { promptIds })
     const endTime = Date.now()
 
-    console.log(`排序已儲存，耗时: ${endTime - startTime}ms`)
+    console.log(`排序已儲存，耗時: ${endTime - startTime}ms`)
     message.success('排序已儲存')
   }
   catch (error) {
@@ -507,7 +507,7 @@ async function savePromptOrder() {
   }
 }
 
-// 監聽用户輸入变化
+// 監聽用户輸入變化
 watch(userInput, () => {
   emitUpdate()
 })
@@ -539,27 +539,27 @@ function fixIMEPosition() {
   }
 }
 
-// 設置窗口移動監聽器
+// 設置視窗移動監聽器
 async function setupWindowMoveListener() {
   try {
     const webview = getCurrentWebviewWindow()
 
-    // 監聽窗口移動事件
+    // 監聽視窗移動事件
     unlistenWindowMove = await webview.onMoved(() => {
-      // 窗口移動後修復輸入法位置
+      // 視窗移動後修復輸入法位置
       fixIMEPosition()
     })
 
-    console.log('窗口移動監聽器已設置')
+    console.log('視窗移動監聽器已設置')
   }
   catch (error) {
-    console.error('設置窗口移動監聽器失敗:', error)
+    console.error('設置視窗移動監聽器失敗:', error)
   }
 }
 
-// 元件挂载时載入自訂prompt
+// 元件挂载時載入自訂prompt
 onMounted(async () => {
-  console.log('元件挂载，开始載入prompt')
+  console.log('元件挂载，開始載入prompt')
   await loadCustomPrompts()
 
   // 監聽自訂prompt更新事件
@@ -568,7 +568,7 @@ onMounted(async () => {
     loadCustomPrompts()
   })
 
-  // 設置窗口移動監聽器
+  // 設置視窗移動監聽器
   setupWindowMoveListener()
 })
 
@@ -578,7 +578,7 @@ onUnmounted(() => {
     unlistenCustomPromptUpdate()
   }
 
-  // 清理窗口移動監聽器
+  // 清理視窗移動監聽器
   if (unlistenWindowMove) {
     unlistenWindowMove()
   }
@@ -624,10 +624,10 @@ defineExpose({
 
 <template>
   <div class="space-y-3">
-    <!-- 预定义選項 -->
+    <!-- 预定義選項 -->
     <div v-if="!loading && hasOptions" class="space-y-3" data-guide="predefined-options">
       <h4 class="text-sm font-medium text-white">
-        请選擇選項
+        請選擇選項
       </h4>
       <n-space vertical size="small">
         <div
@@ -664,7 +664,7 @@ defineExpose({
             :key="`image-${index}`"
             class="relative"
           >
-            <!-- 使用 n-image 元件，启用预览功能 -->
+            <!-- 使用 n-image 元件，啟用预览功能 -->
             <n-image
               :src="image"
               width="100"
@@ -698,14 +698,14 @@ defineExpose({
     <!-- 文本輸入区域 -->
     <div v-if="!loading" class="space-y-3">
       <h4 class="text-sm font-medium text-white">
-        {{ hasOptions ? '补充说明 (可选)' : '请輸入您的回复' }}
+        {{ hasOptions ? '补充说明 (可选)' : '請輸入您的回复' }}
       </h4>
 
       <!-- 自訂prompt按钮区域 -->
       <div v-if="customPromptEnabled && customPrompts.length > 0" class="space-y-2" data-guide="custom-prompts">
         <div class="text-xs text-on-surface-secondary flex items-center gap-2">
           <div class="i-carbon-bookmark w-3 h-3 text-primary-500" />
-          <span>快捷模板 (拖拽调整顺序):</span>
+          <span>快捷模板 (拖拽調整顺序):</span>
         </div>
         <div
           ref="promptContainer"
@@ -723,7 +723,7 @@ defineExpose({
               <div class="i-carbon-drag-horizontal w-3 h-3 text-on-surface-secondary" />
             </div>
 
-            <!-- 按钮内容 -->
+            <!-- 按钮內容 -->
             <div
               class="inline-flex items-center cursor-pointer"
               @click="handlePromptClick(prompt)"
@@ -776,7 +776,7 @@ defineExpose({
         v-model:value="userInput"
         type="textarea"
         size="small"
-        :placeholder="hasOptions ? `您可以在这里新增补充说明... (支持貼上图片 ${pasteShortcut})` : `请輸入您的回复... (支持貼上图片 ${pasteShortcut})`"
+        :placeholder="hasOptions ? `您可以在这里新增补充说明... (支持貼上图片 ${pasteShortcut})` : `請輸入您的回复... (支持貼上图片 ${pasteShortcut})`"
         :disabled="submitting"
         :autosize="{ minRows: 3, maxRows: 6 }"
         data-guide="popup-input"
@@ -784,7 +784,7 @@ defineExpose({
       />
     </div>
 
-    <!-- 插入模式選擇对话框 -->
+    <!-- 插入模式選擇對話框 -->
     <n-modal v-model:show="showInsertDialog" preset="dialog" title="插入模式選擇">
       <template #header>
         <div class="flex items-center gap-2">
@@ -794,7 +794,7 @@ defineExpose({
       </template>
       <div class="space-y-4">
         <p class="text-sm text-on-surface-secondary">
-          輸入框中已有内容，请選擇插入模式：
+          輸入框中已有內容，請選擇插入模式：
         </p>
         <div class="bg-container-secondary p-3 rounded text-sm">
           {{ pendingPromptContent }}
@@ -806,10 +806,10 @@ defineExpose({
             取消
           </n-button>
           <n-button type="warning" @click="handleInsertMode('replace')">
-            替换内容
+            替换內容
           </n-button>
           <n-button type="primary" @click="handleInsertMode('append')">
-            追加内容
+            追加內容
           </n-button>
         </div>
       </template>

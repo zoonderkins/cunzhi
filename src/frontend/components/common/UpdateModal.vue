@@ -29,7 +29,7 @@ const {
   dismissUpdate,
 } = useVersionCheck()
 
-// 简单的文本格式化（将换行转换为HTML）
+// 简單的文本格式化（将换行转换为HTML）
 const formattedReleaseNotes = computed(() => {
   if (!props.versionInfo?.releaseNotes)
     return ''
@@ -60,11 +60,11 @@ async function handleConfirmUpdate() {
     console.error('❌ 更新失敗:', errorMsg)
 
     // 如果是需要手動下载的錯誤，引导用户手動下载
-    if (errorMsg.includes('手動下载') || errorMsg.includes('網路请求受限') || errorMsg.includes('403')) {
+    if (errorMsg.includes('手動下载') || errorMsg.includes('網路請求受限') || errorMsg.includes('403')) {
       let warningMsg = '自動更新不可用，将为您開啟下载页面'
 
-      if (errorMsg.includes('網路请求受限') || errorMsg.includes('403')) {
-        warningMsg = '網路请求受限，将为您開啟下载页面'
+      if (errorMsg.includes('網路請求受限') || errorMsg.includes('403')) {
+        warningMsg = '網路請求受限，将为您開啟下载页面'
       }
 
       message.warning(warningMsg)
@@ -76,11 +76,11 @@ async function handleConfirmUpdate() {
         }
         catch (openError) {
           console.error('❌ 開啟下载页面失敗:', openError)
-          message.error('无法開啟下载页面，请手動访问 GitHub 下载最新版本')
+          message.error('無法開啟下载页面，請手動访问 GitHub 下载最新版本')
         }
       }
       else {
-        message.error('无法獲取下载連結，请手動访问 GitHub 下载最新版本')
+        message.error('無法獲取下载連結，請手動访问 GitHub 下载最新版本')
       }
 
       // 延迟關閉弹窗，让用户看到提示
@@ -89,13 +89,13 @@ async function handleConfirmUpdate() {
       }, 2000)
     }
     else {
-      // 其他錯誤显示具体錯誤訊息
-      let displayMsg = errorMsg || '更新失敗，请稍后重试'
+      // 其他錯誤顯示具体錯誤訊息
+      let displayMsg = errorMsg || '更新失敗，請稍后重試'
 
       // 檢查是否是網路相关錯誤
-      if (errorMsg.includes('網路') || errorMsg.includes('连接') || errorMsg.includes('请求失敗')
+      if (errorMsg.includes('網路') || errorMsg.includes('連接') || errorMsg.includes('請求失敗')
         || errorMsg.includes('timeout') || errorMsg.includes('ENOTFOUND') || errorMsg.includes('ECONNREFUSED')) {
-        displayMsg = '網路连接例外，请檢查網路后重试'
+        displayMsg = '網路連接例外，請檢查網路后重試'
       }
 
       message.error(`更新失敗: ${displayMsg}`)
@@ -116,7 +116,7 @@ async function handleRestart() {
   }
   catch (error) {
     console.error('重新啟動失敗:', error)
-    message.error('重新啟動失敗，请手動重新啟動應用')
+    message.error('重新啟動失敗，請手動重新啟動應用')
   }
 }
 </script>
@@ -142,7 +142,7 @@ async function handleRestart() {
       <div v-if="versionInfo" class="space-y-3">
         <div class="p-4 bg-surface-100 dark:bg-surface-800 rounded-lg border border-surface-200 dark:border-surface-700">
           <div class="flex items-center justify-between mb-3">
-            <span class="text-sm text-on-surface-secondary">当前版本:</span>
+            <span class="text-sm text-on-surface-secondary">當前版本:</span>
             <n-tag size="small" type="info">
               v{{ versionInfo.current }}
             </n-tag>
@@ -194,7 +194,7 @@ async function handleRestart() {
           <div class="flex items-center gap-2">
             <div class="i-carbon-document text-blue-500" />
             <h4 class="text-sm font-medium text-on-surface">
-              更新内容
+              更新內容
             </h4>
           </div>
           <div class="max-h-40 overflow-y-auto">

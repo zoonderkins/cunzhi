@@ -88,7 +88,7 @@ function compareVersions(version1: string, version2: string): number {
   return 0
 }
 
-// 獲取当前版本
+// 獲取當前版本
 async function getCurrentVersion(): Promise<string> {
   try {
     const appInfo = await invoke('get_app_info') as string
@@ -97,7 +97,7 @@ async function getCurrentVersion(): Promise<string> {
     return version
   }
   catch (error) {
-    console.error('獲取当前版本失敗:', error)
+    console.error('獲取當前版本失敗:', error)
     return '0.2.0'
   }
 }
@@ -118,7 +118,7 @@ async function checkLatestVersion(): Promise<VersionInfo | null> {
     })
 
     if (!response.ok) {
-      throw new Error(`GitHub API请求失敗: ${response.status}`)
+      throw new Error(`GitHub API請求失敗: ${response.status}`)
     }
 
     const release = await response.json()
@@ -152,17 +152,17 @@ async function checkLatestVersion(): Promise<VersionInfo | null> {
   }
 }
 
-// 自動檢查更新并弹窗（應用啟動时呼叫）
+// 自動檢查更新并弹窗（應用啟動時呼叫）
 async function autoCheckUpdate(): Promise<boolean> {
   // 如果禁用自動檢查，跳過
   if (!autoCheckEnabled.value) {
     return false
   }
 
-  // 如果最近1小时内已经檢查过，跳過
+  // 如果最近1小時内已经檢查过，跳過
   if (lastCheckTime.value && Date.now() - lastCheckTime.value.getTime() < 60 * 60 * 1000) {
     const hasUpdate = versionInfo.value?.hasUpdate || false
-    // 如果有更新且未显示弹窗，且用户未取消该版本，则显示弹窗
+    // 如果有更新且未顯示弹窗，且用户未取消该版本，则顯示弹窗
     if (hasUpdate && !showUpdateModal.value && versionInfo.value?.latest && !cancelledVersions.value.has(versionInfo.value.latest)) {
       showUpdateModal.value = true
     }
@@ -172,7 +172,7 @@ async function autoCheckUpdate(): Promise<boolean> {
   try {
     const info = await checkLatestVersion()
 
-    // 如果检测到新版本且用户未取消该版本，自動显示更新弹窗
+    // 如果检測到新版本且用户未取消该版本，自動顯示更新弹窗
     if (info?.hasUpdate && !cancelledVersions.value.has(info.latest)) {
       showUpdateModal.value = true
       return true
@@ -225,10 +225,10 @@ async function safeOpenUrl(url: string): Promise<void> {
     // 如果Tauri方式失敗，複製到剪贴板
     try {
       await navigator.clipboard.writeText(url)
-      throw new Error(`无法自動開啟連結，已複製到剪贴板，请手動開啟: ${url}`)
+      throw new Error(`無法自動開啟連結，已複製到剪贴板，請手動開啟: ${url}`)
     }
     catch {
-      throw new Error(`无法開啟連結，请手動访问: ${url}`)
+      throw new Error(`無法開啟連結，請手動访问: ${url}`)
     }
   }
 }
@@ -275,7 +275,7 @@ async function checkForUpdatesWithTauri(): Promise<UpdateInfo | null> {
 // 一键更新功能
 async function performOneClickUpdate(): Promise<void> {
   if (isUpdating.value) {
-    console.log('⚠️ 更新已在进行中，跳過')
+    console.log('⚠️ 更新已在進行中，跳過')
     return
   }
 
@@ -310,7 +310,7 @@ async function performOneClickUpdate(): Promise<void> {
     })
 
     try {
-      // 开始下载和安装
+      // 開始下载和安装
       updateStatus.value = 'downloading'
       await invoke('download_and_install_update')
       updateStatus.value = 'completed'
@@ -372,7 +372,7 @@ async function manualCheckUpdate(): Promise<VersionInfo | null> {
 
   const info = await checkLatestVersion()
 
-  // 如果有更新，显示弹窗
+  // 如果有更新，顯示弹窗
   if (info?.hasUpdate) {
     showUpdateModal.value = true
   }

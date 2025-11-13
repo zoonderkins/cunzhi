@@ -1,4 +1,4 @@
-// 弹窗系統類型定义
+// 弹窗系統類型定義
 
 export interface McpRequest {
   id: string
@@ -7,7 +7,7 @@ export interface McpRequest {
   is_markdown?: boolean
 }
 
-// 自訂prompt類型定义
+// 自訂prompt類型定義
 export interface CustomPrompt {
   id: string
   name: string
@@ -39,7 +39,7 @@ export interface PopupState {
   request: McpRequest | null
 }
 
-// 快捷键相关類型定义
+// 快捷键相关類型定義
 export interface ShortcutConfig {
   shortcuts: Record<string, ShortcutBinding>
 }
@@ -62,7 +62,7 @@ export interface ShortcutKey {
   meta: boolean // macOS的Cmd键
 }
 
-// 新的结构化响应格式
+// 新的结构化回應格式
 export interface McpResponse {
   user_input: string | null
   selected_options: string[]

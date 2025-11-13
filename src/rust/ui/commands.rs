@@ -37,7 +37,7 @@ pub async fn set_always_on_top(
         .await
         .map_err(|e| format!("儲存設定失敗: {}", e))?;
 
-    // 應用到当前視窗
+    // 應用到當前視窗
     if let Some(window) = app.get_webview_window("main") {
         window
             .set_always_on_top(enabled)
@@ -63,7 +63,7 @@ pub async fn sync_window_state(
         config.ui_config.always_on_top
     };
 
-    // 應用到当前視窗
+    // 應用到當前視窗
     if let Some(window) = app.get_webview_window("main") {
         window
             .set_always_on_top(always_on_top)
@@ -317,13 +317,13 @@ pub async fn get_current_window_size(app: tauri::AppHandle) -> Result<serde_json
             let width = logical_size.width.round() as u32;
             let height = logical_size.height.round() as u32;
 
-            // 驗證并调整尺寸到有效范围
+            // 驗證并調整尺寸到有效范围
             let (clamped_width, clamped_height) = crate::constants::window::clamp_window_size(width as f64, height as f64);
             let final_width = clamped_width as u32;
             let final_height = clamped_height as u32;
 
             if final_width != width || final_height != height {
-                log::info!("視窗尺寸已调整: {}x{} -> {}x{}", width, height, final_width, final_height);
+                log::info!("視窗尺寸已調整: {}x{} -> {}x{}", width, height, final_width, final_height);
             }
 
             let window_size = serde_json::json!({
@@ -334,7 +334,7 @@ pub async fn get_current_window_size(app: tauri::AppHandle) -> Result<serde_json
         }
     }
 
-    Err("无法獲取当前視窗大小".to_string())
+    Err("無法獲取當前視窗大小".to_string())
 }
 
 #[tauri::command]
@@ -413,12 +413,12 @@ pub async fn send_mcp_response(
     response: serde_json::Value,
     state: State<'_, AppState>,
 ) -> Result<(), String> {
-    // 将响应序列化为JSON字符串
+    // 将回應序列化为JSON字符串
     let response_str =
-        serde_json::to_string(&response).map_err(|e| format!("序列化响应失敗: {}", e))?;
+        serde_json::to_string(&response).map_err(|e| format!("序列化回應失敗: {}", e))?;
 
     if response_str.trim().is_empty() {
-        return Err("响应内容不能为空".to_string());
+        return Err("回應內容不能为空".to_string());
     }
 
     // 檢查是否为MCP模式
@@ -431,12 +431,12 @@ pub async fn send_mcp_response(
         std::io::Write::flush(&mut std::io::stdout())
             .map_err(|e| format!("重新整理stdout失敗: {}", e))?;
     } else {
-        // 通过channel发送响应（如果有的话）
+        // 透過channel傳送回應（如果有的话）
         let sender = {
             let mut channel = state
                 .response_channel
                 .lock()
-                .map_err(|e| format!("獲取响应通道失敗: {}", e))?;
+                .map_err(|e| format!("獲取回應通道失敗: {}", e))?;
             channel.take()
         };
 
@@ -473,7 +473,7 @@ pub fn read_mcp_request(file_path: String) -> Result<serde_json::Value, String> 
     match std::fs::read_to_string(&file_path) {
         Ok(content) => {
             if content.trim().is_empty() {
-                return Err("檔案内容为空".to_string());
+                return Err("檔案內容为空".to_string());
             }
             match serde_json::from_str(&content) {
                 Ok(json) => Ok(json),
@@ -487,7 +487,7 @@ pub fn read_mcp_request(file_path: String) -> Result<serde_json::Value, String> 
 #[tauri::command]
 pub async fn select_image_files() -> Result<Vec<String>, String> {
     // 简化版本：傳回測試图片資料
-    // 在实际應用中，这里应该呼叫系統檔案对话框
+    // 在實際應用中，这里应该呼叫系統檔案對話框
     let test_image_base64 = "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KICA8cmVjdCB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgZmlsbD0iIzMzNzNkYyIvPgogIDx0ZXh0IHg9IjUwIiB5PSI1NSIgZm9udC1mYW1pbHk9IkFyaWFsIiBmb250LXNpemU9IjE0IiBmaWxsPSJ3aGl0ZSIgdGV4dC1hbmNob3I9Im1pZGRsZSI+VGF1cmk8L3RleHQ+Cjwvc3ZnPg==";
 
     Ok(vec![test_image_base64.to_string()])
@@ -517,25 +517,25 @@ pub async fn open_external_url(url: String) -> Result<(), String> {
 
     match result {
         Ok(_) => Ok(()),
-        Err(e) => Err(format!("无法開啟連結: {}", e))
+        Err(e) => Err(format!("無法開啟連結: {}", e))
     }
 }
 
 #[tauri::command]
 pub async fn exit_app(app: AppHandle) -> Result<(), String> {
-    // 直接呼叫強制退出，用于程序内部的退出操作（如MCP响应后退出）
+    // 直接呼叫強制退出，用于程序内部的退出操作（如MCP回應后退出）
     crate::ui::exit::force_exit_app(app).await
 }
 
 
 
-/// 處理應用退出请求（用于前端退出快捷键）
+/// 處理應用退出請求（用于前端退出快捷键）
 #[tauri::command]
 pub async fn handle_app_exit_request(app: AppHandle) -> Result<bool, String> {
     crate::ui::exit_handler::handle_exit_request_internal(app).await
 }
 
-/// 建構发送操作的MCP响应
+/// 建構傳送操作的MCP回應
 #[tauri::command]
 pub fn build_mcp_send_response(
     user_input: Option<String>,
@@ -553,7 +553,7 @@ pub fn build_mcp_send_response(
     ))
 }
 
-/// 建構繼續操作的MCP响应
+/// 建構繼續操作的MCP回應
 #[tauri::command]
 pub fn build_mcp_continue_response(
     request_id: Option<String>,
@@ -567,7 +567,7 @@ pub fn build_mcp_continue_response(
 pub async fn create_test_popup(request: serde_json::Value) -> Result<String, String> {
     // 将JSON值转换为PopupRequest
     let popup_request: PopupRequest = serde_json::from_value(request)
-        .map_err(|e| format!("解析请求參數失敗: {}", e))?;
+        .map_err(|e| format!("解析請求參數失敗: {}", e))?;
 
     // 呼叫现有的popup建立函數
     match create_tauri_popup(&popup_request) {
@@ -681,7 +681,7 @@ pub async fn delete_custom_prompt(
     Ok(())
 }
 
-/// 設定自訂prompt启用狀態
+/// 設定自訂prompt啟用狀態
 #[tauri::command]
 pub async fn set_custom_prompt_enabled(
     enabled: bool,
@@ -711,7 +711,7 @@ pub async fn update_custom_prompt_order(
     state: State<'_, AppState>,
     app: AppHandle,
 ) -> Result<(), String> {
-    log::debug!("开始更新prompt排序，接收到的IDs: {:?}", prompt_ids);
+    log::debug!("開始更新prompt排序，接收到的IDs: {:?}", prompt_ids);
 
     {
         let mut config = state
@@ -743,7 +743,7 @@ pub async fn update_custom_prompt_order(
         }
     }
 
-    log::debug!("开始儲存設定檔案...");
+    log::debug!("開始儲存設定檔案...");
     let save_start = std::time::Instant::now();
 
     // 儲存設定到檔案
@@ -752,7 +752,7 @@ pub async fn update_custom_prompt_order(
         .map_err(|e| format!("儲存設定失敗: {}", e))?;
 
     let save_duration = save_start.elapsed();
-    log::debug!("設定儲存完成，耗时: {:?}", save_duration);
+    log::debug!("設定儲存完成，耗時: {:?}", save_duration);
 
     Ok(())
 }
@@ -802,7 +802,7 @@ pub async fn get_config_file_path(app: AppHandle) -> Result<String, String> {
     let absolute_path = if config_path.is_absolute() {
         config_path
     } else {
-        // 如果是相对路径，獲取当前工作目录并拼接
+        // 如果是相对路径，獲取當前工作目录并拼接
         std::env::current_dir()
             .unwrap_or_else(|_| std::path::PathBuf::from("."))
             .join(&config_path)
@@ -814,9 +814,9 @@ pub async fn get_config_file_path(app: AppHandle) -> Result<String, String> {
     Ok(normalized_path)
 }
 
-/// 跨平台路径显示规范化
+/// 跨平台路径顯示规范化
 fn normalize_path_display(path: &std::path::Path) -> String {
-    // 如果檔案存在，尝试獲取规范路径
+    // 如果檔案存在，嘗試獲取规范路径
     let canonical_path = if path.exists() {
         match path.canonicalize() {
             Ok(canonical) => Some(canonical),
@@ -854,13 +854,13 @@ fn normalize_path_display(path: &std::path::Path) -> String {
 
     #[cfg(target_os = "ios")]
     {
-        // iOS: 类似macOS的處理
+        // iOS: 類似macOS的處理
         path_str.to_string()
     }
 
     #[cfg(target_os = "android")]
     {
-        // Android: 类似Linux的處理
+        // Android: 類似Linux的處理
         path_str.to_string()
     }
 

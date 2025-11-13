@@ -83,7 +83,7 @@ pub async fn load_config_and_apply_window_settings(
         if let Err(e) = window.set_always_on_top(always_on_top) {
             log::warn!("設定視窗置顶失敗: {}", e);
         } else {
-            log::info!("視窗置顶狀態已設定为: {} (設定載入时)", always_on_top);
+            log::info!("視窗置顶狀態已設定为: {} (設定載入時)", always_on_top);
         }
 
         // 應用視窗大小约束
@@ -143,7 +143,7 @@ pub fn load_standalone_config() -> Result<AppConfig> {
 fn get_standalone_config_path() -> Result<PathBuf> {
     // 使用標準的設定目录
     let config_dir = dirs::config_dir()
-        .ok_or_else(|| anyhow::anyhow!("无法獲取設定目录"))?
+        .ok_or_else(|| anyhow::anyhow!("無法獲取設定目录"))?
         .join("cunzhi");
 
     // 确保目录存在

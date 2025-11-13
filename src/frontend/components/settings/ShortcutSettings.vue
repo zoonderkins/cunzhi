@@ -47,7 +47,7 @@ const currentKeys = ref({
   key: '',
 })
 
-// 冲突检测
+// 冲突检測
 const conflictWarning = computed(() => {
   if (!editingBinding.value.key_combination.key)
     return null
@@ -103,16 +103,16 @@ async function handleReset() {
   }
 }
 
-// 監聽設定变化
+// 監聽設定變化
 watch(shortcutConfig, (newConfig) => {
   config.value = { ...newConfig }
 }, { deep: true })
 
-// 开始录制快捷键
+// 開始录制快捷键
 function startRecording() {
   isRecording.value = true
 
-  // 清除之前的快捷键設定和当前按键狀態
+  // 清除之前的快捷键設定和當前按键狀態
   editingBinding.value.key_combination = {
     key: '',
     ctrl: false,
@@ -133,10 +133,10 @@ function startRecording() {
   document.addEventListener('keydown', handleRecordingKeyDown, true)
   document.addEventListener('keyup', handleRecordingKeyUp, true)
 
-  // 設定超时自動停止录制（10秒）
+  // 設定超時自動停止录制（10秒）
   recordingTimeout.value = window.setTimeout(() => {
     stopRecording()
-    message.warning('录制超时，已自動停止')
+    message.warning('录制超時，已自動停止')
   }, 10000)
 }
 
@@ -148,7 +148,7 @@ function stopRecording() {
   document.removeEventListener('keydown', handleRecordingKeyDown, true)
   document.removeEventListener('keyup', handleRecordingKeyUp, true)
 
-  // 清除当前按键狀態
+  // 清除當前按键狀態
   currentKeys.value = {
     ctrl: false,
     alt: false,
@@ -157,19 +157,19 @@ function stopRecording() {
     key: '',
   }
 
-  // 清除超时
+  // 清除超時
   if (recordingTimeout.value) {
     clearTimeout(recordingTimeout.value)
     recordingTimeout.value = null
   }
 }
 
-// 處理录制时的按键事件
+// 處理录制時的按键事件
 function handleRecordingKeyDown(event: KeyboardEvent) {
   event.preventDefault()
   event.stopPropagation()
 
-  // 更新当前按键狀態显示
+  // 更新當前按键狀態顯示
   currentKeys.value = {
     ctrl: event.ctrlKey,
     alt: event.altKey,
@@ -185,7 +185,7 @@ function handleRecordingKeyDown(event: KeyboardEvent) {
     return
   }
 
-  // 忽略单独的修饰键
+  // 忽略單独的修饰键
   if (['Control', 'Alt', 'Shift', 'Meta', 'Cmd', 'Command'].includes(event.key)) {
     return
   }
@@ -204,7 +204,7 @@ function handleRecordingKeyDown(event: KeyboardEvent) {
   const hasModifier = keyCombo.ctrl || keyCombo.alt || keyCombo.shift || keyCombo.meta
 
   if (!hasModifier && !isFunctionKey) {
-    message.warning('请使用修饰键组合（如 Ctrl、Alt、Shift）或功能键')
+    message.warning('請使用修饰键組合（如 Ctrl、Alt、Shift）或功能键')
     return
   }
 
@@ -216,7 +216,7 @@ function handleRecordingKeyDown(event: KeyboardEvent) {
   message.success(`已录制快捷键: ${shortcutKeyToString(keyCombo)}`)
 }
 
-// 處理录制时的按键釋放事件（用于更新修饰键狀態）
+// 處理录制時的按键釋放事件（用于更新修饰键狀態）
 function handleRecordingKeyUp(event: KeyboardEvent) {
   event.preventDefault()
   event.stopPropagation()
@@ -248,13 +248,13 @@ function normalizeKey(key: string): string {
   return keyMap[key] || key.toUpperCase()
 }
 
-// 元件挂载时載入設定
+// 元件挂载時載入設定
 onMounted(async () => {
   await loadShortcutConfig()
   config.value = { ...shortcutConfig.value }
 })
 
-// 元件卸载时清理
+// 元件卸载時清理
 onUnmounted(() => {
   if (isRecording.value) {
     stopRecording()
@@ -264,7 +264,7 @@ onUnmounted(() => {
 
 <template>
   <div class="space-y-4">
-    <!-- 页面标题 -->
+    <!-- 页面標題 -->
     <div class="mb-4">
       <h3 class="text-base font-medium text-on-surface">
         自訂快捷键
@@ -323,7 +323,7 @@ onUnmounted(() => {
       </n-button>
     </div>
 
-    <!-- 編輯快捷键对话框 -->
+    <!-- 編輯快捷键對話框 -->
     <n-modal v-model:show="showEditDialog" preset="dialog" title="編輯快捷键">
       <div class="space-y-4">
         <n-form-item label="快捷键名称">
@@ -352,7 +352,7 @@ onUnmounted(() => {
                 size="medium"
                 @click="startRecording"
               >
-                🎙️ 开始录制快捷键
+                🎙️ 開始录制快捷键
               </n-button>
             </div>
 
@@ -360,12 +360,12 @@ onUnmounted(() => {
               <div class="flex items-center justify-center gap-2">
                 <div class="w-3 h-3 bg-primary rounded-full animate-pulse" />
                 <div class="text-lg text-primary font-medium">
-                  正在录制... 请按下您想要的快捷鍵組合
+                  正在录制... 請按下您想要的快捷鍵組合
                 </div>
                 <div class="w-3 h-3 bg-primary rounded-full animate-pulse" />
               </div>
 
-              <!-- 实时按键狀態显示 -->
+              <!-- 实時按键狀態顯示 -->
               <div class="flex items-center justify-center gap-3 min-h-12 p-3 bg-surface rounded-lg">
                 <n-tag v-if="currentKeys.ctrl" size="medium" type="info">
                   {{ isMac ? '⌃' : 'Ctrl' }}
@@ -408,7 +408,7 @@ onUnmounted(() => {
           <span class="font-mono">{{ shortcutKeyToString(editingBinding.key_combination) }}</span>
         </div>
 
-        <!-- 冲突检测 -->
+        <!-- 冲突检測 -->
         <div v-if="conflictWarning" class="p-3 bg-error-container rounded">
           <p class="text-sm text-error">
             ⚠️ 快捷键冲突：与 "{{ conflictWarning }}" 冲突

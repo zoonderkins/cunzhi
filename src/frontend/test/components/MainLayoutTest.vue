@@ -7,7 +7,7 @@ const props = defineProps<{
   showControls?: boolean
 }>()
 
-// 預設显示控制面板
+// 預設顯示控制面板
 const showControls = ref(props.showControls !== false)
 
 // 模拟主界面所需的 props
@@ -63,7 +63,7 @@ function handleTestAudio() {
           <n-card title="測試控制" size="small">
             <n-space vertical size="medium">
               <n-space align="center" justify="space-between">
-                <span>当前主題:</span>
+                <span>當前主題:</span>
                 <n-tag size="small" :type="currentTheme === 'dark' ? 'warning' : 'info'">
                   {{ currentTheme }}
                 </n-tag>
@@ -72,14 +72,14 @@ function handleTestAudio() {
               <n-space align="center" justify="space-between">
                 <span>置顶狀態:</span>
                 <n-tag size="small" :type="alwaysOnTop ? 'success' : 'default'">
-                  {{ alwaysOnTop ? '已启用' : '已禁用' }}
+                  {{ alwaysOnTop ? '已啟用' : '已禁用' }}
                 </n-tag>
               </n-space>
 
               <n-space align="center" justify="space-between">
                 <span>音訊通知:</span>
                 <n-tag size="small" :type="audioNotificationEnabled ? 'success' : 'default'">
-                  {{ audioNotificationEnabled ? '已启用' : '已禁用' }}
+                  {{ audioNotificationEnabled ? '已啟用' : '已禁用' }}
                 </n-tag>
               </n-space>
 
@@ -114,7 +114,7 @@ function handleTestAudio() {
             <n-space vertical size="small">
               <div class="flex items-center text-sm">
                 <div class="w-1.5 h-1.5 bg-green-500 rounded-full mr-3 flex-shrink-0" />
-                这是真实的 MainLayout 元件，所有修改都会实时反映
+                这是真实的 MainLayout 元件，所有修改都会实時反映
               </div>
               <div class="flex items-center text-sm">
                 <div class="w-1.5 h-1.5 bg-green-500 rounded-full mr-3 flex-shrink-0" />
@@ -134,7 +134,7 @@ function handleTestAudio() {
       </n-card>
     </div>
 
-    <!-- 纯净模式 - 只显示主界面 -->
+    <!-- 纯净模式 - 只顯示主界面 -->
     <div v-else class="pure-mode">
       <MainLayout
         :current-theme="currentTheme"

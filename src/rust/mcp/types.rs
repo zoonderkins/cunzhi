@@ -3,9 +3,9 @@ use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Deserialize, schemars::JsonSchema)]
 pub struct ZhiRequest {
-    #[schemars(description = "要显示给用户的消息")]
+    #[schemars(description = "要顯示给用户的消息")]
     pub message: String,
-    #[schemars(description = "预定义的選項列表（可选）")]
+    #[schemars(description = "预定義的選項列表（可选）")]
     #[serde(default)]
     pub predefined_options: Vec<String>,
     #[schemars(description = "消息是否为Markdown格式，預設为true")]
@@ -23,11 +23,11 @@ pub struct JiyiRequest {
     pub action: String,
     #[schemars(description = "專案路径（必需）")]
     pub project_path: String,
-    #[schemars(description = "記憶内容（記憶操作时必需）")]
+    #[schemars(description = "記憶內容（記憶操作時必需）")]
     #[serde(default)]
     pub content: String,
     #[schemars(
-        description = "記憶分类：rule(规范规则), preference(用户偏好), pattern(最佳实践), context(專案上下文)"
+        description = "記憶分類：rule(规范规则), preference(用户偏好), pattern(最佳實務), context(專案上下文)"
     )]
     #[serde(default = "default_category")]
     pub category: String,
@@ -45,7 +45,7 @@ pub struct PopupRequest {
     pub is_markdown: bool,
 }
 
-/// 新的结构化响应資料格式
+/// 新的结构化回應資料格式
 #[derive(Debug, Deserialize)]
 pub struct McpResponse {
     pub user_input: Option<String>,
@@ -85,9 +85,9 @@ pub struct ImageSource {
     pub data: String,
 }
 
-/// 統一的响应建構函數
+/// 統一的回應建構函數
 ///
-/// 用于生成標準的JSON响应格式，确保无GUI和有GUI模式輸出一致
+/// 用于生成標準的JSON回應格式，确保无GUI和有GUI模式輸出一致
 pub fn build_mcp_response(
     user_input: Option<String>,
     selected_options: Vec<String>,
@@ -107,7 +107,7 @@ pub fn build_mcp_response(
     })
 }
 
-/// 建構发送操作的响应
+/// 建構傳送操作的回應
 pub fn build_send_response(
     user_input: Option<String>,
     selected_options: Vec<String>,
@@ -119,13 +119,13 @@ pub fn build_send_response(
     response.to_string()
 }
 
-/// 建構繼續操作的响应
+/// 建構繼續操作的回應
 pub fn build_continue_response(request_id: Option<String>, source: &str) -> String {
-    // 动态獲取繼續提示词
+    // 動態獲取繼續提示詞
     let continue_prompt = if let Ok(config) = crate::config::load_standalone_config() {
         config.reply_config.continue_prompt
     } else {
-        "请按照最佳实践繼續".to_string()
+        "請按照最佳實務繼續".to_string()
     };
 
     let response = build_mcp_response(Some(continue_prompt), vec![], vec![], request_id, source);

@@ -21,7 +21,7 @@ const {
   restartApp,
 } = useVersionCheck()
 
-// 格式化最后檢查时间
+// 格式化最后檢查時间
 const formattedLastCheckTime = computed(() => {
   return lastCheckTime.value ? lastCheckTime.value.toLocaleString('zh-CN') : ''
 })
@@ -35,7 +35,7 @@ async function handleCheckUpdate() {
       message.info(`发现新版本 v${info.latest}！`)
     }
     else {
-      message.success('当前已是最新版本')
+      message.success('當前已是最新版本')
     }
   }
   catch (error) {
@@ -51,7 +51,7 @@ async function handleDownloadUpdate() {
     message.success('正在開啟下载页面...')
   }
   catch (error) {
-    const errorMsg = error instanceof Error ? error.message : '開啟下载页面失敗，请手動访问GitHub'
+    const errorMsg = error instanceof Error ? error.message : '開啟下载页面失敗，請手動访问GitHub'
     if (errorMsg.includes('已複製到剪贴板')) {
       message.warning(errorMsg)
     }
@@ -68,7 +68,7 @@ async function handleViewReleaseNotes() {
     message.success('正在開啟更新日誌...')
   }
   catch (error) {
-    const errorMsg = error instanceof Error ? error.message : '開啟更新日誌失敗，请手動访问GitHub'
+    const errorMsg = error instanceof Error ? error.message : '開啟更新日誌失敗，請手動访问GitHub'
     if (errorMsg.includes('已複製到剪贴板')) {
       message.warning(errorMsg)
     }
@@ -81,7 +81,7 @@ async function handleViewReleaseNotes() {
 // 一键更新
 async function handleOneClickUpdate() {
   try {
-    message.info('开始下载更新...')
+    message.info('開始下载更新...')
     await performOneClickUpdate()
 
     if (updateStatus.value === 'completed') {
@@ -90,7 +90,7 @@ async function handleOneClickUpdate() {
   }
   catch (error) {
     console.error('一键更新失敗:', error)
-    const errorMsg = error instanceof Error ? error.message : '更新失敗，请稍后重试或手動下载'
+    const errorMsg = error instanceof Error ? error.message : '更新失敗，請稍后重試或手動下载'
     message.error(errorMsg)
   }
 }
@@ -102,11 +102,11 @@ async function handleRestartApp() {
   }
   catch (error) {
     console.error('重新啟動失敗:', error)
-    message.error('重新啟動失敗，请手動重新啟動應用')
+    message.error('重新啟動失敗，請手動重新啟動應用')
   }
 }
 
-// 元件挂载时初始化版本訊息
+// 元件挂载時初始化版本訊息
 onMounted(async () => {
   loading.value = true
   try {
@@ -123,13 +123,13 @@ onMounted(async () => {
 
 <template>
   <div class="space-y-4">
-    <!-- 版本訊息显示 -->
+    <!-- 版本訊息顯示 -->
     <div
       v-if="!loading && versionInfo"
       class="space-y-3"
     >
       <div class="flex items-center justify-between">
-        <span class="text-sm text-on-surface-secondary">当前版本:</span>
+        <span class="text-sm text-on-surface-secondary">當前版本:</span>
         <n-tag
           size="small"
           type="info"
@@ -169,7 +169,7 @@ onMounted(async () => {
         </div>
       </div>
 
-      <!-- 更新进度显示 -->
+      <!-- 更新进度顯示 -->
       <div
         v-if="isUpdating"
         class="p-3 bg-surface-100 dark:bg-surface-800 rounded-lg border border-surface-200 dark:border-surface-700"
@@ -207,7 +207,7 @@ onMounted(async () => {
         </div>
       </div>
 
-      <!-- 最后檢查时间 -->
+      <!-- 最后檢查時间 -->
       <div
         v-if="formattedLastCheckTime"
         class="text-xs text-on-surface-muted dark:text-on-surface-muted"

@@ -421,8 +421,8 @@ pub fn default_custom_prompts() -> Vec<CustomPrompt> {
         CustomPrompt {
             id: "default_1".to_string(),
             name: "✅Done".to_string(),
-            content: "结束当前对话".to_string(),
-            description: Some("请求AI结束工作".to_string()),
+            content: "結束當前對話".to_string(),
+            description: Some("請求AI結束工作".to_string()),
             sort_order: 1,
             created_at: chrono::Utc::now().to_rfc3339(),
             updated_at: chrono::Utc::now().to_rfc3339(),
@@ -436,7 +436,7 @@ pub fn default_custom_prompts() -> Vec<CustomPrompt> {
             id: "default_2".to_string(),
             name: "🧹Clear".to_string(),
             content: "".to_string(),
-            description: Some("清空輸入框内容".to_string()),
+            description: Some("清空輸入框內容".to_string()),
             sort_order: 2,
             created_at: chrono::Utc::now().to_rfc3339(),
             updated_at: chrono::Utc::now().to_rfc3339(),
@@ -463,8 +463,8 @@ pub fn default_custom_prompts() -> Vec<CustomPrompt> {
         CustomPrompt {
             id: "default_4".to_string(),
             name: "🧠Remember".to_string(),
-            content: "请记住，".to_string(),
-            description: Some("寸止的另一个工具，请记住".to_string()),
+            content: "請记住，".to_string(),
+            description: Some("寸止的另一个工具，請记住".to_string()),
             sort_order: 4,
             created_at: chrono::Utc::now().to_rfc3339(),
             updated_at: chrono::Utc::now().to_rfc3339(),
@@ -477,8 +477,8 @@ pub fn default_custom_prompts() -> Vec<CustomPrompt> {
         CustomPrompt {
             id: "default_5".to_string(),
             name: "📝Summary And Restart".to_string(),
-            content: "本次对话的上下文已经太长了，我打算关掉并重新开一个新的会话。你有什么想对你的继任者说的，以便它能更好的理解你当前的工作并顺利繼續？".to_string(),
-            description: Some("总结-开新会话".to_string()),
+            content: "本次對話的上下文已经太长了，我打算关掉并重新开一个新的会话。你有什么想对你的继任者说的，以便它能更好的理解你當前的工作并顺利繼續？".to_string(),
+            description: Some("總結-开新会话".to_string()),
             sort_order: 5,
             created_at: chrono::Utc::now().to_rfc3339(),
             updated_at: chrono::Utc::now().to_rfc3339(),
@@ -491,7 +491,7 @@ pub fn default_custom_prompts() -> Vec<CustomPrompt> {
         CustomPrompt {
             id: "default_6".to_string(),
             name: "🔍Review And Plan".to_string(),
-            content: "请執行以下專案进度檢查和规划任务：\n\n1. **專案进度分析**：\n   - 查看当前代码函式庫狀態，分析已完成的功能模組\n   - 识别已完成、进行中和待开始的功能点\n\n2. **里程碑确定**：\n   - 基于当前进度和剩余工作量，定义清晰的里程碑节点\n   - 为每个里程碑设定具体的完成標準和时间预期\n   - 优先考虑核心任务管理功能的里程碑\n\n3. **文档更新**（注意：仅更新现有文档，不建立新文档）：\n   - 更新專案规划文档中的进度狀態\n   - 修正任何与实际實作不符的技术方案描述\n   - 确保文档反映当前的技术栈和架构决策\n\n4. **下一步工作规划**：\n   - 基于用户偏好（系統化开发方法、前端优先、分步骤反馈）制定具体的下一阶段工作计划\n   - 识别关键路径上的阻塞点和依赖关系\n   - 提供3-5个具体的下一步行动项，按优先级排序\n\n5. **反馈收集**：\n   - 在完成分析后，使用寸止工具收集用户对进度评估和下一步计划的反馈\n   - 提供多个可选的发展方向供用户選擇".to_string(),
+            content: "請執行以下專案进度檢查和规划任务：\n\n1. **專案进度分析**：\n   - 查看當前代码函式庫狀態，分析已完成的功能模組\n   - 识別已完成、進行中和待開始的功能点\n\n2. **里程碑确定**：\n   - 基于當前进度和剩余工作量，定義清晰的里程碑節点\n   - 为每个里程碑設定具体的完成標準和時间预期\n   - 优先考虑核心任务管理功能的里程碑\n\n3. **文档更新**（注意：僅更新现有文档，不建立新文档）：\n   - 更新專案规划文档中的进度狀態\n   - 修正任何与實際實作不符的技术方案描述\n   - 确保文档反映當前的技术栈和架构决策\n\n4. **下一步工作规划**：\n   - 基于用户偏好（系統化开发方法、前端优先、分步骤反馈）制定具体的下一阶段工作计划\n   - 识別关键路径上的阻塞点和依赖关系\n   - 提供3-5个具体的下一步行动项，按优先级排序\n\n5. **反馈收集**：\n   - 在完成分析后，使用寸止工具收集用户对进度评估和下一步计划的反馈\n   - 提供多个可选的发展方向供用户選擇".to_string(),
             description: Some("專案进度檢查和规划任务".to_string()),
             sort_order: 6,
             created_at: chrono::Utc::now().to_rfc3339(),
@@ -504,16 +504,16 @@ pub fn default_custom_prompts() -> Vec<CustomPrompt> {
         },
         CustomPrompt {
             id: "default_7".to_string(),
-            name: "是否生成总结性Markdown文档".to_string(),
+            name: "是否生成總結性Markdown文档".to_string(),
             content: "".to_string(),
-            description: Some("是否生成总结性Markdown文档".to_string()),
+            description: Some("是否生成總結性Markdown文档".to_string()),
             sort_order: 7,
             created_at: chrono::Utc::now().to_rfc3339(),
             updated_at: chrono::Utc::now().to_rfc3339(),
             r#type: "conditional".to_string(),
-            condition_text: Some("是否生成总结性Markdown文档".to_string()),
-            template_true: Some("✔️请记住，帮我生成总结性Markdown文档".to_string()),
-            template_false: Some("❌请记住，不要生成总结性Markdown文档".to_string()),
+            condition_text: Some("是否生成總結性Markdown文档".to_string()),
+            template_true: Some("✔️請记住，帮我生成總結性Markdown文档".to_string()),
+            template_false: Some("❌請记住，不要生成總結性Markdown文档".to_string()),
             current_state: false,
         },
         CustomPrompt {
@@ -526,8 +526,8 @@ pub fn default_custom_prompts() -> Vec<CustomPrompt> {
             updated_at: chrono::Utc::now().to_rfc3339(),
             r#type: "conditional".to_string(),
             condition_text: Some("是否生成測試脚本".to_string()),
-            template_true: Some("✔️请记住，帮我生成測試脚本".to_string()),
-            template_false: Some("❌请记住，不要生成測試脚本".to_string()),
+            template_true: Some("✔️請记住，帮我生成測試脚本".to_string()),
+            template_false: Some("❌請记住，不要生成測試脚本".to_string()),
             current_state: false,
         },
         CustomPrompt {
@@ -540,8 +540,8 @@ pub fn default_custom_prompts() -> Vec<CustomPrompt> {
             updated_at: chrono::Utc::now().to_rfc3339(),
             r#type: "conditional".to_string(),
             condition_text: Some("是否主动編譯".to_string()),
-            template_true: Some("✔️请记住，帮我編譯".to_string()),
-            template_false: Some("❌请记住，不要編譯，用户自己編譯".to_string()),
+            template_true: Some("✔️請记住，帮我編譯".to_string()),
+            template_false: Some("❌請记住，不要編譯，用户自己編譯".to_string()),
             current_state: false,
         },
         CustomPrompt {
@@ -554,8 +554,8 @@ pub fn default_custom_prompts() -> Vec<CustomPrompt> {
             updated_at: chrono::Utc::now().to_rfc3339(),
             r#type: "conditional".to_string(),
             condition_text: Some("是否主动執行".to_string()),
-            template_true: Some("✔️请记住，帮我執行".to_string()),
-            template_false: Some("❌请记住，不要執行，用户自己執行".to_string()),
+            template_true: Some("✔️請记住，帮我執行".to_string()),
+            template_false: Some("❌請记住，不要執行，用户自己執行".to_string()),
             current_state: false,
         },
     ]
@@ -582,8 +582,8 @@ pub fn default_shortcuts() -> HashMap<String, ShortcutBinding> {
     // 快速發送快捷鍵
     shortcuts.insert("quick_submit".to_string(), ShortcutBinding {
         id: "quick_submit".to_string(),
-        name: "快速发送".to_string(),
-        description: "快速提交当前輸入内容".to_string(),
+        name: "快速傳送".to_string(),
+        description: "快速提交當前輸入內容".to_string(),
         action: "submit".to_string(),
         key_combination: ShortcutKey {
             key: "Enter".to_string(),
@@ -600,7 +600,7 @@ pub fn default_shortcuts() -> HashMap<String, ShortcutBinding> {
     shortcuts.insert("enhance".to_string(), ShortcutBinding {
         id: "enhance".to_string(),
         name: "增强".to_string(),
-        description: "增强当前輸入内容".to_string(),
+        description: "增强當前輸入內容".to_string(),
         action: "enhance".to_string(),
         key_combination: ShortcutKey {
             key: "Enter".to_string(),
@@ -617,7 +617,7 @@ pub fn default_shortcuts() -> HashMap<String, ShortcutBinding> {
     shortcuts.insert("continue".to_string(), ShortcutBinding {
         id: "continue".to_string(),
         name: "繼續".to_string(),
-        description: "繼續对话".to_string(),
+        description: "繼續對話".to_string(),
         action: "continue".to_string(),
         key_combination: ShortcutKey {
             key: "Enter".to_string(),

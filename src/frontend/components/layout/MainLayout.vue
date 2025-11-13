@@ -54,7 +54,7 @@ function handleImageError(event: Event) {
 // 測試popup功能 - 建立独立的popup視窗
 async function showTestMcpPopup() {
   try {
-    // 建立測試请求資料
+    // 建立測試請求資料
     const testRequest = {
       id: `test-${Date.now()}`,
       message: `# 🧪 測試弹窗功能
@@ -62,8 +62,8 @@ async function showTestMcpPopup() {
 这是一个**測試弹窗**，用于驗證MCP popup元件的功能。
 
 ## 功能特性
-- ✅ 支持 Markdown 格式显示
-- ✅ 支持预定义選項選擇
+- ✅ 支持 Markdown 格式顯示
+- ✅ 支持预定義選項選擇
 - ✅ 支持自由文本輸入
 - ✅ 支持图片貼上上传
 
@@ -76,7 +76,7 @@ function testPopup() {
 }
 \`\`\`
 
-请選擇您要測試的功能，或者在下方輸入框中新增您的反馈。`,
+請選擇您要測試的功能，或者在下方輸入框中新增您的反馈。`,
       predefined_options: ['測試選項功能', '測試文本輸入', '測試图片上传', '測試Markdown渲染'],
       is_markdown: true,
     }
@@ -94,12 +94,12 @@ function testPopup() {
 
 <template>
   <div class="flex flex-col min-h-screen">
-    <!-- 主要内容区域 -->
+    <!-- 主要內容区域 -->
     <div class="flex-1 flex items-start justify-center p-6 pt-12">
       <div class="max-w-6xl w-full">
-        <!-- 标题区域 -->
+        <!-- 標題区域 -->
         <div class="text-center mb-8">
-          <!-- 主标题 -->
+          <!-- 主標題 -->
           <div class="flex items-center justify-center gap-3 mb-3" data-guide="app-logo">
             <img
               src="/icons/icon-128.png"
@@ -136,7 +136,7 @@ function testPopup() {
             </n-tag>
           </div>
 
-          <!-- 副标题 -->
+          <!-- 副標題 -->
           <p class="text-base opacity-50 font-normal text-white">
             讓 AI Great Again! 持久
           </p>

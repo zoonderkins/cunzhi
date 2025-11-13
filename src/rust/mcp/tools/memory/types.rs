@@ -11,12 +11,12 @@ pub struct MemoryEntry {
     pub updated_at: DateTime<Utc>,
 }
 
-/// 記憶分类
+/// 記憶分類
 #[derive(Debug, Clone, Copy, Serialize, Deserialize, PartialEq)]
 pub enum MemoryCategory {
     Rule,        // 开发规范和规则
     Preference,  // 用户偏好設定
-    Pattern,     // 常用模式和最佳实践
+    Pattern,     // 常用模式和最佳實務
     Context,     // 專案上下文訊息
 }
 

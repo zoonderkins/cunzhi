@@ -18,7 +18,7 @@ const mcpTools = ref<MCPToolConfig[]>([])
 const loading = ref(false)
 const error = ref<string | null>(null)
 
-// 计算属性：启用的工具
+// 计算属性：啟用的工具
 const enabledTools = computed(() => mcpTools.value.filter(tool => tool.enabled))
 
 // 计算属性：工具统计
@@ -47,7 +47,7 @@ async function loadMcpTools() {
   }
 }
 
-// 切换工具启用狀態
+// 切换工具啟用狀態
 async function toggleTool(toolId: string) {
   const tool = mcpTools.value.find(t => t.id === toolId)
   if (!tool || !tool.can_disable) {
@@ -152,7 +152,7 @@ export function useMcpToolsReactive() {
   }
 }
 
-// 初始化函數（在應用啟動时呼叫）
+// 初始化函數（在應用啟動時呼叫）
 export async function initMcpTools() {
   try {
     await loadMcpTools()

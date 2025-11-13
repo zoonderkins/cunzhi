@@ -15,7 +15,7 @@ export function useTheme() {
 
   // 應用主題
   function applyTheme(theme: string) {
-    // 應用主題變數和类
+    // 應用主題變數和類
     applyThemeVariables(theme)
     currentTheme.value = theme
   }
@@ -30,7 +30,7 @@ export function useTheme() {
     }
     catch (error) {
       console.error('儲存主題設定失敗:', error)
-      // 儲存失敗时不應用主題，保持一致性
+      // 儲存失敗時不應用主題，保持一致性
     }
   }
 
@@ -41,7 +41,7 @@ export function useTheme() {
       // 确保主題值有效
       const validTheme = (theme === 'light' || theme === 'dark') ? theme : 'dark'
 
-      // 應用后端主題（无论是否与当前主題相同，确保狀態同步）
+      // 應用后端主題（无论是否与當前主題相同，确保狀態同步）
       applyTheme(validTheme as string)
     }
     catch (error) {
@@ -51,7 +51,7 @@ export function useTheme() {
     }
   }
 
-  // 立即尝试載入主題，避免延迟
+  // 立即嘗試載入主題，避免延迟
   loadTheme().catch(() => {
     // 如果載入失敗，應用預設主題
     applyTheme('dark')

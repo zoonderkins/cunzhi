@@ -11,7 +11,7 @@ interface ReplyConfig {
 const localConfig = ref<ReplyConfig>({
   enable_continue_reply: true,
   auto_continue_threshold: 1000,
-  continue_prompt: '请按照最佳实践繼續',
+  continue_prompt: '請按照最佳實務繼續',
 })
 
 // 載入設定
@@ -41,18 +41,18 @@ onMounted(() => {
 </script>
 
 <template>
-  <!-- 設定内容 -->
+  <!-- 設定內容 -->
   <n-space vertical size="large">
-    <!-- 启用繼續回复 -->
+    <!-- 啟用繼續回复 -->
     <div class="flex items-center justify-between">
       <div class="flex items-center">
         <div class="w-1.5 h-1.5 bg-info rounded-full mr-3 flex-shrink-0" />
         <div>
           <div class="text-sm font-medium leading-relaxed">
-            启用繼續回复
+            啟用繼續回复
           </div>
           <div class="text-xs opacity-60">
-            启用后将显示繼續按钮
+            啟用后将顯示繼續按钮
           </div>
         </div>
       </div>
@@ -63,23 +63,23 @@ onMounted(() => {
       />
     </div>
 
-    <!-- 繼續提示词 -->
+    <!-- 繼續提示詞 -->
     <div v-if="localConfig.enable_continue_reply">
       <div class="flex items-center mb-3">
         <div class="w-1.5 h-1.5 bg-info rounded-full mr-3 flex-shrink-0" />
         <div>
           <div class="text-sm font-medium leading-relaxed">
-            繼續提示词
+            繼續提示詞
           </div>
           <div class="text-xs opacity-60">
-            点击繼續按钮时发送的提示词
+            点击繼續按钮時傳送的提示詞
           </div>
         </div>
       </div>
       <n-input
         v-model:value="localConfig.continue_prompt"
         size="small"
-        placeholder="请按照最佳实践繼續"
+        placeholder="請按照最佳實務繼續"
         @input="updateConfig"
       />
     </div>

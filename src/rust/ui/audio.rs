@@ -23,7 +23,7 @@ pub async fn get_audio_notification_enabled(state: State<'_, AppState>) -> Resul
 
 #[tauri::command]
 pub async fn set_audio_notification_enabled(enabled: bool, state: State<'_, AppState>, app: tauri::AppHandle) -> Result<(), String> {
-    // 如果是首次启用音訊通知，先複製音訊檔案
+    // 如果是首次啟用音訊通知，先複製音訊檔案
     if enabled {
         if let Err(e) = ensure_audio_file_exists(&app).await {
             return Err(format!("准备音訊檔案失敗: {}", e));
@@ -60,7 +60,7 @@ pub async fn set_audio_url(url: String, state: State<'_, AppState>, app: tauri::
 
 #[tauri::command]
 pub async fn play_notification_sound(state: State<'_, AppState>, app: tauri::AppHandle) -> Result<(), String> {
-    // 檢查是否启用音訊通知
+    // 檢查是否啟用音訊通知
     let (enabled, audio_url) = {
         let config = state.config.lock().map_err(|e| format!("獲取設定失敗: {}", e))?;
         (config.audio_config.notification_enabled, config.audio_config.custom_url.clone())
@@ -82,7 +82,7 @@ pub async fn play_notification_sound(state: State<'_, AppState>, app: tauri::App
 
 #[tauri::command]
 pub async fn test_audio_sound(state: State<'_, AppState>, app: tauri::AppHandle) -> Result<(), String> {
-    // 獲取当前設定的音效URL
+    // 獲取當前設定的音效URL
     let audio_url = {
         let config = state.config.lock().map_err(|e| format!("獲取設定失敗: {}", e))?;
         config.audio_config.custom_url.clone()
@@ -150,7 +150,7 @@ pub async fn play_audio_file(app: &AppHandle, audio_url: &str) -> Result<()> {
 }
 
 async fn play_audio_from_url(app: &AppHandle, url: &str) -> Result<()> {
-    // 下载音訊檔案到临时目录
+    // 下载音訊檔案到临時目录
     let response = reqwest::get(url).await
         .map_err(|e| anyhow::anyhow!("下载音訊檔案失敗: {}", e))?;
 
@@ -181,7 +181,7 @@ fn play_audio_from_bytes_with_controller(bytes: Vec<u8>, app: &AppHandle) -> Res
     let sink = Sink::try_new(&stream_handle)
         .map_err(|e| anyhow::anyhow!("建立音訊播放器失敗: {}", e))?;
 
-    // 从字节資料解码音訊
+    // 从字節資料解码音訊
     let cursor = std::io::Cursor::new(bytes);
     let source = Decoder::new(cursor)
         .map_err(|e| anyhow::anyhow!("解码音訊資料失敗: {}", e))?;

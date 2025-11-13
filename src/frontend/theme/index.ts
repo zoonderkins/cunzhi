@@ -97,7 +97,7 @@ export function getTheme(themeName: string): GlobalTheme {
 export function applyThemeVariables(themeName: string) {
   const root = document.documentElement
 
-  // 确定实际主題（移除system模式，預設dark）
+  // 确定實際主題（移除system模式，預設dark）
   const effectiveTheme = themeName === 'light' ? 'light' : 'dark'
 
   const colors = themeColors[effectiveTheme as keyof typeof themeColors]
@@ -108,7 +108,7 @@ export function applyThemeVariables(themeName: string) {
     return
   }
 
-  // 設定语义化 CSS 變數 - 用于 UnoCSS
+  // 設定语義化 CSS 變數 - 用于 UnoCSS
   root.style.setProperty('--color-surface', colors.surface)
   root.style.setProperty('--color-surface-50', colors.surface50)
   root.style.setProperty('--color-surface-100', colors.surface100)
@@ -123,7 +123,7 @@ export function applyThemeVariables(themeName: string) {
   root.style.setProperty('--color-surface-950', colors.surface950)
   root.style.setProperty('--color-on-surface', colors.onSurface)
 
-  // 設定其他语义化變數
+  // 設定其他语義化變數
   root.style.setProperty('--color-on-surface-secondary', colors.onSurfaceSecondary)
   root.style.setProperty('--color-on-surface-muted', colors.onSurfaceMuted)
   root.style.setProperty('--color-container', colors.container)
@@ -134,7 +134,7 @@ export function applyThemeVariables(themeName: string) {
   root.style.setProperty('--body-color', colors.surface)
   root.style.setProperty('--text-color', colors.onSurface)
 
-  // 強制設定主題类 - 确保根节点类名正确
+  // 強制設定主題類 - 确保根節点類名正确
   root.classList.remove('light', 'dark')
   root.classList.add(effectiveTheme)
   root.setAttribute('data-theme', effectiveTheme)

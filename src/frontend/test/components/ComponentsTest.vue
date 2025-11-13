@@ -239,12 +239,12 @@ const features = [
 
           <n-card size="small">
             <n-space vertical>
-              <div><strong>当前主題:</strong> {{ currentTheme }}</div>
-              <div><strong>置顶狀態:</strong> {{ alwaysOnTop ? '启用' : '禁用' }}</div>
-              <div><strong>音訊通知:</strong> {{ audioNotificationEnabled ? '启用' : '禁用' }}</div>
+              <div><strong>當前主題:</strong> {{ currentTheme }}</div>
+              <div><strong>置顶狀態:</strong> {{ alwaysOnTop ? '啟用' : '禁用' }}</div>
+              <div><strong>音訊通知:</strong> {{ audioNotificationEnabled ? '啟用' : '禁用' }}</div>
               <div><strong>音訊URL:</strong> {{ audioUrl || '(預設)' }}</div>
               <div><strong>輸入值:</strong> {{ inputValue || '(空)' }}</div>
-              <div><strong>开关狀態:</strong> {{ switchValue ? '开启' : '關閉' }}</div>
+              <div><strong>开关狀態:</strong> {{ switchValue ? '开啟' : '關閉' }}</div>
               <div><strong>复选框:</strong> {{ checkboxValue ? '选中' : '未选中' }}</div>
               <div><strong>标签列表:</strong> {{ selectedTags.join(', ') || '(无)' }}</div>
             </n-space>

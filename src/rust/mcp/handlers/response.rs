@@ -3,7 +3,7 @@ use rmcp::{ErrorData as McpError, model::Content};
 
 use crate::mcp::types::{McpResponse, McpResponseContent};
 
-/// 解析 MCP 响应内容
+/// 解析 MCP 回應內容
 ///
 /// 支持新的结构化格式和旧格式的相容性，并生成适当的 Content 物件
 pub fn parse_mcp_response(response: &str) -> Result<Vec<Content>, McpError> {
@@ -11,7 +11,7 @@ pub fn parse_mcp_response(response: &str) -> Result<Vec<Content>, McpError> {
         return Ok(vec![Content::text("用户取消了操作".to_string())]);
     }
 
-    // 首先尝试解析为新的结构化格式
+    // 首先嘗試解析为新的结构化格式
     if let Ok(structured_response) = serde_json::from_str::<McpResponse>(response) {
         return parse_structured_response(structured_response);
     }
@@ -22,7 +22,7 @@ pub fn parse_mcp_response(response: &str) -> Result<Vec<Content>, McpError> {
             let mut result = Vec::new();
             let mut image_count = 0;
 
-            // 分别收集用户文本和图片訊息
+            // 分別收集用户文本和图片訊息
             let mut user_text_parts = Vec::new();
             let mut image_info_parts = Vec::new();
 
@@ -76,7 +76,7 @@ pub fn parse_mcp_response(response: &str) -> Result<Vec<Content>, McpError> {
                 }
             }
 
-            // 建構文本内容：用户文本 + 图片訊息 + 注意事项
+            // 建構文本內容：用户文本 + 图片訊息 + 注意事项
             let mut all_text_parts = Vec::new();
 
             // 1. 用户輸入的文本
@@ -92,19 +92,19 @@ pub fn parse_mcp_response(response: &str) -> Result<Vec<Content>, McpError> {
             // 3. 相容性说明
             if image_count > 0 {
                 all_text_parts.push(format!(
-                    "💡 注意：用户提供了 {} 张图片。如果 AI 助手无法显示图片，图片資料已包含在上述 Base64 訊息中。",
+                    "💡 注意：用户提供了 {} 张图片。如果 AI 助手無法顯示图片，图片資料已包含在上述 Base64 訊息中。",
                     image_count
                 ));
             }
 
-            // 将所有文本内容合并并新增到结果末尾（图片后面）
+            // 将所有文本內容合并并新增到结果末尾（图片后面）
             if !all_text_parts.is_empty() {
                 let combined_text = all_text_parts.join("\n\n");
                 result.push(Content::text(combined_text));
             }
 
             if result.is_empty() {
-                result.push(Content::text("用户未提供任何内容".to_string()));
+                result.push(Content::text("用户未提供任何內容".to_string()));
             }
 
             Ok(result)
@@ -116,7 +116,7 @@ pub fn parse_mcp_response(response: &str) -> Result<Vec<Content>, McpError> {
     }
 }
 
-/// 解析新的结构化响应格式
+/// 解析新的结构化回應格式
 fn parse_structured_response(response: McpResponse) -> Result<Vec<Content>, McpError> {
     let mut result = Vec::new();
     let mut text_parts = Vec::new();
@@ -168,27 +168,27 @@ fn parse_structured_response(response: McpResponse) -> Result<Vec<Content>, McpE
         image_info_parts.push(image_info);
     }
 
-    // 4. 合并所有文本内容
+    // 4. 合并所有文本內容
     let mut all_text_parts = text_parts;
     all_text_parts.extend(image_info_parts);
 
     // 5. 新增相容性说明
     if !response.images.is_empty() {
         all_text_parts.push(format!(
-            "💡 注意：用户提供了 {} 张图片。如果 AI 助手无法显示图片，图片資料已包含在上述 Base64 訊息中。",
+            "💡 注意：用户提供了 {} 张图片。如果 AI 助手無法顯示图片，图片資料已包含在上述 Base64 訊息中。",
             response.images.len()
         ));
     }
 
-    // 6. 将文本内容新增到结果中（图片后面）
+    // 6. 将文本內容新增到结果中（图片后面）
     if !all_text_parts.is_empty() {
         let combined_text = all_text_parts.join("\n\n");
         result.push(Content::text(combined_text));
     }
 
-    // 7. 如果没有任何内容，新增預設响应
+    // 7. 如果没有任何內容，新增預設回應
     if result.is_empty() {
-        result.push(Content::text("用户未提供任何内容".to_string()));
+        result.push(Content::text("用户未提供任何內容".to_string()));
     }
 
     Ok(result)

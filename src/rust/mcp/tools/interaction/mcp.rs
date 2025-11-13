@@ -7,7 +7,7 @@ use crate::mcp::utils::{generate_request_id, popup_error};
 
 /// 智能代码审查交互工具
 ///
-/// 支持预定义選項、自由文本輸入和图片上传
+/// 支持预定義選項、自由文本輸入和图片上传
 #[derive(Clone)]
 pub struct InteractionTool;
 
@@ -28,7 +28,7 @@ impl InteractionTool {
 
         match create_tauri_popup(&popup_request) {
             Ok(response) => {
-                // 解析响应内容，支持文本和图片
+                // 解析回應內容，支持文本和图片
                 let content = parse_mcp_response(&response)?;
                 Ok(CallToolResult::success(content))
             }

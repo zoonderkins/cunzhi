@@ -68,7 +68,7 @@ app.use(naive)
 // 挂载應用
 app.mount('#app')
 
-// 模拟 Tauri API 用于測試环境
+// 模拟 Tauri API 用于測試環境
 if (!window.__TAURI__) {
   window.__TAURI__ = {
     core: {
@@ -79,7 +79,7 @@ if (!window.__TAURI__) {
           return { theme: 'dark' }
         }
         if (command === 'get_reply_config') {
-          return { continue_prompt: '请按照最佳实践繼續' }
+          return { continue_prompt: '請按照最佳實務繼續' }
         }
         return {}
       },

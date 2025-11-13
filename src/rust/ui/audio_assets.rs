@@ -40,14 +40,14 @@ impl AudioAssetManager {
             return Ok(());
         }
 
-        // 回退到檔案系統載入（开发环境）
-        eprintln!("⚠️ 内嵌资源載入失敗，尝试从开发环境檔案系統載入...");
+        // 回退到檔案系統載入（开发環境）
+        eprintln!("⚠️ 内嵌资源載入失敗，嘗試从开发環境檔案系統載入...");
         self.scan_audio_directory(app)
     }
 
     /// 載入内嵌音訊资源
     fn load_embedded_audio(&mut self) -> Result<()> {
-        // 动态扫描所有内嵌的音訊檔案
+        // 動態扫描所有内嵌的音訊檔案
         for file_path in EmbeddedAudio::iter() {
             let filename = file_path.as_ref();
             if self.is_audio_file(filename) {
@@ -57,7 +57,7 @@ impl AudioAssetManager {
         }
 
         if self.assets.is_empty() {
-            return Err(anyhow::anyhow!("没有找到任何内嵌音訊资源。请确保 src/rust/assets/resources/ 目录中包含音訊檔案。"));
+            return Err(anyhow::anyhow!("没有找到任何内嵌音訊资源。請确保 src/rust/assets/resources/ 目录中包含音訊檔案。"));
         }
 
         Ok(())
@@ -65,15 +65,15 @@ impl AudioAssetManager {
 
 
 
-    /// 扫描音訊目录（仅开发环境使用）
+    /// 扫描音訊目录（僅开发環境使用）
     fn scan_audio_directory(&mut self, _app: &AppHandle) -> Result<()> {
-        // 仅在开发环境扫描檔案系統
+        // 僅在开发環境扫描檔案系統
         let sounds_dir = std::env::current_dir()
             .unwrap_or_default()
             .join("src/rust/assets/resources");
 
         if !sounds_dir.exists() {
-            return Err(anyhow::anyhow!("开发环境音訊目录不存在: {:?}", sounds_dir));
+            return Err(anyhow::anyhow!("开发環境音訊目录不存在: {:?}", sounds_dir));
         }
 
         let entries = fs::read_dir(&sounds_dir)
@@ -181,7 +181,7 @@ impl AudioAssetManager {
             .ok_or_else(|| anyhow::anyhow!("未找到音訊资源: {}", asset_id))?;
 
         let config_dir = app.path().app_config_dir()
-            .map_err(|e| anyhow::anyhow!("无法獲取應用設定目录: {}", e))?;
+            .map_err(|e| anyhow::anyhow!("無法獲取應用設定目录: {}", e))?;
 
         let sounds_dir = config_dir.join("sounds");
         let target_path = sounds_dir.join(&asset.filename);
@@ -203,7 +203,7 @@ impl AudioAssetManager {
             return Ok(target_path);
         }
 
-        // 回退到檔案系統複製（仅开发环境）
+        // 回退到檔案系統複製（僅开发環境）
         let dev_source_path = std::env::current_dir()
             .unwrap_or_default()
             .join("src/rust/assets/resources")
@@ -218,7 +218,7 @@ impl AudioAssetManager {
 
         // 如果内嵌资源和檔案系統都没有找到，傳回錯誤
         Err(anyhow::anyhow!(
-            "音訊资源 '{}' 不存在。请确保音訊檔案已正确内嵌到二进制中，或在开发环境中存在于 src/rust/assets/resources/ 目录。",
+            "音訊资源 '{}' 不存在。請确保音訊檔案已正确内嵌到二进制中，或在开发環境中存在于 src/rust/assets/resources/ 目录。",
             asset_id
         ))
     }
@@ -247,7 +247,7 @@ impl AudioAssetManager {
             return Ok(AudioSource::Asset(audio_url.to_string()));
         }
 
-        // 尝试通过檔案名匹配（去掉擴充名）
+        // 嘗試透過檔案名匹配（去掉擴充名）
         let filename_without_ext = audio_url.split('.').next().unwrap_or(audio_url);
         if self.assets.contains_key(filename_without_ext) {
             return Ok(AudioSource::Asset(filename_without_ext.to_string()));

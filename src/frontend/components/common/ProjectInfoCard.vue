@@ -6,7 +6,7 @@ import { useVersionCheck } from '../../composables/useVersionCheck'
 const message = useMessage()
 const { versionInfo, manualCheckUpdate, safeOpenUrl, lastCheckTime, isChecking, getVersionInfo } = useVersionCheck()
 
-// 格式化最后檢查时间
+// 格式化最后檢查時间
 const formattedLastCheckTime = computed(() => {
   return lastCheckTime.value ? lastCheckTime.value.toLocaleString('zh-CN') : ''
 })
@@ -18,7 +18,7 @@ async function openGitHub() {
     message.success('正在開啟GitHub页面...')
   }
   catch (error) {
-    const errorMsg = error instanceof Error ? error.message : '開啟GitHub失敗，请手動访问'
+    const errorMsg = error instanceof Error ? error.message : '開啟GitHub失敗，請手動访问'
     if (errorMsg.includes('已複製到剪贴板')) {
       message.warning(errorMsg)
     }
@@ -35,7 +35,7 @@ async function openGitHubStars() {
     message.success('正在開啟Star页面...')
   }
   catch (error) {
-    const errorMsg = error instanceof Error ? error.message : '開啟Star页面失敗，请手動访问'
+    const errorMsg = error instanceof Error ? error.message : '開啟Star页面失敗，請手動访问'
     if (errorMsg.includes('已複製到剪贴板')) {
       message.warning(errorMsg)
     }
@@ -53,16 +53,16 @@ async function checkVersion() {
       message.info(`发现新版本 v${info.latest}！`)
     }
     else {
-      message.success('当前已是最新版本')
+      message.success('當前已是最新版本')
     }
   }
   catch (error) {
     console.error('檢查版本失敗:', error)
-    message.error('檢查版本失敗，请稍后重试')
+    message.error('檢查版本失敗，請稍后重試')
   }
 }
 
-// 元件挂载时初始化版本訊息
+// 元件挂载時初始化版本訊息
 onMounted(async () => {
   try {
     await getVersionInfo()
@@ -78,7 +78,7 @@ onMounted(async () => {
     size="small"
     class="transition-all duration-200 hover:shadow-md"
   >
-    <!-- 主要内容区域 -->
+    <!-- 主要內容区域 -->
     <div class="flex items-center justify-between mb-2">
       <!-- 左侧：專案訊息 -->
       <div class="flex items-center gap-3">
@@ -109,7 +109,7 @@ onMounted(async () => {
           檢查更新
         </n-button>
 
-        <!-- 最后檢查时间 -->
+        <!-- 最后檢查時间 -->
         <div
           v-if="formattedLastCheckTime"
           class="text-xs text-gray-400 dark:text-gray-500"
@@ -147,7 +147,7 @@ onMounted(async () => {
 
       <!-- 弱化的提示文字 -->
       <p class="text-xs text-gray-400 dark:text-gray-500">
-        如果对您有幫助，请给我们一个 Star ⭐
+        如果对您有幫助，請给我们一个 Star ⭐
       </p>
     </div>
   </n-card>

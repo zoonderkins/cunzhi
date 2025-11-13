@@ -11,7 +11,7 @@ use regex::Regex;
 ///
 /// 處理 URL 编码、Windows 路径格式转换等问题
 pub fn decode_and_normalize_path(path: &str) -> Result<String> {
-    // 1. 先进行 URL 解码
+    // 1. 先進行 URL 解码
     let decoded = decode_url_path(path);
 
     // 2. 规范化路径格式
@@ -24,7 +24,7 @@ pub fn decode_and_normalize_path(path: &str) -> Result<String> {
 ///
 /// 在 Windows 下，路径中的冒号可能会被编码为 %3A，需要先解码
 fn decode_url_path(path: &str) -> String {
-    // 使用 percent_encoding 函式庫进行 URL 解码
+    // 使用 percent_encoding 函式庫進行 URL 解码
     match percent_encoding::percent_decode_str(path).decode_utf8() {
         Ok(decoded) => decoded.to_string(),
         Err(_) => {
@@ -81,7 +81,7 @@ fn is_windows_absolute_path(path: &str) -> bool {
 
 /// 驗證專案路径是否存在
 pub fn validate_project_path(path: &str) -> Result<()> {
-    // 先对路径进行解码和规范化
+    // 先对路径進行解码和规范化
     let normalized_path = decode_and_normalize_path(path)?;
 
     // 驗證路径格式
@@ -119,7 +119,7 @@ fn validate_path_format(path: &str) -> Result<()> {
     Ok(())
 }
 
-/// 生成唯一的请求 ID
+/// 生成唯一的請求 ID
 pub fn generate_request_id() -> String {
     uuid::Uuid::new_v4().to_string()
 }

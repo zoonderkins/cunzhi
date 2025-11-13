@@ -12,11 +12,11 @@ const props = withDefaults(defineProps<Props>(), {
 
 const emit = defineEmits<Emits>()
 
-// 预處理引用内容，移除增强prompt格式标记
+// 预處理引用內容，移除增强prompt格式标记
 function preprocessQuoteContent(content: string): string {
   let processedContent = content
 
-  // 定义需要移除的格式标记
+  // 定義需要移除的格式标记
   const markersToRemove = [
     /### BEGIN RESPONSE ###\s*/gi,
     /Here is an enhanced version of the original instruction that is more specific and clear:\s*/gi,
@@ -38,18 +38,18 @@ function preprocessQuoteContent(content: string): string {
   return processedContent
 }
 
-// 引用消息内容
+// 引用消息內容
 function quoteMessage() {
   if (props.request?.message) {
-    // 预處理内容，移除增强prompt格式标记
+    // 预處理內容，移除增强prompt格式标记
     const processedContent = preprocessQuoteContent(props.request.message)
     emit('quoteMessage', processedContent)
   }
 }
 
-// 动态匯入代码高亮样式，根据主題切换
+// 動態匯入代码高亮样式，根据主題切换
 
-// 动态載入代码高亮样式
+// 動態載入代码高亮样式
 function loadHighlightStyle(theme: string) {
   // 移除现有的highlight.js样式
   const existingStyle = document.querySelector('link[data-highlight-theme]')
@@ -60,7 +60,7 @@ function loadHighlightStyle(theme: string) {
   // 根据主題選擇样式
   const styleName = theme === 'light' ? 'github' : 'github-dark'
 
-  // 动态建立样式連結
+  // 動態建立样式連結
   const link = document.createElement('link')
   link.rel = 'stylesheet'
   link.href = `https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/${styleName}.min.css`
@@ -102,7 +102,7 @@ const md = new MarkdownIt({
   },
 })
 
-// 自訂連結渲染器 - 移除外链的点击功能，保持视觉样式
+// 自訂連結渲染器 - 移除外链的点击功能，保持視觉样式
 md.renderer.rules.link_open = function (tokens, idx, options, env, renderer) {
   const token = tokens[idx]
   const href = token.attrGet('href')
@@ -220,7 +220,7 @@ function createCopyButton(preEl: Element) {
   preElement.style.position = 'relative'
   preElement.style.zIndex = '1'
 
-  // 按钮始终显示，不需要悬停事件
+  // 按钮始终顯示，不需要悬停事件
 
   preElement.appendChild(copyButton)
 }
@@ -248,7 +248,7 @@ function setupCodeCopy() {
     clearTimeout(setupCodeCopyTimer)
   }
 
-  // 增加延迟时间，确保DOM完全渲染
+  // 增加延迟時间，确保DOM完全渲染
   setupCodeCopyTimer = window.setTimeout(() => {
     nextTick(() => {
       // 确保選擇正确的 pre 元素
@@ -259,11 +259,11 @@ function setupCodeCopy() {
       })
       setupInlineCodeCopy()
 
-      // 如果没有找到代码块，再次尝试
+      // 如果没有找到代码块，再次嘗試
       if (preElements.length === 0) {
         setTimeout(() => {
           const retryElements = document.querySelectorAll('.markdown-content pre')
-          console.log('重试設定代码複製按钮，找到', retryElements.length, '个代码块')
+          console.log('重試設定代码複製按钮，找到', retryElements.length, '个代码块')
           retryElements.forEach((preEl) => {
             createCopyButton(preEl)
           })
@@ -273,14 +273,14 @@ function setupCodeCopy() {
   }, 300)
 }
 
-// 監聽request变化，重新設定代码複製
+// 監聽request變化，重新設定代码複製
 watch(() => props.request, () => {
   if (props.request) {
     setupCodeCopy()
   }
 }, { deep: true })
 
-// 監聽loading狀態变化
+// 監聽loading狀態變化
 watch(() => props.loading, (newLoading) => {
   if (!newLoading && props.request) {
     setupCodeCopy()
@@ -295,12 +295,12 @@ onMounted(() => {
   }
 })
 
-// 監聽主題变化
+// 監聽主題變化
 watch(() => props.currentTheme, (newTheme) => {
   loadHighlightStyle(newTheme)
 }, { immediate: false })
 
-// 在DOM更新后也尝试設定
+// 在DOM更新后也嘗試設定
 onUpdated(() => {
   if (props.request && !props.loading) {
     setupCodeCopy()
@@ -318,9 +318,9 @@ onUpdated(() => {
       </p>
     </div>
 
-    <!-- 消息显示区域 -->
+    <!-- 消息顯示区域 -->
     <div v-else-if="request?.message" class="relative">
-      <!-- 主要内容 -->
+      <!-- 主要內容 -->
       <div
         v-if="request.is_markdown"
         class="markdown-content prose prose-sm max-w-none prose-headings:font-semibold prose-headings:leading-tight prose-h1:!mt-4 prose-h1:!mb-2 prose-h1:!text-lg prose-h1:!font-bold prose-h1:!leading-tight prose-h2:!mt-3 prose-h2:!mb-1.5 prose-h2:!text-base prose-h2:!font-semibold prose-h2:!leading-tight prose-h3:!mt-2.5 prose-h3:!mb-1 prose-h3:!text-sm prose-h3:!font-medium prose-h3:!leading-tight prose-h4:!mt-2 prose-h4:!mb-1 prose-h4:!text-sm prose-h4:!font-medium prose-h4:!leading-tight prose-p:my-1 prose-p:leading-relaxed prose-p:text-sm prose-ul:my-1 prose-ul:text-sm prose-ul:pl-4 prose-ol:my-1 prose-ol:text-sm prose-ol:pl-4 prose-li:my-1 prose-li:text-sm prose-li:leading-relaxed prose-blockquote:my-2 prose-blockquote:text-sm prose-blockquote:pl-4 prose-blockquote:ml-0 prose-blockquote:italic prose-blockquote:border-l-4 prose-blockquote:border-primary-500 prose-pre:relative prose-pre:border prose-pre:rounded-lg prose-pre:p-4 prose-pre:my-3 prose-pre:overflow-x-auto scrollbar-code prose-code:px-1 prose-code:py-0.5 prose-code:text-xs prose-code:cursor-pointer prose-code:font-mono prose-a:text-primary-500 prose-a:no-underline prose-a:cursor-default [&_a[onclick='return false;']]:opacity-60 [&_a[onclick='return false;']]:cursor-not-allowed" :class="[
@@ -342,7 +342,7 @@ onUpdated(() => {
       <!-- 引用原文按钮 - 位于右下角 -->
       <div class="flex justify-end mt-4 pt-3 border-t border-gray-600/30" data-guide="quote-message">
         <div
-          title="点击将AI的消息内容引用到輸入框中"
+          title="点击将AI的消息內容引用到輸入框中"
           class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium bg-blue-500/20 hover:bg-blue-500/30 text-white rounded-md transition-all duration-200 cursor-pointer border border-blue-500/50 hover:border-blue-500/70 shadow-sm hover:shadow-md"
           @click="quoteMessage"
         >
