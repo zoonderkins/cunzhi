@@ -3,12 +3,12 @@ use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Deserialize, schemars::JsonSchema)]
 pub struct ZhiRequest {
-    #[schemars(description = "要顯示给用户的消息")]
+    #[schemars(description = "要顯示給使用者的訊息")]
     pub message: String,
-    #[schemars(description = "预定義的選項列表（可选）")]
+    #[schemars(description = "預定義的選項列表（可選）")]
     #[serde(default)]
     pub predefined_options: Vec<String>,
-    #[schemars(description = "消息是否为Markdown格式，預設为true")]
+    #[schemars(description = "訊息是否為Markdown格式，預設為true")]
     #[serde(default = "default_is_markdown")]
     pub is_markdown: bool,
 }
@@ -19,15 +19,15 @@ fn default_is_markdown() -> bool {
 
 #[derive(Debug, Deserialize, schemars::JsonSchema)]
 pub struct JiyiRequest {
-    #[schemars(description = "操作類型：記憶(新增記憶), 回忆(獲取專案訊息)")]
+    #[schemars(description = "操作類型：記憶(新增記憶), 回憶(獲取專案訊息)")]
     pub action: String,
-    #[schemars(description = "專案路径（必需）")]
+    #[schemars(description = "專案路徑（必需）")]
     pub project_path: String,
     #[schemars(description = "記憶內容（記憶操作時必需）")]
     #[serde(default)]
     pub content: String,
     #[schemars(
-        description = "記憶分類：rule(规范规则), preference(用户偏好), pattern(最佳實務), context(專案上下文)"
+        description = "記憶分類：rule(規範規則), preference(使用者偏好), pattern(最佳實務), context(專案上下文)"
     )]
     #[serde(default = "default_category")]
     pub category: String,
@@ -68,7 +68,7 @@ pub struct ResponseMetadata {
     pub source: Option<String>,
 }
 
-/// 旧格式相容性支持
+/// 舊格式相容性支援
 #[derive(Debug, Deserialize)]
 pub struct McpResponseContent {
     #[serde(rename = "type")]
@@ -87,7 +87,7 @@ pub struct ImageSource {
 
 /// 統一的回應建構函數
 ///
-/// 用于生成標準的JSON回應格式，确保无GUI和有GUI模式輸出一致
+/// 用於生成標準的JSON回應格式，確保無GUI和有GUI模式輸出一致
 pub fn build_mcp_response(
     user_input: Option<String>,
     selected_options: Vec<String>,

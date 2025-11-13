@@ -27,7 +27,7 @@ pub async fn get_mcp_tools_config(state: State<'_, AppState>) -> Result<Vec<MCPT
         MCPToolConfig {
             id: mcp::TOOL_ZHI.to_string(),
             name: "寸止".to_string(),
-            description: "智能代码审查交互工具，支持预定義選項、自由文本輸入和图片上传".to_string(),
+            description: "智慧程式碼審查互動工具，支援預定義選項、自由文字輸入和圖片上傳".to_string(),
             enabled: config.mcp_config.tools.get(mcp::TOOL_ZHI).copied().unwrap_or(true),
             can_disable: false, // 寸止工具是必需的
             icon: "i-carbon-chat".to_string(),
@@ -37,7 +37,7 @@ pub async fn get_mcp_tools_config(state: State<'_, AppState>) -> Result<Vec<MCPT
         MCPToolConfig {
             id: mcp::TOOL_JI.to_string(),
             name: "記憶管理".to_string(),
-            description: "全局記憶管理工具，用于存储和管理重要的开发规范、用户偏好和最佳實務".to_string(),
+            description: "全域記憶管理工具，用於儲存和管理重要的開發規範、使用者偏好和最佳實務".to_string(),
             enabled: config.mcp_config.tools.get(mcp::TOOL_JI).copied().unwrap_or(true),
             can_disable: true,
             icon: "i-carbon-data-base".to_string(),

@@ -67,7 +67,7 @@ impl ServerHandler for ZhiServer {
                 website_url: Some("https://github.com/zoonderkins/cunzhi".to_string()),
                 icons: None,
             },
-            instructions: Some("Zhi 智慧程式碼審查工具，支持交互式對話和記憶管理".to_string()),
+            instructions: Some("Zhi 智慧程式碼審查工具，支援互動式對話和記憶管理\n\n可用工具：\n- zhi: 互動式審查工具，支援預定義選項、自由輸入和圖片上傳\n- ji: 記憶管理工具（可選），用於儲存專案規範和偏好\n\n常見回應選項：confirm（確認）、reject（拒絕）、discuss（討論）等".to_string()),
         }
     }
 
@@ -95,16 +95,16 @@ impl ServerHandler for ZhiServer {
             "properties": {
                 "message": {
                     "type": "string",
-                    "description": "要顯示给用户的消息"
+                    "description": "要顯示給使用者的訊息"
                 },
                 "predefined_options": {
                     "type": "array",
                     "items": {"type": "string"},
-                    "description": "预定義的選項列表（可选）"
+                    "description": "預定義的選項列表（可選）"
                 },
                 "is_markdown": {
                     "type": "boolean",
-                    "description": "消息是否为Markdown格式，預設为true"
+                    "description": "訊息是否為Markdown格式，預設為true"
                 }
             },
             "required": ["message"]
@@ -114,7 +114,7 @@ impl ServerHandler for ZhiServer {
             tools.push(Tool {
                 name: Cow::Borrowed("zhi"),
                 title: Some("寸止互動工具".to_string()),
-                description: Some(Cow::Borrowed("智能代码审查交互工具，支持预定義選項、自由文本輸入和图片上传")),
+                description: Some(Cow::Borrowed("智慧程式碼審查互動工具，支援預定義選項、自由文字輸入和圖片上傳")),
                 input_schema: Arc::new(schema_map),
                 output_schema: None,
                 icons: None,
@@ -129,11 +129,11 @@ impl ServerHandler for ZhiServer {
                 "properties": {
                     "action": {
                         "type": "string",
-                        "description": "操作類型：記憶(新增記憶), 回忆(獲取專案訊息)"
+                        "description": "操作類型：記憶(新增記憶), 回憶(獲取專案訊息)"
                     },
                     "project_path": {
                         "type": "string",
-                        "description": "專案路径（必需）"
+                        "description": "專案路徑（必需）"
                     },
                     "content": {
                         "type": "string",
@@ -141,7 +141,7 @@ impl ServerHandler for ZhiServer {
                     },
                     "category": {
                         "type": "string",
-                        "description": "記憶分類：rule(规范规则), preference(用户偏好), pattern(最佳實務), context(專案上下文)"
+                        "description": "記憶分類：rule(規範規則), preference(使用者偏好), pattern(最佳實務), context(專案上下文)"
                     }
                 },
                 "required": ["action", "project_path"]
@@ -151,7 +151,7 @@ impl ServerHandler for ZhiServer {
                 tools.push(Tool {
                     name: Cow::Borrowed("ji"),
                     title: Some("記憶管理工具".to_string()),
-                    description: Some(Cow::Borrowed("全局記憶管理工具，用于存储和管理重要的开发规范、用户偏好和最佳實務")),
+                    description: Some(Cow::Borrowed("全域記憶管理工具，用於儲存和管理重要的開發規範、使用者偏好和最佳實務")),
                     input_schema: Arc::new(schema_map),
                     output_schema: None,
                     icons: None,
@@ -160,7 +160,7 @@ impl ServerHandler for ZhiServer {
             }
         }
 
-        log_debug!("傳回给客户端的工具列表: {:?}", tools.iter().map(|t| &t.name).collect::<Vec<_>>());
+        log_debug!("傳回給客戶端的工具列表: {:?}", tools.iter().map(|t| &t.name).collect::<Vec<_>>());
 
         Ok(ListToolsResult {
             tools,

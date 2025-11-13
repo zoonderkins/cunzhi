@@ -1,15 +1,15 @@
-// MCP 工具相关常量
+// MCP 工具相關常量
 
-/// 寸止工具标识符
+/// 寸止工具標識符
 pub const TOOL_ZHI: &str = "zhi";
 
-/// 記憶管理工具标识符
+/// 記憶管理工具標識符
 pub const TOOL_JI: &str = "ji";
 
 /// 預設啟用的工具列表
 pub const DEFAULT_ENABLED_TOOLS: &[&str] = &[TOOL_ZHI, TOOL_JI];
 
-/// 繼續回复預設啟用狀態
+/// 繼續回覆預設啟用狀態
 pub const DEFAULT_CONTINUE_REPLY_ENABLED: bool = true;
 
 /// 預設自動繼續閾值
@@ -18,13 +18,13 @@ pub const DEFAULT_AUTO_CONTINUE_THRESHOLD: u32 = 1000;
 /// 預設繼續提示詞
 pub const DEFAULT_CONTINUE_PROMPT: &str = "請按照最佳實務繼續";
 
-/// MCP 請求超時時间 (ms)
+/// MCP 請求超時時間 (ms)
 pub const REQUEST_TIMEOUT_MS: u64 = 30000;
 
-/// MCP 重試次数
+/// MCP 重試次數
 pub const MAX_RETRY_COUNT: u32 = 3;
 
-// MCP 工具設定结构体
+// MCP 工具設定結構體
 #[derive(Debug, Clone)]
 pub struct McpToolConfig {
     pub tool_id: String,
@@ -42,7 +42,7 @@ impl McpToolConfig {
     }
 }
 
-// MCP 設定结构体
+// MCP 設定結構體
 #[derive(Debug, Clone)]
 pub struct McpConfig {
     pub tools: Vec<McpToolConfig>,
@@ -93,7 +93,7 @@ impl McpConfig {
         false
     }
 
-    /// 转换为 JSON 格式
+    /// 轉換為 JSON 格式
     pub fn to_json(&self) -> serde_json::Value {
         serde_json::json!({
             "tools": self.tools.iter().map(|tool| {
@@ -118,7 +118,7 @@ pub fn get_default_mcp_config() -> McpConfig {
     McpConfig::default()
 }
 
-/// 檢查是否为有效的工具 ID
+/// 檢查是否為有效的工具 ID
 pub fn is_valid_tool_id(tool_id: &str) -> bool {
     matches!(tool_id, TOOL_ZHI | TOOL_JI)
 }

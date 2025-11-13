@@ -10,11 +10,11 @@ const { mcpTools, loading: mcpLoading, loadMcpTools, enabledTools } = useMcpTool
 // i18n
 const { t } = useI18n()
 
-// 根据MCP工具狀態動態生成提示詞
+// 根據MCP工具狀態動態生成提示詞
 const promptContent = computed(() => {
-  // 将后端資料格式转换为前端格式
+  // 將後端資料格式轉換為前端格式
   const frontendTools = mcpTools.value.map(tool => ({
-    id: tool.id === 'ji' ? 'memory' : tool.id, // 后端用ji，前端用memory
+    id: tool.id === 'ji' ? 'memory' : tool.id, // 後端用ji，前端用memory
     name: tool.name,
     description: tool.description,
     enabled: tool.enabled,
@@ -47,7 +47,7 @@ async function copyPromptContent() {
   }
 }
 
-// 元件挂载時載入MCP工具設定
+// 元件掛載時載入MCP工具設定
 onMounted(async () => {
   if (mcpTools.value.length === 0) {
     try {
@@ -68,7 +68,7 @@ onMounted(async () => {
     >
       <!-- 參考提示詞卡片 -->
       <n-card size="small">
-        <!-- 卡片头部 -->
+        <!-- 卡片頭部 -->
         <template #header>
           <n-space
             align="center"
@@ -91,7 +91,7 @@ onMounted(async () => {
               </div>
             </n-space>
 
-            <!-- 複製按钮 -->
+            <!-- 複製按鈕 -->
             <n-button
               type="primary"
               size="small"
@@ -105,7 +105,7 @@ onMounted(async () => {
           </n-space>
         </template>
 
-        <!-- 工具狀態说明 -->
+        <!-- 工具狀態說明 -->
         <div class="flex items-center text-sm leading-relaxed mb-4">
           <div
             class="w-1.5 h-1.5 rounded-full mr-3 flex-shrink-0"
@@ -116,8 +116,8 @@ onMounted(async () => {
               正在載入MCP工具設定...
             </template>
             <template v-else>
-              當前已啟用 {{ enabledTools.length }} / {{ mcpTools.length }} 个MCP工具，
-              可在"MCP工具"页面管理工具开关
+              當前已啟用 {{ enabledTools.length }} / {{ mcpTools.length }} 個MCP工具，
+              可在「MCP工具」頁面管理工具開關
             </template>
           </span>
         </div>
@@ -157,7 +157,7 @@ onMounted(async () => {
           />
         </div>
 
-        <!-- 內容区域 -->
+        <!-- 內容區域 -->
         <n-card embedded>
           <div class="text-sm font-mono leading-relaxed">
             <pre class="whitespace-pre-wrap my-0 opacity-90">{{ promptContent }}</pre>
@@ -165,11 +165,11 @@ onMounted(async () => {
         </n-card>
       </n-card>
 
-      <!-- 使用说明卡片 -->
+      <!-- 使用說明卡片 -->
       <n-card size="small">
         <template #header>
           <n-space align="center">
-            <!-- 图标 -->
+            <!-- 圖示 -->
             <div class="w-10 h-10 rounded-lg bg-blue-100 dark:bg-blue-900 flex items-center justify-center">
               <div class="i-carbon-information text-lg text-blue-600 dark:text-blue-400" />
             </div>
@@ -177,7 +177,7 @@ onMounted(async () => {
             <!-- 標題訊息 -->
             <div>
               <div class="text-lg font-medium mb-1 tracking-tight">
-                使用说明
+                使用說明
               </div>
               <div class="text-sm opacity-60 font-normal">
                 如何使用和設定提示詞
@@ -192,15 +192,15 @@ onMounted(async () => {
         >
           <div class="flex items-center text-sm leading-relaxed">
             <div class="w-1.5 h-1.5 bg-green-500 rounded-full mr-3 flex-shrink-0" />
-            <span class="opacity-90">将此提示詞新增到您的AI助手系統提示中，以获得最佳的交互体验</span>
+            <span class="opacity-90">將此提示詞新增到您的AI助手系統提示中，以獲得最佳的互動體驗</span>
           </div>
           <div class="flex items-center text-sm leading-relaxed">
             <div class="w-1.5 h-1.5 bg-blue-500 rounded-full mr-3 flex-shrink-0" />
-            <span class="opacity-90">提示詞內容会根据"MCP工具"页面的开关設定自動更新</span>
+            <span class="opacity-90">提示詞內容會根據「MCP工具」頁面的開關設定自動更新</span>
           </div>
           <div class="flex items-center text-sm leading-relaxed">
             <div class="w-1.5 h-1.5 bg-purple-500 rounded-full mr-3 flex-shrink-0" />
-            <span class="opacity-90">關閉的工具不会包含在生成的提示詞中，对应的MCP服务也不会啟用</span>
+            <span class="opacity-90">關閉的工具不會包含在生成的提示詞中，對應的MCP服務也不會啟用</span>
           </div>
         </n-space>
       </n-card>
